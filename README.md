@@ -1,8 +1,8 @@
 # LCOM Project
 
-LCOM Project for group T&lt;n&gt;G&lt;p&gt;&lt;q&gt;.
+LCOM Project for group T1G08.
 
 Group members:
 
-1. &lt;first name&gt; &lt;family name&gt; (&lt;email address&gt;)
-2. &lt;first name&gt; &lt;family name&gt; (&lt;email address&gt;)
+1. Ângela Coelho (up201907549@fe.up.pt)
+2. Patrícia Oliveira (up201905427@fe.up.pt)
