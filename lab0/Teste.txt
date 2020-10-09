@@ -1,1 +1,0 @@
-// Teste de conexao entre local directory and working repository (push)
