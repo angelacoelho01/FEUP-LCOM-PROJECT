@@ -55,35 +55,23 @@ int (timer_get_conf)(uint8_t timer, uint8_t *st) {
 //Recebe o timer, o status e o field, as opções que passamos
 int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field field) {
 
+  union timer_status_field_val val;
+
   switch (field)
   {
   case 0:
-    //tsf_all = configuration/status
-    printf("%u\n", st);
+    val.byte = st;
     break;
-  
   case 1:
-    //tsf_initial = timer initialization mode
+    //val.in_mode = ;
     break;
-
   case 2:
-    //tsf_mode = timer counting mode 
+    //val.cout_mode = ;
     break;
-
   case 3:
-    //tsf_base = timer counting base
-
-  default:
-    break;
+    //val.bcd = ;
+    break; 
   }
-                        
-  /* To be implemented by the students */
-  //union timer_status_field_val conf;
-  //Usar um switch ou if para o field
- 
-  
-  //timer_print_config(timer, field, conf);
- // printf("%s is not yet implemented!\n", __func__);
 
-  return 1;
+  return timer_print_config(timer, field, val);
 }
