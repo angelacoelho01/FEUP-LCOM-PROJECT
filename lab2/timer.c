@@ -63,14 +63,27 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
     val.byte = st;
     break;
   case 1:
-    //val.in_mode = ;
-    break;
+    {
+      int left = 2, right = 6;
+      st = (uint8_t)(st << left) >> right;
+      val.in_mode = st;
+      break;
+    }
   case 2:
-    //val.cout_mode = ;
-    break;
+    {
+      int left = 4, right = 5;
+      st = (uint8_t)(st << left) >> right;
+      val.count_mode = st;
+      break;
+    }
   case 3:
-    //val.bcd = ;
-    break; 
+    {
+      int left = 7, right = 6;
+      st = (uint8_t)(st << left) >> right;
+      val.bcd = st;
+      break; 
+    }
+  
   }
 
   return timer_print_config(timer, field, val);
