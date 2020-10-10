@@ -31,13 +31,13 @@ int main(int argc, char *argv[]) {
 
 int(timer_test_read_config)(uint8_t timer, enum timer_status_field field) {
   /* To be implemented by the students */
-  uint8_t *st = NULL;
+  //uint8_t *st = NULL;
+  uint8_t st;
+  printf("%d\n",timer_get_conf(timer, &st));
+  printf("%u\n", st);
+  //printf("%d", timer_display_conf(timer, st, field));
 
-  printf("%d\n",timer_get_conf(timer, st));
-  printf("%d\n", *st);
-
-  //printf("%s is not yet implemented!\n", __func__);
-  return 1;
+  return 0;
 }
 
 int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
