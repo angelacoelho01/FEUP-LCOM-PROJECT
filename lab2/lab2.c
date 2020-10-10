@@ -32,15 +32,10 @@ int main(int argc, char *argv[]) {
 int(timer_test_read_config)(uint8_t timer, enum timer_status_field field) {
 
   uint8_t st;
-
-  //printf("%d\n",timer_get_conf(timer, &st));
-  //printf("%u\n", st);
- // printf("%d\n",timer_display_conf(timer, st, field));
-  timer_get_conf(timer, &st);
-  timer_display_conf(timer, st, field);
+  int result1 = timer_get_conf(timer, &st);
+  int result2 = timer_display_conf(timer, st, field);
   
-
-  return 0;
+  return (result1 | result2);
 }
 
 int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
