@@ -76,6 +76,11 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
     {
       int left = 4, right = 5;
       st_copy = (uint8_t)(st << left) >> right;
+
+      // tratar casos de x10 e x11
+      if (6 == st_copy) st_copy = 2;
+      else if (7 == st_copy) st_copy = 3;
+
       val.count_mode = st_copy;
       break;
     }
@@ -86,7 +91,6 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
       val.bcd = st_copy;
       break; 
     }
-  
   }
 
   return timer_print_config(timer, field, val);
