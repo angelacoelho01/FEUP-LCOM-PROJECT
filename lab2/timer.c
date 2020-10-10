@@ -56,6 +56,7 @@ int (timer_get_conf)(uint8_t timer, uint8_t *st) {
 int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field field) {
 
   union timer_status_field_val val;
+  uint8_t st_copy = st;
 
   switch (field)
   {
@@ -65,22 +66,22 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
   case 1:
     {
       int left = 2, right = 6;
-      st = (uint8_t)(st << left) >> right;
-      val.in_mode = st;
+      st_copy = (uint8_t)(st << left) >> right;
+      val.in_mode = st_copy;
       break;
     }
   case 2:
     {
       int left = 4, right = 5;
-      st = (uint8_t)(st << left) >> right;
-      val.count_mode = st;
+      st_copy = (uint8_t)(st << left) >> right;
+      val.count_mode = st_copy;
       break;
     }
   case 3:
     {
       int left = 7, right = 6;
-      st = (uint8_t)(st << left) >> right;
-      val.bcd = st;
+      st_copy = (uint8_t)(st << left) >> right;
+      val.bcd = st_copy;
       break; 
     }
   
