@@ -3,17 +3,30 @@
 #include <stdint.h>
 
 int(util_get_LSB)(uint16_t val, uint8_t *lsb) {
-  /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
+  
+ /* int left = 8, right = 8;
 
-  return 1;
+  uint8_t val_lsb = (val << left) >> right;
+  uint8_t test = val_lsb & val;
+
+  if(test == val_lsb)
+  {
+    *lsb = val_lsb;
+    return 0;
+  }
+
+  return 1;*/
+  return 0;
 }
 
 int(util_get_MSB)(uint16_t val, uint8_t *msb) {
-  /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
+  
+  /*int right = 8;
 
-  return 1;
+  uint8_t val_msb = val >> right;*/
+
+  
+  return 0;
 }
 
 int (util_sys_inb)(int port, uint8_t *value) {
