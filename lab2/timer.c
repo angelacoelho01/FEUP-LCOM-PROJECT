@@ -7,7 +7,42 @@
 
 int (timer_set_frequency)(uint8_t timer, uint32_t freq) 
 {
+  // obtain defined timer selection according to the chosen timer
+  uint8_t timer_sel; 
+  if(timer == 0)
+    timer_sel = TIMER_SEL0;
+  else if (timer == 1)
+    timer_sel = TIMER_SEL1;
+  else
+    timer_sel = TIMER_SEL2;
+
+  printf("first 2 bits of the control word: %d\n", timer_sel); // to test purposes
+
+  // read the input timer configuration before change it
+  uint8_t st;
+  int success = timer_get_conf(timer, &st);
+  printf("conf: %d\n", st); // to test purposes
+  // IMP: make sure to keep the 4 last digits of the st
+
+  timer_display_conf(timer, st, 3); // to test purposes
+
+  // write control word to configure the chosen timer
+  // preferably, LSB followed by MSB
+  uint8_t control_world = timer_sel | TIMER_LSB_MSB | (uint8_t)(st & 0x0F);
+  printf("new control word: %d\n", control_world); // to test porpuses
   
+  // to validate the functions while developing - to test purposes
+  uint8_t byte;
+  success = util_get_LSB(freq, &byte);
+  success = util_get_MSB(freq, &byte);
+  
+  // Next Step:
+  // loading the appropriate value into the specified timer counter
+  // Load timer’s register with the value of the divisor to
+  // generate the frequency corresponding to the desired rate
+  // interpretacao: defineFreq / appropriateValue = desireFreq
+
+  return 1;
 }
 
 int (timer_subscribe_int)(uint8_t *bit_no) {

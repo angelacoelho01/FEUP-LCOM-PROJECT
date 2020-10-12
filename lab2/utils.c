@@ -3,29 +3,19 @@
 #include <stdint.h>
 
 int(util_get_LSB)(uint16_t val, uint8_t *lsb) {
-  
- /* int left = 8, right = 8;
+  // se new value = 1234 = 0x04D2
+  // entao LSB = 0xD2
+  // e MSB = 0x04
 
-  uint8_t val_lsb = (val << left) >> right;
-  uint8_t test = val_lsb & val;
-
-  if(test == val_lsb)
-  {
-    *lsb = val_lsb;
-    return 0;
-  }
-
-  return 1;*/
+  // get the lsb with a bitwise operation
+  (*lsb) = (uint8_t) (0x00FF & val);
+  printf("%x\n", *lsb); // to test purposes
   return 0;
 }
 
 int(util_get_MSB)(uint16_t val, uint8_t *msb) {
-  
-  /*int right = 8;
-
-  uint8_t val_msb = val >> right;*/
-
-  
+  (*msb) = (uint8_t) ((uint16_t)(0xFF00 & val) >> 8);
+  printf("%x\n", *msb); // to test purposes
   return 0;
 }
 
