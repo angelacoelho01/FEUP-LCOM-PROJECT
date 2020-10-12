@@ -32,16 +32,20 @@ int main(int argc, char *argv[]) {
 int(timer_test_read_config)(uint8_t timer, enum timer_status_field field) {
 
   uint8_t st;
-  int result1 = timer_get_conf(timer, &st);
-  int result2 = timer_display_conf(timer, st, field);
+  if (timer_get_conf(timer, &st) != OK){
+    printf("Error when calling function timer_get_conf!\n");
+    return 1;
+  }
+  if (timer_display_conf(timer, st, field) != OK){
+    printf("Error when calling function timer_display_conf!\n");
+    return 1;
+  }
   
-  return (result1 | result2);
+  return 0;
 }
 
 int(timer_test_time_base)(uint8_t timer, uint32_t freq) {
-  
    return  timer_set_frequency(timer, freq);
-
 }
 
 int(timer_test_int)(uint8_t time) {

@@ -7,42 +7,55 @@
 
 int (timer_set_frequency)(uint8_t timer, uint32_t freq) 
 {
-  // obtain defined timer selection according to the chosen timer
+  // obtain defined timer selection and port according to the chosen timer
   uint8_t timer_sel; 
-  if(timer == 0)
+  uint8_t port; 
+  if(timer == 0){
     timer_sel = TIMER_SEL0;
-  else if (timer == 1)
+    port = TIMER_0;
+  } else if (timer == 1){
     timer_sel = TIMER_SEL1;
-  else
+    port = TIMER_1; 
+  } else{
     timer_sel = TIMER_SEL2;
-
-  printf("first 2 bits of the control word: %d\n", timer_sel); // to test purposes
+    port = TIMER_2;
+  }
 
   // read the input timer configuration before change it
   uint8_t st;
-  int success = timer_get_conf(timer, &st);
-  printf("conf: %d\n", st); // to test purposes
+  if (timer_get_conf(timer, &st) != OK){
+    printf("Error in function timer_get_conf!\n");
+    return 1;
+  }
   // IMP: make sure to keep the 4 last digits of the st
-
-  timer_display_conf(timer, st, 3); // to test purposes
 
   // write control word to configure the chosen timer
   // preferably, LSB followed by MSB
   uint8_t control_world = timer_sel | TIMER_LSB_MSB | (uint8_t)(st & 0x0F);
-  printf("new control word: %d\n", control_world); // to test porpuses
-  
-  // to validate the functions while developing - to test purposes
-  uint8_t byte;
-  success = util_get_LSB(freq, &byte);
-  success = util_get_MSB(freq, &byte);
-  
-  // Next Step:
-  // loading the appropriate value into the specified timer counter
+  if (sys_outb(TIMER_CTRL, control_world) != OK){
+    printf("Error in function sys_out: set controller new control word!\n");
+    return 1;
+  }
+
   // Load timer’s register with the value of the divisor to
   // generate the frequency corresponding to the desired rate
-  // interpretacao: defineFreq / appropriateValue = desireFreq
-
-  return 1;
+  uint16_t val = TIMER_FREQ / freq ; 
+  uint8_t byte;
+  // printf("value: 0x%x\n", val);
+  int success = util_get_LSB(val, &byte);
+  // printf("LSB: 0x%x\n", byte);
+  if (util_sys_inb(port, &byte) != OK){
+    printf("Error in function util_sys_inb: load timer's register with the LSB!\n");
+    return 1;
+  }
+  success = util_get_MSB(val, &byte);
+  // printf("MSB: 0x%x\n", byte);
+  if (util_sys_inb(port, &byte) != OK){
+    printf("Error in function util_sys_inb: load timer's register with the MSB!\n");
+    return 1;
+  }
+  
+  return 0;
 }
 
 int (timer_subscribe_int)(uint8_t *bit_no) {
@@ -66,23 +79,32 @@ void (timer_int_handler)() {
 
 //Constroi um read-back command
 int (timer_get_conf)(uint8_t timer, uint8_t *st) {
-  int timer_register;
   //Irá criar o read back command de acordo com o timer selcionado
   uint8_t rbcommand = TIMER_RB_CMD | TIMER_RB_COUNT_ | TIMER_RB_SEL(timer);
+  
   //Irá guardar o registo relativo ao timer selecionado
+  int timer_register;
   if(timer == 0)
     timer_register = TIMER_0;
   else if (timer == 1)
     timer_register = TIMER_1;
   else
     timer_register = TIMER_2;
-  //Escreve o read back command no registo de controlo e result1 = 0 se for bem sucedido
-  int result1 = sys_outb(TIMER_CTRL, rbcommand);
-  //Obtém o estado, para st, do timer pretendido e result2 = 0 se for bem sucedido
-  int result2 = util_sys_inb(timer_register, st);
+
+  //Escreve o read back command no registo de controlo e valor de retorno = 0 se for bem sucedido
+  if (sys_outb(TIMER_CTRL, rbcommand) != OK){
+    printf("Error when calling the function sys_outb! set controller a read back command.\n");
+    return 1;
+  }
+
+  //Obtém o estado, para st, do timer pretendido e valor de retorno = 0 se for bem sucedido
+  if (util_sys_inb(timer_register, st) != OK){
+    printf("Error when calling the function util_sys_inb!\n");
+    return 1;
+  }
   
   //Se as 2 funções anteriores forem bem sucedidas, retorna 0
-  return (result1 | result2);
+  return 0;
 }
 
 //Recebe o timer, o status e o field, as opções que passamos
@@ -126,5 +148,6 @@ int (timer_display_conf)(uint8_t timer, uint8_t st, enum timer_status_field fiel
     }
   }
 
+  // retorna 0 se bem sucedida
   return timer_print_config(timer, field, val);
 }
