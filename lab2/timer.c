@@ -29,8 +29,7 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq)
   }
   // IMP: make sure to keep the 4 last digits of the st
 
-  // write control word to configure the chosen timer
-  // preferably, LSB followed by MSB
+  // write control word to configure the chosen timer -> preferably, LSB followed by MSB
   uint8_t control_world = timer_sel | TIMER_LSB_MSB | (uint8_t)(st & 0x0F);
   if (sys_outb(TIMER_CTRL, control_world) != OK){
     printf("Error in function sys_out: set controller new control word!\n");
@@ -41,16 +40,17 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq)
   // generate the frequency corresponding to the desired rate
   uint16_t val = TIMER_FREQ / freq ; 
   uint8_t byte;
-  // printf("value: 0x%x\n", val);
+  
+  // update LSB byte in the port of the timer -> 'sys_outb'
   int success = util_get_LSB(val, &byte);
-  // printf("LSB: 0x%x\n", byte);
-  if (util_sys_inb(port, &byte) != OK){
+  if (sys_outb(port, byte) != OK){
     printf("Error in function util_sys_inb: load timer's register with the LSB!\n");
     return 1;
   }
+
+  // update MSB byte in the port of the timer -> 'sys_outb'
   success = util_get_MSB(val, &byte);
-  // printf("MSB: 0x%x\n", byte);
-  if (util_sys_inb(port, &byte) != OK){
+  if (sys_outb(port, byte) != OK){
     printf("Error in function util_sys_inb: load timer's register with the MSB!\n");
     return 1;
   }
@@ -58,23 +58,34 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq)
   return 0;
 }
 
-int (timer_subscribe_int)(uint8_t *bit_no) {
-    /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
+int hook_id = TIMER0_IRQ;
 
-  return 1;
+int (timer_subscribe_int)(uint8_t *bit_no) {
+  
+  hook_id = *bit_no; // verificar esta linha
+  if (sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id) != OK){
+    printf("ERROR !\n");
+    return 1;
+  }
+
+  return 0;
 }
 
 int (timer_unsubscribe_int)() {
-  /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
+    
+  if (sys_irqrmpolicy(&hook_id) != OK){
+    printf("ERROR in unsubcribe_int: iqrmpolicy!\n");
+    return 1;
+  }
 
-  return 1;
+  return 0;
 }
 
+extern int counter; // to use the global variable defined in lab2.c
+
 void (timer_int_handler)() {
-  /* To be implemented by the students */
-  printf("%s is not yet implemented!\n", __func__);
+  // increment a global counter variable
+  counter++;
 }
 
 //Constroi um read-back command
