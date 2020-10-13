@@ -58,11 +58,11 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq)
   return 0;
 }
 
-int hook_id = TIMER0_IRQ;
+int hook_id = TIMER0_IRQ; // inicializado com qualquer valor entre 0..7
 
 int (timer_subscribe_int)(uint8_t *bit_no) {
   
-  hook_id = *bit_no; // verificar esta linha
+  *bit_no = hook_id; 
   if (sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id) != OK){
     printf("ERROR !\n");
     return 1;

@@ -1,13 +1,9 @@
 #pragma once
 
-/** @defgroup lab2 lab2
- * @{
- *
- * Lab2's top-level functions
- */
 #include <stdint.h>
 
 #include "timer.h"
+#include "utils.h"
 
 /**
  * @brief Tests display of timer config

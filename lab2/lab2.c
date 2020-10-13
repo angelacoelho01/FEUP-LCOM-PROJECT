@@ -66,7 +66,7 @@ int(timer_test_int)(uint8_t time) {
   //void timer_print_elapsed_time()
 
   // INTERRUPT LOOP
-  /* 
+   
   int ipc_status;
   message msg;
 
@@ -95,7 +95,6 @@ int(timer_test_int)(uint8_t time) {
       }
     } 
   }
-  */
 
   if(timer_unsubscribe_int() != OK){
     printf("error in %s : timer unsubscribe!\n", __func__);
