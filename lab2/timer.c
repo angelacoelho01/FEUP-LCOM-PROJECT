@@ -64,7 +64,7 @@ int (timer_subscribe_int)(uint8_t *bit_no) {
   
   *bit_no = hook_id; 
   if (sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &hook_id) != OK){
-    printf("ERROR !\n");
+    printf("ERROR in subcribe_int: sys_irqsetpolicy!!\n");
     return 1;
   }
 
@@ -81,7 +81,7 @@ int (timer_unsubscribe_int)() {
   return 0;
 }
 
-extern int counter; // to use the global variable defined in lab2.c
+unsigned long counter = 0; // global counter variable 
 
 void (timer_int_handler)() {
   // increment a global counter variable

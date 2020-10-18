@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-int counter = 0; //global variable
+extern unsigned long counter; // to use the global counter variable defined in timer.c
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -53,26 +53,21 @@ int(timer_test_int)(uint8_t time) {
   
   uint8_t bit_no;
   if(timer_subscribe_int(&bit_no) != OK){
-    printf("error in %s: timer subscribe !\n", __func__);
+    printf("error in %s: fail to subscribe timer!\n", __func__);
     return 1;
   }
 
   // while 'time' invoke one per second the timer_print_elapsed_time()
-  // exemplo: time = 5 -> gera interrupções até 5 segundos, depois sai
-  // a cada segundo : counter % 60 = 0
- 
-  // Print message at 1 second intervals, by calling the LCF 
-  //function: (durante 'time' seconds)
-  //void timer_print_elapsed_time()
-
-  // INTERRUPT LOOP
-   
+   // INTERRUPT LOOP
+  
+  //int tique_counter = 0; -> com tique_counter
   int ipc_status;
   message msg;
 
   uint32_t irq_set = BIT(bit_no);
- 
-  while( counter % 60 <= time ) { 
+  
+  // while (counter < time) { -> com tique_counter
+  while( counter/60 < time ) { 
     int r;
     // Get a request message. 
     if ( (r = driver_receive(ANY, &msg, &ipc_status)) != 0 ) { 
@@ -84,9 +79,13 @@ int(timer_test_int)(uint8_t time) {
       switch (_ENDPOINT_P(msg.m_source)) {
         case HARDWARE: // hardware interrupt notification 				
           if (msg.m_notify.interrupts & irq_set) { // subscribed interrupt 
+            //tique_counter++; -> com tique_counter
+            //if (tique_counter % 60 == 0){ // passou 1 segundo, admitindo que a freq normal é 60 -> com tique_counter
             timer_int_handler();
             if (counter % 60 == 0){
               timer_print_elapsed_time();
+              // tique_counter = 0; // para voltar a contar o proximo segundo -> com tique_counter
+              // timer_int_handler(); // numero de seg que ja passaram -> com tique_counter
             }
           }
           break;
