@@ -60,14 +60,12 @@ int(timer_test_int)(uint8_t time) {
   // while 'time' invoke one per second the timer_print_elapsed_time()
    // INTERRUPT LOOP
   
-  //int tique_counter = 0; -> com tique_counter
   int ipc_status;
   message msg;
 
   uint32_t irq_set = BIT(bit_no);
   
-  // while (counter < time) { -> com tique_counter
-  while( counter/60 < time ) { 
+  while( counter / 60 < time ) { // enquanto nao passaram 'time' segundos
     int r;
     // Get a request message. 
     if ( (r = driver_receive(ANY, &msg, &ipc_status)) != 0 ) { 
@@ -79,13 +77,9 @@ int(timer_test_int)(uint8_t time) {
       switch (_ENDPOINT_P(msg.m_source)) {
         case HARDWARE: // hardware interrupt notification 				
           if (msg.m_notify.interrupts & irq_set) { // subscribed interrupt 
-            //tique_counter++; -> com tique_counter
-            //if (tique_counter % 60 == 0){ // passou 1 segundo, admitindo que a freq normal é 60 -> com tique_counter
-            timer_int_handler();
-            if (counter % 60 == 0){
+            timer_int_handler(); // adiciona o contador global de ticks da frequencia
+            if (counter % 60 == 0){ // true se passou mais 1 segundo, admitindo freq normal = 60 
               timer_print_elapsed_time();
-              // tique_counter = 0; // para voltar a contar o proximo segundo -> com tique_counter
-              // timer_int_handler(); // numero de seg que ja passaram -> com tique_counter
             }
           }
           break;
