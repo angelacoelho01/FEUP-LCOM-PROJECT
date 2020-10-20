@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
 
 int(kbd_test_scan)() {
   /* To be completed by the students */
+  kbc_ih();
   printf("%s is not yet implemented!\n", __func__);
 
   return 1;
