@@ -12,7 +12,7 @@
 #define IN_BUF_REG 0x60
 #define KBC_CMD_REG 0x64
 #define KBC_ST_REG 0x64
-#define ESC_BREAKCODE_REG 0x81
+#define ESC_BREAKCODE_KEY 0x81
 
 //Keyboard-Related KBC Commands for PC-AT/PS2
 #define READ_COMD_BYTE 0x20 /*Returns Command Byte*/
@@ -31,5 +31,7 @@
 #define KBC_SYS BIT(2)
 #define KBC_IBF BIT(1) /*Input buffer full don't wirte commands or arguments*/
 #define KBC_OBF BIT(0) /*Output buffer full - data available for reading*/
+
+#define BYTE_MSB 0x80
 
 #endif /* _LCOM_I8042_H */
