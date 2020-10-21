@@ -48,7 +48,6 @@ int (keyboard_subscribe_int)(uint8_t *bit_no) {
   return 0;
 }
 
-
 int (keyboard_unsubscribe_int)() {
 
   if (sys_irqrmpolicy(&hook_id) != OK){
@@ -58,3 +57,36 @@ int (keyboard_unsubscribe_int)() {
 
   return 0;
 }
+
+int (kbc_enable_int)(uint8_t *cmd_byte) {
+  /*Must enable interrupts by writing command byte before
+exiting
+I Should read the command byte before to restore it later -> by parametro
+*/
+return 1;
+}
+
+int (kbc_issue_cmd)(uint8_t cmd /*, adaptar para cmd com argumentos*/){
+  uint8_t stat;
+
+  if (util_sys_inb(KBC_ST_REG, &stat) != OK){
+    return 1;
+  }else{
+    if( (stat & KBC_IBF) == 0 ) { // is empty - we can write
+      sys_outb(KBC_CMD_REG, cmd); /* no args command */
+      return 0;
+    }else { // Input buffer full - don’t write commands or arguments
+
+      return 1;
+    }
+  }
+}
+
+int (kbc_read_reg)(uint8_t *data){
+  return 1;
+}
+
+int (kbc_write_reg)(uint8_t data){
+  return 1;
+}
+

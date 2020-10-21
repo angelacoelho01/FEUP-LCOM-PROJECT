@@ -34,4 +34,7 @@
 
 #define BYTE_MSB 0x80
 
+#define KBC_ENABLE_INT BIT(0)
+#define MOUSE_ENABLE_INT2 BIT(1)
+
 #endif /* _LCOM_I8042_H */

@@ -106,10 +106,48 @@ int(kbd_test_scan)() {
 }
 
 int(kbd_test_poll)() {
-  /* To be completed by the students */
-  printf("%s is not yet implemented!\n", __func__);
+  /*IMPORTANTE MELHORAR E DEFINIR BOTTOM LAYER FUNCTIONS*/
 
-  return 1;
+  //uint8_t start_cmd_byte;
+    
+  // enable interrups - writing an appropriate KBC command byte.
+  // read comment byte
+  //sys_outb(KBC_CMD_REG, READ_COMD_BYTE); // Read Use KBC command 0x20, which must be written to 0x64
+  //util_sys_inb(OUT_BUF_REG, &start_cmd_byte); // the value of the “command byte” must be read from 0x60
+  
+  // write_new cmd_byte to enable interrupts
+  //uint8_t enable_int_cmd = MOUSE_ENABLE_INT2 | KBC_ENABLE_INT;
+  //sys_outb(KBC_CMD_REG, WRITE_CMD_BYTE); // Write Use KBC command 0x60, which must be written to 0x64 
+  //sys_outb(OUT_BUF_REG, enable_int_cmd); // new value of the “command byte” must be written to 0x60
+
+  // uint8_t stat;
+  while(scancode != ESC_BREAKCODE_KEY) { // Exit when user releases the ESC key
+    // read scancodes sent -> ajeitar funcoes para cada tarefa
+    kbc_ih(); // -> substituir depois por funcoes modulos    
+    if(ih_error == 0){ // if there was no error
+      // print the scancode readed 
+      uint8_t bytes[] = {scancode};
+      if(!(scancode & BYTE_MSB)){ // if MSB = 0 -> make
+        if(kbd_print_scancode(true, 1, bytes) != OK)
+          return 1;
+      }
+      else{ // if MSB = 1 -> break
+        if(kbd_print_scancode(false, 1, bytes))
+          return 1;
+      }
+    }
+  }
+
+  #ifdef LAB3 // Print the number of sys_inb() kernel calls
+  if(kbd_print_no_sysinb(cnt) != OK)
+    return 1;
+  #endif
+
+  // restore the fist command byte read
+  //sys_outb(KBC_CMD_REG, WRITE_CMD_BYTE); // Write Use KBC command 0x60, which must be written to 0x64 
+  //sys_outb(OUT_BUF_REG, start_cmd_byte); // new value of the “command byte” must be written to 0x60
+
+  return 0;
 }
 
 int(kbd_test_timed_scan)(uint8_t n) {
