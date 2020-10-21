@@ -5,6 +5,8 @@
 
 #define WAIT_KBC 20000
 
+#define KBC_IRQ 1 /**< @brief Keyboad 1 IRQ line */
+
 //Registers
 #define OUT_BUF_REG 0x60
 #define IN_BUF_REG 0x60
