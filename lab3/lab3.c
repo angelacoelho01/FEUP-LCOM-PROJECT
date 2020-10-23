@@ -106,25 +106,14 @@ int(kbd_test_scan)() {
 }
 
 int(kbd_test_poll)() {
-  /*IMPORTANTE MELHORAR E DEFINIR BOTTOM LAYER FUNCTIONS*/
-
+  /*
   uint8_t start_cmd_byte;
-  if(kbc_enable_int(&start_cmd_byte) != OK)
-    return 1;
-    
   // enable interrups - writing an appropriate KBC command byte.
-  // read comment byte
-  //sys_outb(KBC_CMD_REG, READ_COMD_BYTE); // Read Use KBC command 0x20, which must be written to 0x64
-  //util_sys_inb(OUT_BUF_REG, &start_cmd_byte); // the value of the “command byte” must be read from 0x60
-  
-  // write_new cmd_byte to enable interrupts
-  //uint8_t enable_int_cmd = MOUSE_ENABLE_INT2 | KBC_ENABLE_INT;
-  //sys_outb(KBC_CMD_REG, WRITE_CMD_BYTE); // Write Use KBC command 0x60, which must be written to 0x64 
-  //sys_outb(OUT_BUF_REG, enable_int_cmd); // new value of the “command byte” must be written to 0x60
+  if(kbc_enable_int(&start_cmd_byte) != OK){ return 1; }
+  */
 
-  // uint8_t stat;
   while(scancode != ESC_BREAKCODE_KEY) { // Exit when user releases the ESC key
-    // read scancodes sent -> ajeitar funcoes para cada tarefa
+    // read scancodes sent 
     if(kbc_poll_handler() == OK){ // if there was no error
       // print the scancode readed 
       uint8_t bytes[] = {scancode};
@@ -137,21 +126,21 @@ int(kbd_test_poll)() {
           return 1;
       }
     }
+    tickdelay(micros_to_ticks(WAIT_KBC));
   }
 
   #ifdef LAB3 // Print the number of sys_inb() kernel calls
-  if(kbd_print_no_sysinb(cnt) != OK)
-    return 1;
+  if(kbd_print_no_sysinb(cnt) != OK) { return 1; }
   #endif
 
-  // restore the fist command byte read
-  kbc_issue_cmd(WRITE_CMD_BYTE); // Write Use KBC command 0x60, which must be written to 0x64
-  kbc_write_reg(start_cmd_byte); // new value of the “command byte” must be written to 0x60
-
-  // restore the fist command byte read
-  //sys_outb(KBC_CMD_REG, WRITE_CMD_BYTE); // Write Use KBC command 0x60, which must be written to 0x64 
-  //sys_outb(OUT_BUF_REG, start_cmd_byte); // new value of the “command byte” must be written to 0x60
-
+  /*
+  // restore the first command byte read
+  // inicial value of the “command byte” must be written to 0x60 - argument
+  if(kbc_write_reg(start_cmd_byte) != OK){ return 1; }
+  // Write Use KBC command 0x60, which must be written to 0x64
+  if(kbc_issue_cmd(WRITE_CMD_BYTE) != OK){ return 1; }
+  */
+ 
   return 0;
 }
 

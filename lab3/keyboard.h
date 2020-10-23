@@ -18,7 +18,9 @@ int(keyboard_subscribe_int)(uint8_t *bit_no);
 
 int(keyboard_unsubscribe_int)();
 
-int (kbc_issue_cmd)(uint8_t cmd /*,adaptar para cmd com argumentos*/);
+int (kbc_read_status_reg)(uint8_t *status);
+
+int (kbc_issue_cmd)(uint8_t cmd);
 
 int (kbc_read_reg)(uint8_t *data);
 
