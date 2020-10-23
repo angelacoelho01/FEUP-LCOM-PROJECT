@@ -76,7 +76,7 @@ int(kbd_test_scan)() {
                   return 1;
               }
               else{ // if MSB = 1 -> break
-                if(kbd_print_scancode(false, 1, bytes))
+                if(kbd_print_scancode(false, 1, bytes) != OK)
                   return 1;
               }
             }
@@ -108,7 +108,9 @@ int(kbd_test_scan)() {
 int(kbd_test_poll)() {
   /*IMPORTANTE MELHORAR E DEFINIR BOTTOM LAYER FUNCTIONS*/
 
-  //uint8_t start_cmd_byte;
+  uint8_t start_cmd_byte;
+  if(kbc_enable_int(&start_cmd_byte) != OK)
+    return 1;
     
   // enable interrups - writing an appropriate KBC command byte.
   // read comment byte
@@ -123,8 +125,7 @@ int(kbd_test_poll)() {
   // uint8_t stat;
   while(scancode != ESC_BREAKCODE_KEY) { // Exit when user releases the ESC key
     // read scancodes sent -> ajeitar funcoes para cada tarefa
-    kbc_ih(); // -> substituir depois por funcoes modulos    
-    if(ih_error == 0){ // if there was no error
+    if(kbc_poll_handler() == OK){ // if there was no error
       // print the scancode readed 
       uint8_t bytes[] = {scancode};
       if(!(scancode & BYTE_MSB)){ // if MSB = 0 -> make
@@ -132,7 +133,7 @@ int(kbd_test_poll)() {
           return 1;
       }
       else{ // if MSB = 1 -> break
-        if(kbd_print_scancode(false, 1, bytes))
+        if(kbd_print_scancode(false, 1, bytes) != OK)
           return 1;
       }
     }
@@ -142,6 +143,10 @@ int(kbd_test_poll)() {
   if(kbd_print_no_sysinb(cnt) != OK)
     return 1;
   #endif
+
+  // restore the fist command byte read
+  kbc_issue_cmd(WRITE_CMD_BYTE); // Write Use KBC command 0x60, which must be written to 0x64
+  kbc_write_reg(start_cmd_byte); // new value of the “command byte” must be written to 0x60
 
   // restore the fist command byte read
   //sys_outb(KBC_CMD_REG, WRITE_CMD_BYTE); // Write Use KBC command 0x60, which must be written to 0x64 
