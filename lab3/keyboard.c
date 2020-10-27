@@ -34,13 +34,14 @@ void(kbc_ih)(){
 
 }
 
-int hook_id = 1; // inicializado com qualquer valor entre 0..7
+int timer_hook_id = 0; // Diferenciar instruções usando bit masks diferentes para os hook_id
+int kbc_hook_id = 1; // inicializado com qualquer valor entre 0..7
 
 int (keyboard_subscribe_int)(uint8_t *bit_no) {
 
-  *bit_no = hook_id; 
+  *bit_no = kbc_hook_id; 
   // KBC interrupt subscription in exclusive mode
-  if (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, &hook_id) != OK){
+  if (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, &kbc_hook_id) != OK){
     printf("ERROR in subcribe_int: sys_irqsetpolicy!!\n");
     return 1;
   }
@@ -50,7 +51,7 @@ int (keyboard_subscribe_int)(uint8_t *bit_no) {
 
 int (keyboard_unsubscribe_int)() {
 
-  if (sys_irqrmpolicy(&hook_id) != OK){
+  if (sys_irqrmpolicy(&kbc_hook_id) != OK){
     printf("ERROR in unsubcribe_int: iqrmpolicy!\n");
     return 1;
   }
