@@ -26,7 +26,7 @@ int (kbc_read_reg)(uint8_t *data);
 
 int (kbc_write_reg)(uint8_t data);
 
-int (kbc_enable_int)(uint8_t *cmd_byte);
+int (kbc_enable_int)();
 
 int (kbc_poll_handler)();
 

@@ -106,11 +106,6 @@ int(kbd_test_scan)() {
 }
 
 int(kbd_test_poll)() {
-  /*
-  uint8_t start_cmd_byte;
-  // enable interrups - writing an appropriate KBC command byte.
-  if(kbc_enable_int(&start_cmd_byte) != OK){ return 1; }
-  */
 
   while(scancode != ESC_BREAKCODE_KEY) { // Exit when user releases the ESC key
     // read scancodes sent 
@@ -133,13 +128,10 @@ int(kbd_test_poll)() {
   if(kbd_print_no_sysinb(cnt) != OK) { return 1; }
   #endif
 
-  /*
-  // restore the first command byte read
-  // inicial value of the “command byte” must be written to 0x60 - argument
-  if(kbc_write_reg(start_cmd_byte) != OK){ return 1; }
-  // Write Use KBC command 0x60, which must be written to 0x64
-  if(kbc_issue_cmd(WRITE_CMD_BYTE) != OK){ return 1; }
-  */
+  if(kbc_enable_int() != OK){ 
+    printf("error when enable interrupts");
+    return 1; 
+  }
  
   return 0;
 }
