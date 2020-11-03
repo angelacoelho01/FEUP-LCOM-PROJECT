@@ -1,0 +1,185 @@
+#include <lcom/lcf.h>
+
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "i8042.h"
+
+//Initialize with a value between 0 and 7
+//Distinguish instructions by using different bit masks for the hook_id
+int timer_hook_id = 0; 
+int mouse_hook_id = 1; 
+
+char ih_error = 0;
+uint8_t byte;
+
+struct packet pp;
+
+
+int (kbc_read_status_reg)(uint8_t *status){
+  if (util_sys_inb(KBC_ST_REG, status) != OK){
+    printf("Error when reading status register");
+    return 1;
+  }
+
+  return 0;
+}
+
+
+
+int (mouse_subscribe_int)(uint8_t *bit_no) {
+
+  *bit_no = mouse_hook_id; 
+  // Mouse interrupt subscription in exclusive mode
+  if (sys_irqsetpolicy(MOUSE_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, &mouse_hook_id) != OK){
+    printf("ERROR in subcribe_int: sys_irqsetpolicy!!\n");
+    return 1;
+  }
+
+  return 0;
+}
+
+int (mouse_unsubscribe_int)() {
+
+  if (sys_irqrmpolicy(&mouse_hook_id) != OK){
+    printf("ERROR in unsubcribe_int: iqrmpolicy!\n");
+    return 1;
+  }
+
+  return 0;
+}
+
+void(mouse_ih)(){
+	uint8_t stat;
+    //Reads the status register 
+    if(util_sys_inb(KBC_ST_REG, &stat) != OK){ 
+      printf("Error.\n");
+      ih_error = 1;
+    }else{
+      //Reads the output buffer, if possible
+        if(util_sys_inb(OUT_BUF_REG, &byte) != OK){ 
+            printf("Error.\n");
+            ih_error = 1;
+        }
+        //Checks if there was som parity or timeout errors
+        if ((stat & (KBC_PAR_ERR | KBC_TO_ERR)) != 0){ 
+          printf("Error - invalid data\n");
+          ih_error = 1;
+        }else{
+          //If it reachs this, byte read valid
+          ih_error = 0; 
+        }  
+    }
+}
+
+int (kbc_issue_cmd)(uint8_t cmd){
+  uint8_t status;
+  while( 1 ) {
+    //First reads the status register
+    if (kbc_read_status_reg(&status) == OK){
+      //Checks if the input buffer is empty so that we can write
+      if( (status & KBC_IBF) == 0 ) { 
+        //Sends a command to register 0x64
+        if(sys_outb(KBC_CMD_REG, cmd) == OK){ 
+          return 0;
+        }else{
+          printf("Error in writing a command");
+        }
+      }else{
+        printf("INPUT BUFFER IS FULL, WE CANNOT WRITE");
+      }
+      //If we ca't send commands, it will try again after 20 seconds
+      tickdelay(micros_to_ticks(WAIT_KBC));
+    }
+  }
+  return 1;
+}
+
+int (kbc_read_reg)(uint8_t *data){
+  uint8_t status;
+  if (kbc_read_status_reg(&status) == OK){
+    //If the output buffer is full (==1) - data available for reading
+    if((status & KBC_OBF) == 1){ 
+      //Reads from register 0x60 the return value
+      if(util_sys_inb(OUT_BUF_REG, data) == OK){ 
+        return 0;
+      }
+    }else{
+      printf("Data not available for reading");
+    }
+  }
+
+  return 1;
+}
+
+int (kbc_write_reg)(uint8_t data){
+  uint8_t status;
+  if (kbc_read_status_reg(&status) == OK){
+    //If the input buffer is empty (==0) - we can write
+    if((status & KBC_IBF) == 0){ 
+      //Writes data into register 0x60 the new value - passes the argument
+      if(sys_outb(IN_BUF_REG, data) == OK){
+        return 0;
+      }
+    }else {
+      printf("We cannot write - input buffer full");
+    }
+  }
+  
+  return 1;
+}
+
+int (mouse_enable_data_report)(){
+	uint8_t response;
+	
+	do{
+    //Checks if it's possible to pass a command, and if so it does passes it to 0XD4
+		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue; 
+    //Passes the argument of the last command into the same regist (0xD4) - enable data reporting
+		if (kbc_write_reg(ENABLE_DR) != OK) continue; 
+    //Reads the return value from the input buffer
+		if (kbc_read_reg(&response) != OK) continue;;
+	}while(response != ACK); //Does until it receives a response, the acknowledment byte
+	
+	return 0;
+}
+
+int (mouse_disable_data_reporting)(){
+	uint8_t response;
+	
+	do{
+    //Checks if it's possible to pass a command, and if so it does passes it to 0XD4
+		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue;
+    //Passes the argument of the last command into the same regist (0xD4) - disable data reporting
+		if (kbc_write_reg(DISABLE_DR) != OK) continue; 
+    //Reads the return value from the input buffer
+		if (kbc_read_reg(&response) != OK) continue;;
+	}while(response != ACK); //Does until it receives a response, the acknowledment byte
+	
+	return 0;
+}
+
+int (reset_mouse_status)(){
+	  uint8_t cmd_byte;
+    cmd_byte = minix_get_dflt_kbc_cmd_byte();
+    kbc_issue_cmd(WRITE_CMD_BYTE);
+    kbc_write_reg(cmd_byte);
+    return 0;
+}
+
+int (get_packet)(uint8_t byte){
+  //If the bit 3 of byte is equal to 1, then it is the first byte
+	if(byte & MOUSE_BIT_3){
+    pp.bytes[0] = byte;
+    pp.rb = (byte & MOUSE_RB);
+    pp.mb = (byte & MOUSE_MB);
+    pp.lb = (byte & MOUSE_LB);
+    pp.x_ov = (byte & MOUSE_X_OV);
+    pp.y_ov = (byte & MOUSE_Y_OV);
+  }
+  else{
+
+  }
+		return 0;
+	
+}
