@@ -19,7 +19,7 @@
 #define MOUSE_DIS 0xA7 /*Disable Mouse*/
 #define MOUSE_ENABLE 0xA8 /*Enable Mouse*/
 #define CHECK_MOUSE_IF 0xA9 /*Check Mouse Interface Returns 0, if OK*/
-#define MOUSE_WRITE_B 0XD4 /*Write Byte to Mouse*/
+#define MOUSE_WRITE_B 0xD4 /*Write Byte to Mouse*/
 
 // Commands passed as arguments of command 0xD4
 #define MOUSE_RESET 0xFF /*Reset*/

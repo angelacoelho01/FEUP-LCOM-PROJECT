@@ -46,7 +46,7 @@ int (mouse_test_packet)(uint32_t cnt) {
   // só passa nos testes onde x e y evoluem so num sentido , deve ter haver com para a frente positivo, para tras negativo?
   
   //Enable data reporting 
-	if(mouse_enable_data_report() != OK){ // duvidas na implementacao
+	if(mouse_enable_data_reporting() != OK){ // duvidas na implementacao - a usar ainda a do stor
 		printf("Error in %s.", __func__);
 		return 1;
 	}

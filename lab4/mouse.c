@@ -126,14 +126,15 @@ int (kbc_write_reg)(uint8_t data){
 
 int (mouse_enable_data_report)(){
 	uint8_t response;
-	
+
+  // enable data reporting
 	do{
     // write mouse byte (cmd 0xD4) in kbc_cmd_reg (0x64)
 		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue; 
     // Pass the argument of 0xD4 to the output buffer - enable data reporting
 		if (kbc_write_reg(MOUSE_ENB_DR) != OK) continue; 
     // Reads the reponse value (acknoledgement byte) from the input buffer
-		if (kbc_read_reg(&response) != OK) continue;;
+		if (kbc_read_reg(&response) != OK) continue;
 	}while(response != ACK); // Does until 'OK'
 	
 	return 0;
@@ -172,6 +173,8 @@ int (reset_mouse_status)(){
     return 0;
 }
 
+uint8_t prev_delta_x = 0, prev_delta_y = 0;
+
 int (get_packet)(uint8_t byte, uint8_t *num_bytes, struct packet *pp){
   if (0 == *num_bytes){ // we expect the first byte -> the bit 3 of byte is equal to 1
     if((byte & MOUSE_BIT_3) == 0x00){ // invalid first byte -> discard
@@ -190,12 +193,22 @@ int (get_packet)(uint8_t byte, uint8_t *num_bytes, struct packet *pp){
 
   // Second byte
   if (1 == *num_bytes){ // represents x_delta
-    pp->delta_x = byte; //rightwards is positive <--
+    if (byte >= prev_delta_x)
+      pp->delta_x = byte; //rightwards is positive <--
+    else{
+      pp->delta_x = 0 - byte ; //complemento para 2 de -byte?
+    }
+    prev_delta_x = byte;
   }
 
   // Last byte
   if (2 == *num_bytes){ // represents y_delta
-    pp->delta_y = byte; // upwards is positive <--  
+    if (byte >= prev_delta_y)
+      pp->delta_y = byte; // upwards is positive <--
+    else{
+      pp->delta_y = 0-byte;  //complemento para 2 de -byte?
+    }
+    prev_delta_y = byte; 
     *num_bytes = 0; // packet complete
     return 0;
   }
