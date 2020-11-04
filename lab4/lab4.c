@@ -1,11 +1,7 @@
-// IMPORTANT: you must include the following line in all your C files
 #include <lcom/lcf.h>
 
 #include <stdint.h>
 #include <stdio.h>
-
-// Any header files included below this line should have been created by you
-
 
 #include "../lab2/i8254.h"
 #include "../lab2/timer.c"
@@ -13,11 +9,9 @@
 #include "mouse.h"
 #include "utils.h"
 
-
 // from MOUSE handler
 extern char ih_error;
 extern uint8_t byte;
-extern struct packet pp;
 
 // from timer handler
 extern unsigned long counter;
@@ -29,11 +23,11 @@ int main(int argc, char *argv[]) {
 
   // enables to log function invocations that are being "wrapped" by LCF
   // [comment this out if you don't want/need/ it]
-  lcf_trace_calls("/home/lcom/labs/lab4/trace.txt");
+  lcf_trace_calls("/home/lcom/labs/g08/lab4/trace.txt");
 
   // enables to save the output of printf function calls on a file
   // [comment this out if you don't want/need it]
-  lcf_log_output("/home/lcom/labs/lab4/output.txt");
+  lcf_log_output("/home/lcom/labs/g08/lab4/output.txt");
 
   // handles control over to LCF
   // [LCF handles command line arguments and invokes the right function]
@@ -49,8 +43,10 @@ int main(int argc, char *argv[]) {
 
 
 int (mouse_test_packet)(uint32_t cnt) {
-  //Enable data reporting
-	if(mouse_enable_data_reporting() != OK){
+  // só passa nos testes onde x e y evoluem so num sentido , deve ter haver com para a frente positivo, para tras negativo?
+  
+  //Enable data reporting 
+	if(mouse_enable_data_report() != OK){ // duvidas na implementacao
 		printf("Error in %s.", __func__);
 		return 1;
 	}
@@ -69,6 +65,7 @@ int (mouse_test_packet)(uint32_t cnt) {
 
   uint32_t n = 0;
   uint8_t num_bytes = 0;
+  struct packet pp;
 
   //Driver receive loop
   //Ends when it reads a certain number of packets - cnt
@@ -86,15 +83,16 @@ int (mouse_test_packet)(uint32_t cnt) {
         case HARDWARE:
           //Subscribed interrupt
           if(msg.m_notify.interrupts & irq_set){
-           //Reads one byte from the kbc’s output buffer per interrupt
+            //Reads one byte from the kbc’s output buffer per interrupt
             mouse_ih();
             //If there was no error
             if(ih_error == 0){
-              if(get_packet(byte))
+              if(get_packet(byte, &num_bytes, &pp) == 0){ // indicates that a packet is complete
                 mouse_print_packet(&pp);
-                //Reset number of bytes
-                if(num_bytes == 2)
-                  num_bytes = 0;
+                n++;
+              }
+            }else{
+              printf("error in mouse_ih()");
             }
           }
           tickdelay(micros_to_ticks(WAIT_KBC));
@@ -105,18 +103,18 @@ int (mouse_test_packet)(uint32_t cnt) {
     }
   }
 
-      // To unsubscribe the Mouse interrupts
+  // To unsubscribe the Mouse interrupts
   if(mouse_unsubscribe_int() != OK){
 	  printf("Error in %s.", __func__);
 	  return 1;
   }
-	
-	// Disable data reporting
+
+  // Disable data reporting - duvidas na implementacao
 	if(mouse_disable_data_reporting() != OK){
 		printf("Error in %s.", __func__);
 		return 1;
 	}
-  
+
   return 0;
 }
 

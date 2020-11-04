@@ -24,6 +24,6 @@ int (mouse_disable_data_reporting)();
 
 int (reset_mouse_status)();
 
-int (get_packet)(uint8_t byte);
+int (get_packet)(uint8_t byte, uint8_t *num_bytes, struct packet *pp);
 
 #endif /* __MOUSE_H */

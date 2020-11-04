@@ -11,10 +11,7 @@ int timer_hook_id = 0;
 int mouse_hook_id = 1; 
 
 char ih_error = 0;
-uint8_t byte;
-
-struct packet pp;
-
+uint8_t byte = 0;
 
 int (kbc_read_status_reg)(uint8_t *status){
   if (util_sys_inb(KBC_ST_REG, status) != OK){
@@ -24,8 +21,6 @@ int (kbc_read_status_reg)(uint8_t *status){
 
   return 0;
 }
-
-
 
 int (mouse_subscribe_int)(uint8_t *bit_no) {
 
@@ -51,25 +46,25 @@ int (mouse_unsubscribe_int)() {
 
 void(mouse_ih)(){
 	uint8_t stat;
-    //Reads the status register 
-    if(util_sys_inb(KBC_ST_REG, &stat) != OK){ 
+  //Reads the status register 
+  if(util_sys_inb(KBC_ST_REG, &stat) != OK){ 
+    printf("Error.\n");
+    ih_error = 1;
+  }else{
+    //Reads the output buffer, if possible
+    if(util_sys_inb(OUT_BUF_REG, &byte) != OK){ 
       printf("Error.\n");
       ih_error = 1;
-    }else{
-      //Reads the output buffer, if possible
-        if(util_sys_inb(OUT_BUF_REG, &byte) != OK){ 
-            printf("Error.\n");
-            ih_error = 1;
-        }
-        //Checks if there was som parity or timeout errors
-        if ((stat & (KBC_PAR_ERR | KBC_TO_ERR)) != 0){ 
-          printf("Error - invalid data\n");
-          ih_error = 1;
-        }else{
-          //If it reachs this, byte read valid
-          ih_error = 0; 
-        }  
     }
+    //Checks if there was som parity or timeout errors
+    if ((stat & (KBC_PAR_ERR | KBC_TO_ERR)) != 0){ 
+      printf("Error - invalid data\n");
+      ih_error = 1;
+    }else{
+      //If it reachs this, byte read valid
+      ih_error = 0; 
+    }  
+  }
 }
 
 int (kbc_issue_cmd)(uint8_t cmd){
@@ -133,13 +128,13 @@ int (mouse_enable_data_report)(){
 	uint8_t response;
 	
 	do{
-    //Checks if it's possible to pass a command, and if so it does passes it to 0XD4
+    // write mouse byte (cmd 0xD4) in kbc_cmd_reg (0x64)
 		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue; 
-    //Passes the argument of the last command into the same regist (0xD4) - enable data reporting
-		if (kbc_write_reg(ENABLE_DR) != OK) continue; 
-    //Reads the return value from the input buffer
+    // Pass the argument of 0xD4 to the output buffer - enable data reporting
+		if (kbc_write_reg(MOUSE_ENB_DR) != OK) continue; 
+    // Reads the reponse value (acknoledgement byte) from the input buffer
 		if (kbc_read_reg(&response) != OK) continue;;
-	}while(response != ACK); //Does until it receives a response, the acknowledment byte
+	}while(response != ACK); // Does until 'OK'
 	
 	return 0;
 }
@@ -148,38 +143,63 @@ int (mouse_disable_data_reporting)(){
 	uint8_t response;
 	
 	do{
-    //Checks if it's possible to pass a command, and if so it does passes it to 0XD4
+    // write mouse byte (cmd 0xD4) in kbc_cmd_reg (0x64)
 		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue;
-    //Passes the argument of the last command into the same regist (0xD4) - disable data reporting
-		if (kbc_write_reg(DISABLE_DR) != OK) continue; 
-    //Reads the return value from the input buffer
+    // Pass the argument of 0xD4 to the output buffer - disable data reporting
+		if (kbc_write_reg(MOUSE_DIS_DR) != OK) continue; 
+    // Reads the reponse value (acknoledgement byte) from the input buffer
 		if (kbc_read_reg(&response) != OK) continue;;
-	}while(response != ACK); //Does until it receives a response, the acknowledment byte
+	}while(response != ACK); // Does until 'OK'
 	
 	return 0;
 }
 
 int (reset_mouse_status)(){
 	  uint8_t cmd_byte;
+    // get minix default cmd byte
     cmd_byte = minix_get_dflt_kbc_cmd_byte();
-    kbc_issue_cmd(WRITE_CMD_BYTE);
-    kbc_write_reg(cmd_byte);
+    // cmd to write the new byte to the kbc
+    if (kbc_issue_cmd(WRITE_CMD_BYTE) != OK){
+      printf("error in write_cmd_byte");
+      return 1;
+    }
+    // pass the cmd argument to the output buffer - new cmd byte value
+    if (kbc_write_reg(cmd_byte) != OK){
+      printf("error in passing the new cmd byte value as argument");
+      return 1;
+    }
+
     return 0;
 }
 
-int (get_packet)(uint8_t byte){
-  //If the bit 3 of byte is equal to 1, then it is the first byte
-	if(byte & MOUSE_BIT_3){
-    pp.bytes[0] = byte;
-    pp.rb = (byte & MOUSE_RB);
-    pp.mb = (byte & MOUSE_MB);
-    pp.lb = (byte & MOUSE_LB);
-    pp.x_ov = (byte & MOUSE_X_OV);
-    pp.y_ov = (byte & MOUSE_Y_OV);
+int (get_packet)(uint8_t byte, uint8_t *num_bytes, struct packet *pp){
+  if (0 == *num_bytes){ // we expect the first byte -> the bit 3 of byte is equal to 1
+    if((byte & MOUSE_BIT_3) == 0x00){ // invalid first byte -> discard
+      return 1;
+    }else{
+      pp->rb = (byte & MOUSE_RB);
+      pp->mb = (byte & MOUSE_MB);
+      pp->lb = (byte & MOUSE_LB);
+      pp->x_ov = (byte & MOUSE_X_OV);
+      pp->y_ov = (byte & MOUSE_Y_OV);
+    }
   }
-  else{
 
+  // in every other situation accept the byte
+  pp->bytes[*num_bytes] = byte;
+
+  // Second byte
+  if (1 == *num_bytes){ // represents x_delta
+    pp->delta_x = byte; //rightwards is positive <--
   }
-		return 0;
-	
+
+  // Last byte
+  if (2 == *num_bytes){ // represents y_delta
+    pp->delta_y = byte; // upwards is positive <--  
+    *num_bytes = 0; // packet complete
+    return 0;
+  }
+
+  *num_bytes += 1;
+	return 1;
 }
