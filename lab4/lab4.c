@@ -42,11 +42,9 @@ int main(int argc, char *argv[]) {
 }
 
 
-int (mouse_test_packet)(uint32_t cnt) {
-  // só passa nos testes onde x e y evoluem so num sentido , deve ter haver com para a frente positivo, para tras negativo?
-  
+int (mouse_test_packet)(uint32_t cnt) {  
   //Enable data reporting 
-	if(mouse_enable_data_reporting() != OK){ // duvidas na implementacao - a usar ainda a do stor
+	if(mouse_enable_data_report() != OK){ 
 		printf("Error in %s.", __func__);
 		return 1;
 	}
@@ -119,9 +117,94 @@ int (mouse_test_packet)(uint32_t cnt) {
 }
 
 int (mouse_test_async)(uint8_t idle_time) {
-    /* To be completed */
-    printf("%s(%u): under construction\n", __func__, idle_time);
+  //Enable data reporting 
+	if(mouse_enable_data_report() != OK){ 
+		printf("Error in %s.", __func__);
+		return 1;
+	}
+
+	//Subscribes mouse's interrupts
+	uint8_t mouse_bit_no;
+	if(mouse_subscribe_int(&mouse_bit_no) != OK){
+		printf("Error in %s.", __func__);
+		return 1;
+	}
+
+  // To subscribe the timer interrupts
+  uint8_t timer_bit_no;
+  if(timer_subscribe_int(&timer_bit_no) != OK){
+    printf("error in %s: fail to subscribe timer!\n", __func__);
     return 1;
+  }
+
+  int ipc_status;
+  message msg;
+
+  uint32_t mouse_irq_set = BIT(mouse_bit_no);
+  uint32_t timer_irq_set = BIT(timer_bit_no);
+
+  uint8_t num_bytes = 0;
+  struct packet pp;
+
+  //Driver receive loop
+  //Ends when it reads a certain number of packets - cnt
+  while(counter < idle_time*60){
+    int r;
+    //Get a request message
+    if((r = driver_receive(ANY, &msg, &ipc_status)) != 0){
+      printf("driver_receive faile with : %d", r);
+      continue;
+    }
+    //Checks if it received a notification
+    if(is_ipc_notify(ipc_status)){
+      switch(_ENDPOINT_P(msg.m_source)){
+        //Hardware interrupt notification
+        case HARDWARE:
+          //Subscribed interrupt
+          if(msg.m_notify.interrupts & mouse_irq_set){
+            counter = 0;
+            //Reads one byte from the kbc’s output buffer per interrupt
+            mouse_ih();
+            //If there was no error
+            if(ih_error == 0){
+              if(get_packet(byte, &num_bytes, &pp) == 0){ // indicates that a packet is complete
+                mouse_print_packet(&pp);
+              }
+            }else{
+              printf("error in mouse_ih()");
+            }
+          }
+          if(msg.m_notify.interrupts & timer_irq_set){
+            timer_int_handler();
+          }
+          tickdelay(micros_to_ticks(WAIT_KBC));
+        break;
+      default:
+        break;
+      }
+    }
+  }
+
+  // To unsubscribe the timer interrupts
+  if(timer_unsubscribe_int() != OK){
+    printf("error in %s : timer unsubscribe!\n", __func__);
+    return 1;
+  }
+
+  // To unsubscribe the Mouse interrupts
+  if(mouse_unsubscribe_int() != OK){
+	  printf("Error in %s.", __func__);
+	  return 1;
+  }
+
+  // Disable data reporting - duvidas na implementacao
+	if(mouse_disable_data_reporting() != OK){
+		printf("Error in %s.", __func__);
+		return 1;
+	}
+
+  return 0;
+
 }
 
 int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
@@ -131,7 +214,40 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
 }
 
 int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
-    /* To be completed */
-    printf("%s(%u, %u): under construction\n", __func__, period, cnt);
+    
+  uint8_t n = 0;
+  uint8_t num_bytes = 0;
+  struct packet pp;
+
+  if(mouse_set_remote() != OK){
+    printf("Error in mouse_set_remote()\n");
     return 1;
+  }
+
+  while(n < cnt){
+    if(mouse_poll_handler() == OK){
+      if(get_packet(byte, &num_bytes, &pp) == 0){ // indicates that a packet is complete
+        mouse_print_packet(&pp);
+        n++;
+      }
+    }
+    tickdelay(micros_to_ticks(period*1000));
+  }
+
+  if(mouse_set_stream() != OK){
+    printf("Error in mouse_set_stream().\n");
+    return 1;
+  }
+
+  if(mouse_disable_data_reporting() != OK){
+    printf("Error in mouse_disable_data_reporting().\n");
+    return 1;
+  }
+
+  if(reset_kbc_status() != OK){
+    printf("Error in reset_kbc_status().\n");
+    return 1;
+  }
+
+  return 0;
 }

@@ -22,8 +22,15 @@ int (mouse_enable_data_report)();
 
 int (mouse_disable_data_reporting)();
 
-int (reset_mouse_status)();
+int (reset_kbc_status)();
 
 int (get_packet)(uint8_t byte, uint8_t *num_bytes, struct packet *pp);
+
+int (mouse_set_remote)();
+
+int (mouse_set_stream)();
+
+int(mouse_poll_handler)();
+
 
 #endif /* __MOUSE_H */

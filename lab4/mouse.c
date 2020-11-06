@@ -155,7 +155,7 @@ int (mouse_disable_data_reporting)(){
 	return 0;
 }
 
-int (reset_mouse_status)(){
+int (reset_kbc_status)(){
 	  uint8_t cmd_byte;
     // get minix default cmd byte
     cmd_byte = minix_get_dflt_kbc_cmd_byte();
@@ -173,8 +173,6 @@ int (reset_mouse_status)(){
     return 0;
 }
 
-uint8_t prev_delta_x = 0, prev_delta_y = 0;
-
 int (get_packet)(uint8_t byte, uint8_t *num_bytes, struct packet *pp){
   if (0 == *num_bytes){ // we expect the first byte -> the bit 3 of byte is equal to 1
     if((byte & MOUSE_BIT_3) == 0x00){ // invalid first byte -> discard
@@ -191,28 +189,80 @@ int (get_packet)(uint8_t byte, uint8_t *num_bytes, struct packet *pp){
   // in every other situation accept the byte
   pp->bytes[*num_bytes] = byte;
 
-  // Second byte
-  if (1 == *num_bytes){ // represents x_delta
-    if (byte >= prev_delta_x)
-      pp->delta_x = byte; //rightwards is positive <--
-    else{
-      pp->delta_x = 0 - byte ; //complemento para 2 de -byte?
+  if(1 == *num_bytes){
+    if((pp->bytes[0] & MOUSE_MSB_X) == 0){
+      pp->delta_x = byte;
     }
-    prev_delta_x = byte;
+    else{
+      pp->delta_x = byte - 256;
+    }
   }
 
-  // Last byte
   if (2 == *num_bytes){ // represents y_delta
-    if (byte >= prev_delta_y)
-      pp->delta_y = byte; // upwards is positive <--
-    else{
-      pp->delta_y = 0-byte;  //complemento para 2 de -byte?
+    if((pp->bytes[0] & MOUSE_MSB_Y) == 0){
+      pp->delta_y = byte;
     }
-    prev_delta_y = byte; 
+    else{
+      pp->delta_y = byte - 256;
+    }
     *num_bytes = 0; // packet complete
     return 0;
   }
 
   *num_bytes += 1;
 	return 1;
+}
+
+int (mouse_set_remote)(){
+  uint8_t response;
+
+  // enable data reporting
+	do{
+    // write mouse byte (cmd 0xD4) in kbc_cmd_reg (0x64)
+		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue; 
+    // Pass the argument of 0xD4 to the output buffer - enable data reporting
+		if (kbc_write_reg(MOUSE_SET_REMOTE) != OK) continue; 
+    // Reads the reponse value (acknoledgement byte) from the input buffer
+		if (kbc_read_reg(&response) != OK) continue;
+	}while(response != ACK); //
+
+  return 0;
+}
+
+int (mouse_set_stream)(){
+  uint8_t response;
+
+  // enable data reporting
+	do{
+    // write mouse byte (cmd 0xD4) in kbc_cmd_reg (0x64)
+		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue; 
+    // Pass the argument of 0xD4 to the output buffer - enable data reporting
+		if (kbc_write_reg(MOUSE_SET_STREAM) != OK) continue; 
+    // Reads the reponse value (acknoledgement byte) from the input buffer
+		if (kbc_read_reg(&response) != OK) continue;
+	}while(response != ACK); //
+
+  return 0;
+
+}
+
+int(mouse_poll_handler)(){
+  uint8_t stat;
+
+  if(util_sys_inb(KBC_ST_REG, &stat) != OK){ // Reads the status register 
+    return 1;
+  }else{
+    if(util_sys_inb(OUT_BUF_REG, &byte) != OK){ // Read output buffer
+          printf("Error.\n");
+          return 1;
+      }
+
+    if ((stat & (KBC_PAR_ERR | KBC_TO_ERR)) != 0){ // check if there was some error 
+      printf("Error - invalid data\n");
+      return 1;
+    }else{
+        return 0; // byte read valid
+    }
+  }
+
 }
