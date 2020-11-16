@@ -216,15 +216,15 @@ int (get_packet)(uint8_t byte, uint8_t *num_bytes, struct packet *pp){
 int (mouse_set_remote)(){
   uint8_t response;
 
-  // enable data reporting
+  // Set remote mode
 	do{
     // write mouse byte (cmd 0xD4) in kbc_cmd_reg (0x64)
 		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue; 
-    // Pass the argument of 0xD4 to the output buffer - enable data reporting
+    // Pass the argument of 0xD4 to the output buffer - set remote
 		if (kbc_write_reg(MOUSE_SET_REMOTE) != OK) continue; 
     // Reads the reponse value (acknoledgement byte) from the input buffer
 		if (kbc_read_reg(&response) != OK) continue;
-	}while(response != ACK); //
+	}while(response != ACK);
 
   return 0;
 }
@@ -232,11 +232,11 @@ int (mouse_set_remote)(){
 int (mouse_set_stream)(){
   uint8_t response;
 
-  // enable data reporting
+  // Set stream
 	do{
     // write mouse byte (cmd 0xD4) in kbc_cmd_reg (0x64)
 		if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue; 
-    // Pass the argument of 0xD4 to the output buffer - enable data reporting
+    // Pass the argument of 0xD4 to the output buffer - set stream
 		if (kbc_write_reg(MOUSE_SET_STREAM) != OK) continue; 
     // Reads the reponse value (acknoledgement byte) from the input buffer
 		if (kbc_read_reg(&response) != OK) continue;
@@ -252,17 +252,26 @@ int(mouse_poll_handler)(){
   if(util_sys_inb(KBC_ST_REG, &stat) != OK){ // Reads the status register 
     return 1;
   }else{
-    if(util_sys_inb(OUT_BUF_REG, &byte) != OK){ // Read output buffer
-          printf("Error.\n");
-          return 1;
-      }
-
     if ((stat & (KBC_PAR_ERR | KBC_TO_ERR)) != 0){ // check if there was some error 
       printf("Error - invalid data\n");
       return 1;
     }else{
-        return 0; // byte read valid
+      uint8_t response;
+
+      // READ DATA (0xEB)
+      do {
+        // write mouse byte (cmd 0xD4) in kbc_cmd_reg (0x64)
+        if (kbc_issue_cmd(MOUSE_WRITE_B) != OK) continue; 
+        // Pass the argument of 0xD4 to the output buffer - set stream
+        if (kbc_write_reg(MOUSE_READ_DT) != OK) continue; 
+        // Reads the reponse value (acknoledgement byte) from the input buffer
+        if (kbc_read_reg(&response) != OK) continue;
+      } while (response != ACK);
+
+      if (kbc_issue_cmd(READ_COMD_BYTE) != OK) return 1;
+      if (kbc_read_reg(&byte) != OK) return 1;
+      
+      return 0; // byte read valid
     }
   }
-
 }

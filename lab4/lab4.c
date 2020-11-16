@@ -214,36 +214,48 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
 }
 
 int (mouse_test_remote)(uint16_t period, uint8_t cnt) {
+  
+  // disable minix's mouse IH - write the cmd byte to kbc - lcf_start()
     
   uint8_t n = 0;
   uint8_t num_bytes = 0;
   struct packet pp;
 
-  if(mouse_set_remote() != OK){
-    printf("Error in mouse_set_remote()\n");
-    return 1;
-  }
-
-  while(n < cnt){
-    if(mouse_poll_handler() == OK){
-      if(get_packet(byte, &num_bytes, &pp) == 0){ // indicates that a packet is complete
-        mouse_print_packet(&pp);
-        n++;
-      }
-    }
-    tickdelay(micros_to_ticks(period*1000));
-  }
-
-  if(mouse_set_stream() != OK){
-    printf("Error in mouse_set_stream().\n");
-    return 1;
-  }
-
+  // Disable (0xF5)
   if(mouse_disable_data_reporting() != OK){
     printf("Error in mouse_disable_data_reporting().\n");
     return 1;
   }
 
+  // Set Remote mode
+  if(mouse_set_remote() != OK){
+    printf("Error in mouse_set_remote()\n");
+    return 1;
+  }
+  
+  while(n < cnt){
+    tickdelay(micros_to_ticks(period*1000));
+    if(mouse_poll_handler() == OK){ // read from read Data
+      if(get_packet(byte, &num_bytes, &pp) == 0){ // indicates that a packet is complete
+        mouse_print_packet(&pp);
+        n++;
+      }
+    }
+  }
+
+  // Set stream mode before exiting
+  if(mouse_set_stream() != OK){
+    printf("Error in mouse_set_stream().\n");
+    return 1;
+  }
+
+  // Disable (0xF5)
+  if(mouse_disable_data_reporting() != OK){
+    printf("Error in mouse_disable_data_reporting().\n");
+    return 1;
+  }
+
+  // Reset the KBC’s command byte to its default value
   if(reset_kbc_status() != OK){
     printf("Error in reset_kbc_status().\n");
     return 1;
