@@ -264,6 +264,7 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
           /* Now, do application dependent event handling */
           if (pp.lb == 1) {
             printf("botao esquerdo primido?\n");
+            //check_draw(LDOW); <- atualiza o estado do automato de acordo com a transição que deve tomar (verifica situações de tolerancia e slope e c_len minimo)
             // draw = true;
           }
 
