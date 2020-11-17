@@ -207,10 +207,112 @@ int (mouse_test_async)(uint8_t idle_time) {
 
 }
 
+// S, SL1, SL2, F
+// quando rdown os outros incluindo o left tem de ser largados
+
 int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
-    /* To be completed */
-    printf("%s: under construction\n", __func__);
-    return 1;
+  // verificar ordemm destes
+  //Enable data reporting 
+	if(mouse_enable_data_report() != OK){ 
+		printf("Error in %s.", __func__);
+		return 1;
+	}
+
+	//Subscribes mouse's interrupts
+	uint8_t bit_no;
+	if(mouse_subscribe_int(&bit_no) != OK){
+		printf("Error in %s.", __func__);
+		return 1;
+	}
+
+  int ipc_status;
+  message msg;
+
+  uint32_t irq_set = BIT(bit_no);
+
+  uint8_t num_bytes = 0;
+  struct packet pp;
+
+  bool flag = false;
+  bool draw = false;
+
+  while(!draw){
+    int r;
+    //Get a request message
+    if((r = driver_receive(ANY, &msg, &ipc_status)) != 0){
+      printf("driver_receive faile with : %d", r);
+      continue;
+    }
+    //Checks if it received a notification
+    if(is_ipc_notify(ipc_status)){
+      switch(_ENDPOINT_P(msg.m_source)){
+        case HARDWARE: //Hardware interrupt notification
+          //Subscribed interrupt
+          if(msg.m_notify.interrupts & irq_set){
+            mouse_ih();
+            if(ih_error == 0){ //If there was no error
+              if(get_packet(byte, &num_bytes, &pp) == 0){ // indicates that a packet is complete
+                mouse_print_packet(&pp);
+                flag = true;
+              }
+            }else continue;
+          }
+
+          if (flag == true){ // verifica o estado de todos os botoes
+          // de acordo com isto chama o check_draw com o evento respetivo
+          // no check_draw é que o automato é processado
+          /* Now, do application dependent event handling */
+          if (pp.lb == 1) {
+            printf("botao esquerdo primido?\n");
+            // draw = true;
+          }
+
+          if (pp.lb == 0) {
+            printf("botao esquerdo levantado?\n");
+            // draw = true;
+          }
+
+
+          if (pp.rb == 1) {
+            printf("botao direito primido?\n");
+          }
+           if (pp.rb == 0) {
+            printf("botao direito levantado?\n");
+            // draw = true;
+          }
+
+          if (pp.mb == 1){
+            printf("botao meio primido?\n");
+          }
+           if (pp.mb == 0) {
+            printf("botao meio levantado?\n");
+            // draw = true;
+          }
+          flag = false;
+          }
+        
+
+          tickdelay(micros_to_ticks(WAIT_KBC));
+        break;
+      default:
+        break;
+      }
+    }
+  }
+
+  // To unsubscribe the Mouse interrupts
+  if(mouse_unsubscribe_int() != OK){
+	  printf("Error in %s.", __func__);
+	  return 1;
+  }
+
+  // Disable data reporting - duvidas na implementacao
+	if(mouse_disable_data_reporting() != OK){
+		printf("Error in %s.", __func__);
+		return 1;
+	}
+
+  return 1;
 }
 
 int (mouse_test_remote)(uint16_t period, uint8_t cnt) {

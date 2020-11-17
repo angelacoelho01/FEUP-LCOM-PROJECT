@@ -275,3 +275,33 @@ int(mouse_poll_handler)(){
     }
   }
 }
+
+typedef enum {INIT, DRAWL1, DRAWL2, COMP} state_t;
+typedef enum {LDOW, RDOW, ODOW, MOVE, LUP} ev_type_t;
+
+void (check_draw)(ev_type_t *evt){
+  // ->> byte é global nao precisa de ser passado por parametros
+  // funcao que representa o automato: estados e transições
+  static state_t st = INIT; // initial state; keep state
+  switch (st) {
+    case INIT:
+      if(*evt == LDOW)
+        st = DRAWL1;
+      break;
+    case DRAWL1:
+      if( *evt == MOVE ) {
+        // need to check tolerance of the line
+      } else if(*evt == LUP) {
+        // acabou de desenhar a 1 parte - verificar slope e x_len
+        // valido state = DRAWL2;
+        // invalido state = INIT;
+      }
+        st = INIT;
+      break;
+    // assim para todos os estados e o que fazer em cada um deles de acordo com o evento 
+    default:
+      break;
+  }
+
+  // movimento do automato de acordo com o evento que ocorre
+}
