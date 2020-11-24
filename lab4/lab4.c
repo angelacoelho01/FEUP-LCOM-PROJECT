@@ -207,8 +207,6 @@ int (mouse_test_async)(uint8_t idle_time) {
 
 }
 
-// S, SL1, SL2, F
-// quando rdown os outros incluindo o left tem de ser largados
 
 int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
   // verificar ordemm destes
@@ -232,6 +230,7 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
 
   uint8_t num_bytes = 0;
   struct packet pp;
+  struct mouse_ev* mouse_evt;
 
   bool flag = false;
   bool draw = false;
@@ -258,41 +257,12 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
             }else continue;
           }
 
-          if (flag == true){ // verifica o estado de todos os botoes
-          // de acordo com isto chama o check_draw com o evento respetivo
-          // no check_draw é que o automato é processado
-          /* Now, do application dependent event handling */
-          if (pp.lb == 1) {
-            printf("botao esquerdo primido?\n");
-            //check_draw(LDOW); <- atualiza o estado do automato de acordo com a transição que deve tomar (verifica situações de tolerancia e slope e c_len minimo)
-            // draw = true;
-          }
-
-          if (pp.lb == 0) {
-            printf("botao esquerdo levantado?\n");
-            // draw = true;
-          }
-
-
-          if (pp.rb == 1) {
-            printf("botao direito primido?\n");
-          }
-           if (pp.rb == 0) {
-            printf("botao direito levantado?\n");
-            // draw = true;
-          }
-
-          if (pp.mb == 1){
-            printf("botao meio primido?\n");
-          }
-           if (pp.mb == 0) {
-            printf("botao meio levantado?\n");
-            // draw = true;
-          }
-          flag = false;
+          if (flag){ // verifica o estado de todos os botoes
+            mouse_evt = mouse_detect_event(&pp);
+            draw = check_draw(mouse_evt, x_len, tolerance);
+            flag = false;
           }
         
-
           tickdelay(micros_to_ticks(WAIT_KBC));
         break;
       default:

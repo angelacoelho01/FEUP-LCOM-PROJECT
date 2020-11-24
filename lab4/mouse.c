@@ -276,32 +276,85 @@ int(mouse_poll_handler)(){
   }
 }
 
-typedef enum {INIT, DRAWL1, DRAWL2, COMP} state_t;
-typedef enum {LDOW, RDOW, ODOW, MOVE, LUP} ev_type_t;
+typedef enum {INIT, DRAWL1, VERTIX, DRAWL2, COMP} state_t;
 
-void (check_draw)(ev_type_t *evt){
+bool(check_draw)(struct mouse_ev *evt, uint8_t x_len, uint8_t tolerance){ 
+  bool res = false;
   // ->> byte é global nao precisa de ser passado por parametros
   // funcao que representa o automato: estados e transições
   static state_t st = INIT; // initial state; keep state
   switch (st) {
     case INIT:
-      if(*evt == LDOW)
+      if(evt->type == LB_PRESSED)
         st = DRAWL1;
       break;
     case DRAWL1:
-      if( *evt == MOVE ) {
-        // need to check tolerance of the line
-      } else if(*evt == LUP) {
+      if (evt->type == LB_RELEASED) { // realease left button
         // acabou de desenhar a 1 parte - verificar slope e x_len
-        // valido state = DRAWL2;
-        // invalido state = INIT;
+        int16_t slope = evt->delta_y / evt->delta_x;
+        if ((evt->delta_x < x_len) || (abs(slope) < 1))
+          st = INIT;
+        else {
+          st = VERTIX;
+        }
       }
+      if (evt->type == BUTTON_EV){ 
         st = INIT;
+      }
+      if( evt->type == MOUSE_MOV ) {
+        // linha para cima - should have displacement in x and y positive
+        if (evt->delta_x < 0) { // check tolerance
+          if (abs(evt->delta_x) > tolerance)
+            st = INIT;
+        }
+        if (evt->delta_y < 0) { // check tolerance
+          if (abs(evt->delta_y) > tolerance)
+            st = INIT;
+        }
+      }
       break;
-    // assim para todos os estados e o que fazer em cada um deles de acordo com o evento 
+    case VERTIX:
+      if (evt->type == RB_PRESSED){ // right primido
+        st = DRAWL2;
+      }
+      if (evt->type == BUTTON_EV){ 
+        st = INIT;
+      }
+      if (evt->type == MOUSE_MOV){
+        // tolerancia entre a troca de botoes
+        if ((abs(evt->delta_x) > tolerance) || (abs(evt->delta_y) > tolerance))
+            st = INIT;
+      }
+      break;
+    case DRAWL2:
+      if (evt->type == RB_RELEASED) { // realease right button
+        // acabou de desenhar a 2 parte - verificar slope e x_len
+        int16_t slope = evt->delta_y / evt->delta_x;
+        if ((evt->delta_x < x_len) || (abs(slope) < 1))
+          st = INIT;
+        else {
+          st = COMP;
+          res = true;
+        }
+      }
+      if (evt->type == BUTTON_EV){
+        st = INIT;
+      }
+      if(evt->type == MOUSE_MOV ) {
+         // linha para baixo - should have displacement in x positive and y negative
+        if (evt->delta_x < 0) { // check tolerance
+          if (abs(evt->delta_x) > tolerance)
+            st = INIT;
+        }
+        if (evt->delta_y > 0) { // check tolerance
+          if (abs(evt->delta_y) > tolerance)
+            st = INIT;
+        }
+      }
+      break;
     default:
       break;
   }
 
-  // movimento do automato de acordo com o evento que ocorre
+  return (res);
 }

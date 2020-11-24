@@ -32,5 +32,6 @@ int (mouse_set_stream)();
 
 int(mouse_poll_handler)();
 
+bool(check_draw)(struct mouse_ev *evt, uint8_t x_len, uint8_t tolerance);
 
 #endif /* __MOUSE_H */
