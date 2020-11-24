@@ -279,9 +279,8 @@ int(mouse_poll_handler)(){
 typedef enum {INIT, DRAWL1, VERTIX, DRAWL2, COMP} state_t;
 
 bool(check_draw)(struct mouse_ev *evt, uint8_t x_len, uint8_t tolerance){ 
+  
   bool res = false;
-  // ->> byte é global nao precisa de ser passado por parametros
-  // funcao que representa o automato: estados e transições
   static state_t st = INIT; // initial state; keep state
   switch (st) {
     case INIT:

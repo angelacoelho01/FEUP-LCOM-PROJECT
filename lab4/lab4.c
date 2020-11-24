@@ -259,6 +259,7 @@ int (mouse_test_gesture)(uint8_t x_len, uint8_t tolerance) {
 
           if (flag){ // verifica o estado de todos os botoes
             mouse_evt = mouse_detect_event(&pp);
+            // printf("\npacket event:: %s", mouse_evt->type);
             draw = check_draw(mouse_evt, x_len, tolerance);
             flag = false;
           }
