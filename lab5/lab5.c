@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
 }
 
 int(video_test_init)(uint16_t mode, uint8_t delay) {
-  if(video_set_graph_mode(mode) != OK) return 1;
-  if(video_get_mode_conf(mode, &mode_conf) != OK) return 1;
+  if(video_set_graphic_mode(mode) != OK) return 1;
+  if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
   sleep(delay);
   if(vg_exit() != OK) return 1;
   return 0;

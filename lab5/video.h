@@ -8,8 +8,10 @@
 #include <stdint.h>
 #include <machine/int86.h>
 
-int (video_set_graph_mode)(uint16_t mdode);
+#include "video_macros.h"
 
-int (video_get_mode_conf)(uint16_t mode, vbe_mode_info_t* mode_conf);
+int (video_set_graphic_mode)(uint16_t mode);
+
+int(video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p);
 
 #endif
