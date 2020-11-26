@@ -14,3 +14,4 @@
   
  int (vg_display_vbe_contr_info)(struct vg_vbe_contr_info *info_p);
  
+ 
