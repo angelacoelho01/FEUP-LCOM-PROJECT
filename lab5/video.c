@@ -109,21 +109,30 @@ int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
     for(uint32_t i = 0; i < len; i++){
        if(vg_draw_pixel(x+i, y, color) != OK) return 1;
     }
-
     return 0;
 }
 
 int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color){
-    //if(((y+1) > mode_conf.YResolution) || ((x+1) > mode_conf.XResolution)){
-        //return 1;
-    //}
-    //Checks the height 
-    //if((y + height) > mode_conf.YResolution) height = mode_conf.YResolution - y;
-    //Checks the width
-    //if((x + width) > mode_conf.XResolution) width = mode_conf.XResolution - x;
-
-
-
+    //Checks if the y position is valid
+    if(y >= mode_conf.YResolution){
+        printf("Y is an invalid position!\n");
+        return 1;
+    }
+    //Checks if the x position is valid
+    if(x >= mode_conf.XResolution){
+        printf("X is an invalid position!\n");
+        return 1;
+    }
+    //Checks if the height is valid according to the y position
+    if((y + height) >= mode_conf.YResolution){
+        printf("Invalid height value according to the y position!\n");
+        height = (mode_conf.YResolution - y - 1);
+    }
+    //Checks if the width is valid according to the x position
+    if((x + width) >= mode_conf.XResolution){
+        printf("Invalid height value according to the y position!\n");
+        width = (mode_conf.XResolution - x - 1);
+    }
 
     for(uint32_t line = 0 ; line != height; line++)
         if(vg_draw_hline(x, y+line, width, color) != OK) return 1;
