@@ -2,6 +2,7 @@
 
 
 vbe_mode_info_t mode_conf;
+void* video_mem;
 
 //NOTE THAT: reg86_t == struct reg86
 
@@ -58,11 +59,11 @@ int (video_set_graphic_mode)(uint16_t mode){
   return 0;
 }
 
-uint8_t calculate_size_in_bytes(uint8_t bits) {
+uint8_t get_bytes_size(uint8_t bits) {
     return (uint8_t)(bits / BYTE_SIZE) +  (bits % BYTE_SIZE ? 1 : 0);
 }
 
-int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){  
+int (map_memory)(){
     int r;
     //Physical memory range
     struct minix_mem_range mr;
@@ -70,37 +71,60 @@ int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
     unsigned int vram_base = mode_conf.PhysBasePtr;  
     //VRAM'S size
     unsigned int vram_size = (mode_conf.XResolution * mode_conf.YResolution * mode_conf.BitsPerPixel)/8; 
-    void *video_mem;
+    //void *video_mem;
 
     //Allow memory mapping
     mr.mr_base = (phys_bytes) vram_base;
     mr.mr_limit = mr.mr_base + vram_size;
 
-    if((r = sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mr)) != OK)
+    if((r = sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mr)) != OK){
         printf("sys_privctl (ADD_MEM) failed: %d\n", r);
+        return 1;
+    }
 
     //Map memory
     video_mem = vm_map_phys(SELF, (void*)mr.mr_base, vram_size);
 
-    if(video_mem == MAP_FAILED)
+    if(video_mem == MAP_FAILED){
         printf("couldn't map video memory.\n");
+        return 1;
+    }
 
-    uint8_t* ptr;
-    ptr = video_mem;
+    return 0;
+}
 
-    //In case it is the indexed color mode, pixel_size = 1
-    uint8_t pixel_size = calculate_size_in_bytes(mode_conf.BitsPerPixel);
+int (vg_draw_pixel)(uint16_t x, uint16_t y, uint32_t color){
+    uint8_t* ptr = video_mem;
+    uint8_t pixel_size = get_bytes_size(mode_conf.BitsPerPixel);
 
-    for (uint32_t i = 0; i < len; i++){
-        uint32_t y_coord = y * mode_conf.XResolution * pixel_size;
-        uint32_t x_coord = (x + i) * pixel_size;
-        memcpy(ptr + y_coord + x_coord, &color, pixel_size);
+    uint32_t y_coord = y * mode_conf.XResolution * pixel_size;
+    uint32_t x_coord = x * pixel_size;
+    memcpy(ptr + y_coord + x_coord, &color, pixel_size);
+
+    return 0;
+
+}
+
+int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){  
+    for(uint32_t i = 0; i < len; i++){
+       if(vg_draw_pixel(x+i, y, color) != OK) return 1;
     }
 
     return 0;
 }
 
 int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color){
+    //if(((y+1) > mode_conf.YResolution) || ((x+1) > mode_conf.XResolution)){
+        //return 1;
+    //}
+    //Checks the height 
+    //if((y + height) > mode_conf.YResolution) height = mode_conf.YResolution - y;
+    //Checks the width
+    //if((x + width) > mode_conf.XResolution) width = mode_conf.XResolution - x;
+
+
+
+
     for(uint32_t line = 0 ; line != height; line++)
         if(vg_draw_hline(x, y+line, width, color) != OK) return 1;
     return 0;

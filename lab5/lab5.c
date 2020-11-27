@@ -12,6 +12,7 @@
 extern uint8_t scancode;
 extern int hook_id;
 extern vbe_mode_info_t mode_conf;
+extern void* video_mem;
 
 // Any header files included below this line should have been created by you
 
@@ -59,6 +60,7 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y,
   //if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
   if(vbe_get_mode_info(mode, &mode_conf) != OK) return 1;
 
+  if(map_memory() != OK) return 1;
   //if(vg_draw_hline(x, y, width ,color) != OK) return 1;
   if(vg_draw_rectangle(x,y, width, height, color) != OK) return 1;
 
