@@ -15,6 +15,8 @@ extern uint8_t scancode;
 extern int hook_id;
 extern vbe_mode_info_t mode_conf;
 extern unsigned bits_per_pixel;
+extern enum xpm_image_type xpm_type;
+extern xpm_image_t xpm_image;
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -99,7 +101,6 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y,
 int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, uint8_t step) {
   uint8_t bit_no;
 
-  if(keyboard_subscribe_int(&bit_no) != OK) return 1;
   if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
   if(map_memory() != OK) return 1;
 
@@ -130,6 +131,8 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
     //Goes to the next line according to the calculated height
     y += height; 
   }
+
+  if(keyboard_subscribe_int(&bit_no) != OK) return 1;
 
   message msg;
   int ipc_status;
@@ -163,10 +166,56 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
 }
 
 int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
-  /* To be completed */
-  printf("%s(%8p, %u, %u): under construction\n", __func__, xpm, x, y);
+  //Start to change the video mode to 0x105
+  uint16_t mode = 0x105;
+  if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
+  if(map_memory() != OK) return 1;
+  if(video_set_graphic_mode(mode) != OK) return 1;
+  //Loads the xpm
+  uint8_t* address;
+  if((address = xpm_load(xpm, xpm_type, &xpm_image)) == NULL){
+    vg_exit();
+    return 1;
+  }
 
-  return 1;
+  draw_pixmap(x, y);
+
+
+  //Subscribe keyboard interruptions
+  uint8_t bit_no;
+  if(keyboard_subscribe_int(&bit_no) != OK) return 1;
+
+  message msg;
+  int ipc_status;
+  uint32_t irq_set = BIT(bit_no);
+
+  while(scancode != ESC_BREAKCODE_KEY){
+    int r;
+    if((r = driver_receive(ANY, &msg, &ipc_status)) != OK){
+      printf("driver_receive failed with: %d\n", r);
+      continue;
+    }
+
+    switch(_ENDPOINT_P(msg.m_source)){
+      case HARDWARE:
+      {
+        if(msg.m_notify.interrupts & irq_set){
+          if(keyboard_read_scancode() != OK) return 1;
+        }
+        break;
+      
+      default:
+        break;
+      }
+    }
+  }
+
+  //Unsubscribe keyboard interruptions
+  if(keyboard_unsubscribe_int() != OK) return 1;
+  //Returns to text mode
+  if(vg_exit() != OK) return 1;
+  return 0;
+
 }
 
 int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint16_t yf,

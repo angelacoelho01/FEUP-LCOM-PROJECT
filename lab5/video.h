@@ -29,4 +29,6 @@ void (get_color)(uint32_t* color, uint32_t first, uint16_t row, uint16_t col, ui
 
 void (get_size)(uint8_t no_rectangles, uint16_t* width, uint16_t* height);
 
+int (draw_pixmap)(uint16_t xi, uint16_t yi);
+
 #endif

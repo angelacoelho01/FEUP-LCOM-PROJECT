@@ -1,6 +1,5 @@
 #include "video.h"
 
-
 vbe_mode_info_t mode_conf;
 //Process (virtual) address to which VRAM is mapped
 static void* video_mem;
@@ -10,6 +9,8 @@ static unsigned h_res;
 static unsigned v_res;
 //Number of VRAM bits per pixel
 unsigned bits_per_pixel;
+enum xpm_image_type xpm_type;
+xpm_image_t xpm_image;
 
 int (video_set_graphic_mode)(uint16_t mode){
     reg86_t r;
@@ -168,4 +169,30 @@ void (get_color)(uint32_t* color, uint32_t first, uint16_t row, uint16_t col, ui
 void (get_size)(uint8_t no_rectangles, uint16_t* width, uint16_t* height){
     *width = h_res/no_rectangles;
     *height = v_res/no_rectangles;
+}
+
+int (draw_pixmap)(uint16_t xi, uint16_t yi){
+     //Checks if the y position is valid
+    if(yi >= v_res){
+        printf("Y is an invalid position!\n");
+        return 1;
+    }
+    //Checks if the x position is valid
+    if(xi >= h_res){
+        printf("X is an invalid position!\n");
+        return 1;
+    }
+    uint16_t y = yi, x = xi;
+    for(size_t i = 0; i < xpm_image.size; i++){
+        if((x - xi) == xpm_image.width){
+            x = xi;
+            y++;
+            //printf("\n");
+        }
+        //printf("%d ", xpm_image.bytes[i]);
+        if(vg_draw_pixel(x, y, xpm_image.bytes[i]) != OK) return 1;
+        x++;
+    }
+
+    return 0;
 }
