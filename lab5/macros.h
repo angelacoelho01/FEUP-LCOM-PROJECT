@@ -31,13 +31,9 @@
 
 #define VBE_SET_MODE 0x4f02
 #define VBE_GET_MODE_INFO 0x4f01
+#define VBE_GET_CONTROLLER_INFO 0x4f00
 
 #define BYTE_SIZE 8
-
-//Get color components
-#define RED 0xFF0000
-#define GREEN 0x00FF00
-#define BLUE 0x0000FF
 
 #define COLOR_BIT_MASK 0xff
 

@@ -19,6 +19,8 @@ extern unsigned bits_per_pixel;
 extern enum xpm_image_type xpm_type;
 extern xpm_image_t xpm_image;
 extern unsigned int counter;
+extern vg_vbe_contr_info_t controller_info;
+
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -310,8 +312,6 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
 }
 
 int(video_test_controller)() {
-  /* To be completed */
-  printf("%s(): under construction\n", __func__);
-
+  printf("Under construction!\n");
   return 1;
 }
