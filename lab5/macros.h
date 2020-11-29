@@ -36,6 +36,8 @@
 #define GREEN 0x00FF00
 #define BLUE 0x0000FF
 
+#define COLOR_BIT_MASK 0xff
+
 #define INDEXED_COLOR_MODE 0x04
 #define DIRECT_COLOR_MODE 0x06
 

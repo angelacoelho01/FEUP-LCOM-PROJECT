@@ -60,7 +60,10 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y,
   //Sets the video card to a certain graphic mode
   if(video_set_graphic_mode(mode) != OK) return 1;
 
-  if(vg_draw_rectangle(x,y, width, height, color) != OK) return 1;
+  if(vg_draw_rectangle(x,y, width, height, color) != OK){
+    vg_exit();
+    return 1;
+  }
 
   message msg;
   int ipc_status;
@@ -104,23 +107,29 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
   if(video_set_graphic_mode(mode) != OK) return 1;
 
   uint16_t width, height;
+  //Gets the width and height of each rectangle
   get_size(no_rectangles, &width, &height);
-  printf("WIDTH = %d\nHEIGHT = %d\n", width, height);
-
+  //Initializes color with the first
   uint32_t color = first;
+  //Initializes coordinates at (0,0)
   uint16_t x = 0, y = 0;
-
   for(uint16_t i = 0; i  < no_rectangles; i++){
     for(uint16_t j = 0; j < no_rectangles; j++){
-        color = get_color(first, i, j, no_rectangles, step);
-        if(vg_draw_rectangle(x, y, width, height, color) != OK) return 1;
+        //Gets the color throught the given functions and according to the color mode
+        get_color(&color, first, i, j, no_rectangles, step);
+        //Draws a rectangle; in case it doesn't work, returns to text mode
+        if(vg_draw_rectangle(x, y, width, height, color) != OK){
+          vg_exit();
+          return 1;
+        } 
+        //Goes to the next column according to the calculated width
         x += width;
     }
+    //Resets the column to start a new line
     x = 0;
+    //Goes to the next line according to the calculated height
     y += height; 
   }
-
-  //if(vg_draw_rectangle(x,y, width, height, color) != OK) return 1;
 
   message msg;
   int ipc_status;

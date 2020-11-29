@@ -135,13 +135,13 @@ int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
         return 1;
     }
     //Checks if the height is valid according to the y position
-    if((y + height) >= v_res){
-        printf("Invalid height value according to the y position!\n");
+    if((y + height) > v_res){
+        printf("Invalid height value according to the y (%d) position!\n", y);
         height = (mode_conf.YResolution - y - 1);
     }
     //Checks if the width is valid according to the x position
-    if((x + width) >= h_res){
-        printf("Invalid height value according to the y position!\n");
+    if((x + width) > h_res){
+        printf("Invalid width value according to the x (%d) position!\n", x);
         width = (mode_conf.XResolution - x - 1);
     }
 
@@ -150,26 +150,21 @@ int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
     return 0;
  }
 
-uint32_t (get_color)(uint32_t first, uint16_t row, uint16_t col, uint8_t no_rectangles, uint8_t step){
+//Gets the new color to draw in the matrix
+void (get_color)(uint32_t* color, uint32_t first, uint16_t row, uint16_t col, uint8_t no_rectangles, uint8_t step){
     //Indexed color mode
-    if(mode_conf.MemoryModel == INDEXED_COLOR_MODE) {
-        uint32_t color = (first + (row * no_rectangles + col) * step) % (1 << bits_per_pixel);
-        return color;
-    }
+    if(mode_conf.MemoryModel == INDEXED_COLOR_MODE) 
+        *color = (first + (row * no_rectangles + col) * step) % (1 << bits_per_pixel);
+    //Direct color mode
     else if(mode_conf.MemoryModel == DIRECT_COLOR_MODE){
-        uint32_t red_mask = ((1 << mode_conf.RedMaskSize)-1);
-        uint32_t red=(((first>>mode_conf.RedFieldPosition) & red_mask)+ col * step) % (1 << mode_conf.RedMaskSize);
-        uint32_t green_mask = ((1 << mode_conf.GreenMaskSize)-1);
-	    uint32_t green = (((first>>mode_conf.GreenFieldPosition ) & green_mask)+ row * step) % (1 << mode_conf.GreenMaskSize);
-        uint32_t blue_mask = ((1 << mode_conf.BlueMaskSize)-1);
-	    uint32_t blue = (((first<<mode_conf.BlueFieldPosition) & blue_mask)+ (col + row) * step) % (1 << mode_conf.BlueMaskSize);	
-
-       uint32_t color =((red << mode_conf.RedFieldPosition )| (green << mode_conf.GreenFieldPosition)|blue);
-       return color;
+        uint32_t red=(((first>>mode_conf.RedFieldPosition) & COLOR_BIT_MASK)+ col * step) % (1 << mode_conf.RedMaskSize);
+	    uint32_t green = (((first>>mode_conf.GreenFieldPosition ) & COLOR_BIT_MASK)+ row * step) % (1 << mode_conf.GreenMaskSize);
+	    uint32_t blue = (((first<<mode_conf.BlueFieldPosition) & COLOR_BIT_MASK)+ (col + row) * step) % (1 << mode_conf.BlueMaskSize);	
+        *color =((red << mode_conf.RedFieldPosition )| (green << mode_conf.GreenFieldPosition)|blue);
     }
-    return -1;
 }
 
+//Gets the possible size to each rectangle according to the mode resolution
 void (get_size)(uint8_t no_rectangles, uint16_t* width, uint16_t* height){
     *width = h_res/no_rectangles;
     *height = v_res/no_rectangles;
