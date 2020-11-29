@@ -10,4 +10,11 @@
 //VBE functions
 #define VBE_GET_MODE_INFO 0x4f01
 #define VBE_SET_MODE 0x4f02
+
+#define BYTE_SIZE 8
+
+//#define RED(n) (n >> 16)
+//#define GREEN(n) ((n << 8) >> 16)
+//#define BLUE(n) ((n << 16) >> 8)
+
 #endif

@@ -6,15 +6,15 @@
 #include <stdint.h>
 #include <stdio.h>
 
+// Any header files included below this line should have been created by you
+
 #include "video.h"
 #include "keyboard.h"
 
 extern uint8_t scancode;
 extern int hook_id;
 extern vbe_mode_info_t mode_conf;
-extern void* video_mem;
-
-// Any header files included below this line should have been created by you
+extern unsigned bits_per_pixel;
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
 }
 
 int(video_test_init)(uint16_t mode, uint8_t delay) {
-  if(video_set_graphic_mode(mode) != OK) return 1;
   if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
+  if(video_set_graphic_mode(mode) != OK) return 1;
   sleep(delay);
   if(vg_exit() != OK) return 1;
   return 0;
@@ -54,14 +54,12 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y,
   uint8_t bit_no;
 
   if(keyboard_subscribe_int(&bit_no) != OK) return 1;
+  if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
+  if(map_memory() != OK) return 1;
 
   //Sets the video card to a certain graphic mode
   if(video_set_graphic_mode(mode) != OK) return 1;
-  //if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
-  if(vbe_get_mode_info(mode, &mode_conf) != OK) return 1;
 
-  if(map_memory() != OK) return 1;
-  //if(vg_draw_hline(x, y, width ,color) != OK) return 1;
   if(vg_draw_rectangle(x,y, width, height, color) != OK) return 1;
 
   message msg;
@@ -91,17 +89,96 @@ int(video_test_rectangle)(uint16_t mode, uint16_t x, uint16_t y,
 
   if(vg_exit() != OK) return 1;
 
-
   if(keyboard_unsubscribe_int() != OK) return 1;
   return 0;
 }
 
 int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, uint8_t step) {
-  /* To be completed */
-  printf("%s(0x%03x, %u, 0x%08x, %d): under construction\n", __func__,
-         mode, no_rectangles, first, step);
+  uint8_t bit_no;
 
-  return 1;
+  if(keyboard_subscribe_int(&bit_no) != OK) return 1;
+  if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
+  if(map_memory() != OK) return 1;
+
+  //Sets the video card to a certain graphic mode
+  if(video_set_graphic_mode(mode) != OK) return 1;
+
+  /*uint16_t recWidth = mode_conf.XResolution / no_rectangles;
+  uint16_t recHeight = mode_conf.YResolution / no_rectangles;
+
+  uint32_t color = first;
+
+  for (unsigned row = 0; row < no_rectangles; row++) {
+
+    for (unsigned col = 0; col < no_rectangles; col++) {
+
+      //gets the color for the next rectangle
+      if(mode_conf.MemoryModel==0x04) //inexed mode
+        color = (first + (row * no_rectangles + col) * step) % (1 << bits_per_pixel);
+      
+      else if(mode_conf.MemoryModel==0x06){//direct mode
+          
+        uint32_t red_mask = ((1 << mode_conf.RedMaskSize)-1);
+        uint32_t red=(((first>>mode_conf.RedFieldPosition) & red_mask)+ col * step) % (1 << mode_conf.RedMaskSize);
+        uint32_t green_mask = ((1 << mode_conf.GreenMaskSize)-1);
+        uint32_t green = (((first>>mode_conf.GreenFieldPosition ) & green_mask)+ row * step) % (1 << mode_conf.GreenMaskSize);
+        uint32_t blue_mask = ((1 << mode_conf.BlueMaskSize)-1);
+        uint32_t blue = (((first<<mode_conf.BlueFieldPosition) & blue_mask)+ (col + row) * step) % (1 << mode_conf.BlueMaskSize);	
+
+        color=((red << mode_conf.RedFieldPosition )| (green << mode_conf.GreenFieldPosition)|blue);
+      }
+      if (vg_draw_rectangle(recWidth * col, recHeight * row, recWidth, recHeight, color)) return 1;
+    }
+  }*/
+
+  uint16_t width, height;
+  get_size(no_rectangles, &width, &height);
+  printf("WIDTH = %d\nHEIGHT = %d\n", width, height);
+
+  uint32_t color = first;
+  uint16_t x = 0, y = 0;
+
+  for(uint16_t i = 0; i  < no_rectangles; i++){
+    for(uint16_t j = 0; j < no_rectangles; j++){
+        color = get_color(first, i, j, no_rectangles, step);
+        if(vg_draw_rectangle(x, y, width, height, color) != OK) return 1;
+        x += width;
+    }
+    x = 0;
+    y += height; 
+  }
+
+  //if(vg_draw_rectangle(x,y, width, height, color) != OK) return 1;
+
+  message msg;
+  int ipc_status;
+  uint32_t irq_set = BIT(bit_no);
+
+  while(scancode != ESC_BREAKCODE_KEY){
+
+    int r; 
+    if((r = driver_receive(ANY, &msg, &ipc_status))!= 0){
+      printf("driver_receive failed with: %d\n", r);
+      continue;
+    }
+
+    switch(_ENDPOINT_P(msg.m_source)){
+      case HARDWARE:
+        if(msg.m_notify.interrupts & irq_set){
+          if(keyboard_read_scancode() != OK) return 1;
+        }
+        break;
+      
+      default:
+        break;
+    } 
+
+  }
+
+  if(vg_exit() != OK) return 1;
+
+  if(keyboard_unsubscribe_int() != OK) return 1;
+  return 0;
 }
 
 int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {

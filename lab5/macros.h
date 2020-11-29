@@ -31,6 +31,11 @@
 
 #define BYTE_SIZE 8
 
+//Get color components
+#define RED 0xFF0000
+#define GREEN 0x00FF00
+#define BLUE 0x0000FF
+
 #define INDEXED_COLOR_MODE 0x04
 #define DIRECT_COLOR_MODE 0x06
 

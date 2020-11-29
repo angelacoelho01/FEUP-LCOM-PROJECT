@@ -2,23 +2,27 @@
 
 
 vbe_mode_info_t mode_conf;
-void* video_mem;
-
-//NOTE THAT: reg86_t == struct reg86
-
+//Process (virtual) address to which VRAM is mapped
+static void* video_mem;
+//Horizontal resolution in pixels
+static unsigned h_res;
+//Vertical resolution in pixels
+static unsigned v_res;
+//Number of VRAM bits per pixel
+unsigned bits_per_pixel;
 
 int (video_set_graphic_mode)(uint16_t mode){
-    reg86_t reg;
+    reg86_t r;
     //Zero the struct
-    memset(&reg, 0, sizeof(reg));	
+    memset(&r, 0, sizeof(r));	
     //VBE call, function 02, sets the VBE mode
-    reg.ax = VBE_SET_MODE;
+    r.ax = VBE_SET_MODE;
     //Set bit 14: linear framebuffer?
-    reg.bx = 1<<14 | mode;
+    r.bx = 1<<14 | mode;
     //BIOS video services
-    reg.intno = BIOS_SERVICE_VIDEO;
+    r.intno = BIOS_SERVICE_VIDEO;
     //Make the BIOS call and checks it
-    if(sys_int86(&reg) != OK){
+    if(sys_int86(&r) != OK){
         printf("set_graph_mode: sys_int86() failed\n");
         return 1;
     }
@@ -28,35 +32,41 @@ int (video_set_graphic_mode)(uint16_t mode){
 //Initializes the vbe_mode_info_t with the input VBE mode, including
 //screens dimensions, color depth and VRAM physical address
  int(video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p){
-  //Get the size of a vbe_mode_info_t variable
-  uint32_t size=sizeof(vbe_mode_info_t);
+    //Get the size of a vbe_mode_info_t variable
+    uint32_t size=sizeof(vbe_mode_info_t);
 
-  //Creates a struct that keeps info regardin the mapping of physical memory to virtual memory
-  mmap_t adress;
+    //Creates a struct that keeps info regardin the mapping of physical memory to virtual memory
+    mmap_t address;
 
-  //Allocates a memory block in the region up to the 1MByte physical address with the size of a
-  //vbe_mode_info_t vairble and initializes the input mmap_t struct with the mapping information
-  lm_alloc(size,&adress);
+    //Allocates a memory block in the region up to the 1MByte physical address with the size of a
+    //vbe_mode_info_t vairble and initializes the input mmap_t struct with the mapping information
+    lm_alloc(size,&address);
 
-  struct reg86 reg;  
-  //Starts an address of memory startign in reg, filled with 0 and with the size of the struct reg 
-  memset(&reg, 0, sizeof(reg));  
-  //VBE get mode info
-  reg.ax = VBE_GET_MODE_INFO;  
-  //The mode number        
-  reg.cx = mode;
-  //Set a segment base?
-  reg.es = PB2BASE(adress.phys);    
-  //Set the offset accordingly
-  reg.di = PB2OFF(adress.phys);            
-  //BIOS videos servic
-  reg.intno = BIOS_SERVICE_VIDEO;
-  //Gets the virtual address
-  //*vmi_p =*(vbe_mode_info_t*)adress.virt;
-  memcpy(vmi_p, adress.virt, sizeof(vbe_mode_info_t));
-  //Frees the allocated memory
-  lm_free(&adress);
-  return 0;
+    struct reg86 r;  
+    //Starts an address of memory startign in reg, filled with 0 and with the size of the struct reg 
+    memset(&r, 0, sizeof(r));  
+    //VBE get mode info
+    r.ax = VBE_GET_MODE_INFO;  
+    //The mode number        
+    r.cx = mode; 
+
+    //Set a segment base
+    r.es = PB2BASE(address.phys);    
+    //Set the offset accordingly
+    r.di = PB2OFF(address.phys);
+            
+    //BIOS videos servic
+    r.intno = BIOS_SERVICE_VIDEO;
+    //Gets the virtual address
+    memcpy(vmi_p, address.virt, sizeof(vbe_mode_info_t));
+    //Frees the allocated memory
+    lm_free(&address);
+
+    h_res = mode_conf.XResolution;
+    v_res = mode_conf.YResolution;
+    bits_per_pixel = mode_conf.BitsPerPixel;
+
+    return 0;
 }
 
 uint8_t get_bytes_size(uint8_t bits) {
@@ -70,7 +80,7 @@ int (map_memory)(){
     //VRAM's physical address
     unsigned int vram_base = mode_conf.PhysBasePtr;  
     //VRAM'S size
-    unsigned int vram_size = (mode_conf.XResolution * mode_conf.YResolution * mode_conf.BitsPerPixel)/8; 
+    unsigned int vram_size = (h_res * v_res * bits_per_pixel)/8; 
     //void *video_mem;
 
     //Allow memory mapping
@@ -94,10 +104,10 @@ int (map_memory)(){
 }
 
 int (vg_draw_pixel)(uint16_t x, uint16_t y, uint32_t color){
-    uint8_t* ptr = video_mem;
-    uint8_t pixel_size = get_bytes_size(mode_conf.BitsPerPixel);
+    char* ptr = video_mem;
+    uint8_t pixel_size = get_bytes_size(bits_per_pixel);
 
-    uint32_t y_coord = y * mode_conf.XResolution * pixel_size;
+    uint32_t y_coord = y * h_res * pixel_size;
     uint32_t x_coord = x * pixel_size;
     memcpy(ptr + y_coord + x_coord, &color, pixel_size);
 
@@ -113,23 +123,24 @@ int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color){
 }
 
 int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color){
+
     //Checks if the y position is valid
-    if(y >= mode_conf.YResolution){
+    if(y >= v_res){
         printf("Y is an invalid position!\n");
         return 1;
     }
     //Checks if the x position is valid
-    if(x >= mode_conf.XResolution){
+    if(x >= h_res){
         printf("X is an invalid position!\n");
         return 1;
     }
     //Checks if the height is valid according to the y position
-    if((y + height) >= mode_conf.YResolution){
+    if((y + height) >= v_res){
         printf("Invalid height value according to the y position!\n");
         height = (mode_conf.YResolution - y - 1);
     }
     //Checks if the width is valid according to the x position
-    if((x + width) >= mode_conf.XResolution){
+    if((x + width) >= h_res){
         printf("Invalid height value according to the y position!\n");
         width = (mode_conf.XResolution - x - 1);
     }
@@ -139,3 +150,27 @@ int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
     return 0;
  }
 
+uint32_t (get_color)(uint32_t first, uint16_t row, uint16_t col, uint8_t no_rectangles, uint8_t step){
+    //Indexed color mode
+    if(mode_conf.MemoryModel == INDEXED_COLOR_MODE) {
+        uint32_t color = (first + (row * no_rectangles + col) * step) % (1 << bits_per_pixel);
+        return color;
+    }
+    else if(mode_conf.MemoryModel == DIRECT_COLOR_MODE){
+        uint32_t red_mask = ((1 << mode_conf.RedMaskSize)-1);
+        uint32_t red=(((first>>mode_conf.RedFieldPosition) & red_mask)+ col * step) % (1 << mode_conf.RedMaskSize);
+        uint32_t green_mask = ((1 << mode_conf.GreenMaskSize)-1);
+	    uint32_t green = (((first>>mode_conf.GreenFieldPosition ) & green_mask)+ row * step) % (1 << mode_conf.GreenMaskSize);
+        uint32_t blue_mask = ((1 << mode_conf.BlueMaskSize)-1);
+	    uint32_t blue = (((first<<mode_conf.BlueFieldPosition) & blue_mask)+ (col + row) * step) % (1 << mode_conf.BlueMaskSize);	
+
+       uint32_t color =((red << mode_conf.RedFieldPosition )| (green << mode_conf.GreenFieldPosition)|blue);
+       return color;
+    }
+    return -1;
+}
+
+void (get_size)(uint8_t no_rectangles, uint16_t* width, uint16_t* height){
+    *width = h_res/no_rectangles;
+    *height = v_res/no_rectangles;
+}
