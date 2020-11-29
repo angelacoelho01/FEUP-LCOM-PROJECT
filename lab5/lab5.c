@@ -103,34 +103,6 @@ int(video_test_pattern)(uint16_t mode, uint8_t no_rectangles, uint32_t first, ui
   //Sets the video card to a certain graphic mode
   if(video_set_graphic_mode(mode) != OK) return 1;
 
-  /*uint16_t recWidth = mode_conf.XResolution / no_rectangles;
-  uint16_t recHeight = mode_conf.YResolution / no_rectangles;
-
-  uint32_t color = first;
-
-  for (unsigned row = 0; row < no_rectangles; row++) {
-
-    for (unsigned col = 0; col < no_rectangles; col++) {
-
-      //gets the color for the next rectangle
-      if(mode_conf.MemoryModel==0x04) //inexed mode
-        color = (first + (row * no_rectangles + col) * step) % (1 << bits_per_pixel);
-      
-      else if(mode_conf.MemoryModel==0x06){//direct mode
-          
-        uint32_t red_mask = ((1 << mode_conf.RedMaskSize)-1);
-        uint32_t red=(((first>>mode_conf.RedFieldPosition) & red_mask)+ col * step) % (1 << mode_conf.RedMaskSize);
-        uint32_t green_mask = ((1 << mode_conf.GreenMaskSize)-1);
-        uint32_t green = (((first>>mode_conf.GreenFieldPosition ) & green_mask)+ row * step) % (1 << mode_conf.GreenMaskSize);
-        uint32_t blue_mask = ((1 << mode_conf.BlueMaskSize)-1);
-        uint32_t blue = (((first<<mode_conf.BlueFieldPosition) & blue_mask)+ (col + row) * step) % (1 << mode_conf.BlueMaskSize);	
-
-        color=((red << mode_conf.RedFieldPosition )| (green << mode_conf.GreenFieldPosition)|blue);
-      }
-      if (vg_draw_rectangle(recWidth * col, recHeight * row, recWidth, recHeight, color)) return 1;
-    }
-  }*/
-
   uint16_t width, height;
   get_size(no_rectangles, &width, &height);
   printf("WIDTH = %d\nHEIGHT = %d\n", width, height);
