@@ -10,6 +10,7 @@
 
 #include "video.h"
 #include "keyboard.h"
+#include "timer.h"
 
 extern uint8_t scancode;
 extern int hook_id;
@@ -17,6 +18,7 @@ extern vbe_mode_info_t mode_conf;
 extern unsigned bits_per_pixel;
 extern enum xpm_image_type xpm_type;
 extern xpm_image_t xpm_image;
+extern unsigned int counter;
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -220,11 +222,91 @@ int(video_test_xpm)(xpm_map_t xpm, uint16_t x, uint16_t y) {
 
 int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint16_t yf,
                      int16_t speed, uint8_t fr_rate) {
-  /* To be completed */
-  printf("%s(%8p, %u, %u, %u, %u, %d, %u): under construction\n",
-         __func__, xpm, xi, yi, xf, yf, speed, fr_rate);
+  
+  uint16_t mode = 0x105;
+  if(video_get_mode_info(mode, &mode_conf) != OK) return 1;
+  if(map_memory() != OK) return 1;
 
-  return 1;
+  //Sets the video card to a certain graphic mode
+  if(video_set_graphic_mode(mode) != OK) return 1;
+
+  //Loads the xpm
+  uint8_t* address;
+  if((address = xpm_load(xpm, xpm_type, &xpm_image)) == NULL){
+    vg_exit();
+    return 1;
+  }
+
+  //Subscribes keyboard interruptions
+  uint8_t keyboard_bit_no;
+  if(keyboard_subscribe_int(&keyboard_bit_no) != OK) return 1;
+  //Subscribes timer interruptions
+  uint8_t timer_bit_no;
+  if(timer_subscribe_int(&timer_bit_no) != OK) return 1;
+
+  message msg;
+  int ipc_status;
+  uint32_t keyboard_irq_set = BIT(keyboard_bit_no), timer_irq_set = BIT(timer_bit_no);
+  //Number of frames
+  int no_frames = 0;
+  //Draws the first pixmap
+  if (draw_pixmap(xi, yi))return 1;
+  //The coordinates
+  uint16_t x = xi, y = yi;   
+  //The distance between the first and last position (by default, an horizontal movement)
+  int32_t length = (xf - xi);
+  if(xf == xi) length = abs(yf - yi);
+
+  while(scancode != ESC_BREAKCODE_KEY){
+    int r; 
+    if((r = driver_receive(ANY, &msg, &ipc_status))!= 0){
+      printf("driver_receive failed with: %d\n", r);
+      continue;
+    }
+
+    switch(_ENDPOINT_P(msg.m_source)){
+      case HARDWARE:
+        //In case it receives a keyboard interruption
+        if(msg.m_notify.interrupts & keyboard_irq_set){
+          if(keyboard_read_scancode() != OK) return 1;
+        }
+        //In case it receives a timer interruption
+        if(msg.m_notify.interrupts & timer_irq_set){
+          timer_int_handler();
+          uint16_t ticks_per_frame = sys_hz()/fr_rate;
+          if((counter % ticks_per_frame) == 0){
+            no_frames++;
+            //In case speed is non negative, then speed represents the nº of pixels between consecutive frames
+            if(speed > 0){
+              if(sprite(&x, &y, xf, yf, speed, &length) != OK) return 1;
+            }
+            //In case speed is negative, then it represents the necessary frames to the next move of 1 pixel
+            else if(speed < 0){
+              if(abs(speed) == no_frames){
+                //When no_frames reaches the abs(speed), then it moves 1 pixel
+                if(sprite(&x, &y, xf, yf, 1, &length) != OK) return 1;
+                no_frames = 0;
+              }
+            }
+          }
+ 
+        }
+        break;
+
+      default:
+        break;
+    } 
+
+  }
+
+  //Returns to text mode
+  if(vg_exit() != OK) return 1;
+  //Unsubscribes keyboard interruptions
+  if(keyboard_unsubscribe_int() != OK) return 1;
+  //Unsubscribes timer interruptions
+  if(timer_unsubscribe_int() != OK) return 1;
+
+  return 0;
 }
 
 int(video_test_controller)() {

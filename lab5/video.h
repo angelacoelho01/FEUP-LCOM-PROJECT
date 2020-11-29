@@ -31,4 +31,7 @@ void (get_size)(uint8_t no_rectangles, uint16_t* width, uint16_t* height);
 
 int (draw_pixmap)(uint16_t xi, uint16_t yi);
 
+int (sprite)(uint16_t* x, uint16_t* y, uint16_t xf, uint16_t yf, int16_t speed, int32_t* length);
+
+
 #endif

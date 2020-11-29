@@ -1,6 +1,9 @@
 #ifndef _CONST_H
 #define _CONST_H
 
+//Timer macros
+#define TIMER0_IRQ 0
+
 
 //Keyboard macros
 #define IRQ_KEYBOARD 1

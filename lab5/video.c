@@ -12,6 +12,7 @@ unsigned bits_per_pixel;
 enum xpm_image_type xpm_type;
 xpm_image_t xpm_image;
 
+
 int (video_set_graphic_mode)(uint16_t mode){
     reg86_t r;
     //Zero the struct
@@ -194,5 +195,32 @@ int (draw_pixmap)(uint16_t xi, uint16_t yi){
         x++;
     }
 
+    return 0;
+}
+
+int (sprite)(uint16_t* x, uint16_t* y, uint16_t xf, uint16_t yf, int16_t speed, int32_t* length){
+    if(*y == yf){
+        //While x doesn't reach the final position
+        if(xf > *x) *x += speed;
+        //If x has already reached the final position or it's greater 
+        else *x -= speed;
+        //Length decreases at the same time that x increases
+        *length -= speed;
+        //In case it has already passed the final position
+        if(*length < 0) *x = xf;
+    }
+    //Vertical movement
+    else if(*x == xf){
+        //While y doesn't reach the final position
+        if(yf > *y) *y += speed;
+        //If y has already reached the final position or it's greater
+        else *y -= speed;
+        //Length decreases at the same time that y increases
+        *length -= speed;
+        //In case it has already passed the final position
+        if(*length < 0) *y = yf;
+    }
+    vg_draw_rectangle(0, 0, h_res, v_res, 0);
+    if(draw_pixmap(*x, *y) != OK) return 1;
     return 0;
 }
