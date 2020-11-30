@@ -249,15 +249,19 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
   message msg;
   int ipc_status;
   uint32_t keyboard_irq_set = BIT(keyboard_bit_no), timer_irq_set = BIT(timer_bit_no);
+  
   //Number of frames
   int no_frames = 0;
+  uint16_t ticks_per_frame = sys_hz()/fr_rate;
   //Draws the first pixmap
-  if (draw_pixmap(xi, yi))return 1;
-  //The coordinates
+  if (draw_pixmap(xi, yi) != OK) return 1;
+  //The initial coordinates
   uint16_t x = xi, y = yi;   
   //The distance between the first and last position (by default, an horizontal movement)
-  int32_t length = (xf - xi);
+  int32_t length = abs(xf - xi);
   if(xf == xi) length = abs(yf - yi);
+
+ 
 
   while(scancode != ESC_BREAKCODE_KEY){
     int r; 
@@ -275,15 +279,15 @@ int(video_test_move)(xpm_map_t xpm, uint16_t xi, uint16_t yi, uint16_t xf, uint1
         //In case it receives a timer interruption
         if(msg.m_notify.interrupts & timer_irq_set){
           timer_int_handler();
-          uint16_t ticks_per_frame = sys_hz()/fr_rate;
-          if((counter % ticks_per_frame) == 0){
+          
+          if((0 == (counter % ticks_per_frame)) && (0 != length)){
             no_frames++;
             //In case speed is non negative, then speed represents the nº of pixels between consecutive frames
-            if(speed > 0){
+            if(speed >= 0){
               if(sprite(&x, &y, xf, yf, speed, &length) != OK) return 1;
             }
             //In case speed is negative, then it represents the necessary frames to the next move of 1 pixel
-            else if(speed < 0){
+            else {
               if(abs(speed) == no_frames){
                 //When no_frames reaches the abs(speed), then it moves 1 pixel
                 if(sprite(&x, &y, xf, yf, 1, &length) != OK) return 1;

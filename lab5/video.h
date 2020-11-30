@@ -33,6 +33,8 @@ int (draw_pixmap)(uint16_t xi, uint16_t yi);
 
 int (sprite)(uint16_t* x, uint16_t* y, uint16_t xf, uint16_t yf, int16_t speed, int32_t* length);
 
+void (movement_sprite)(uint16_t *pos, uint16_t posf, int16_t speed, int32_t* length);
+
 int (get_controller_info)(vg_vbe_contr_info_t *controller_info);
 
 #endif

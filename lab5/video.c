@@ -199,7 +199,7 @@ int (draw_pixmap)(uint16_t xi, uint16_t yi){
 }
 
 int (sprite)(uint16_t* x, uint16_t* y, uint16_t xf, uint16_t yf, int16_t speed, int32_t* length){
-    if(*y == yf){
+    /*if(*y == yf){ // horizontal movement - along x
         //While x doesn't reach the final position
         if(xf > *x) *x += speed;
         //If x has already reached the final position or it's greater 
@@ -209,8 +209,7 @@ int (sprite)(uint16_t* x, uint16_t* y, uint16_t xf, uint16_t yf, int16_t speed, 
         //In case it has already passed the final position
         if(*length < 0) *x = xf;
     }
-    //Vertical movement
-    else if(*x == xf){
+    else if(*x == xf){ //Vertical movement - along y
         //While y doesn't reach the final position
         if(yf > *y) *y += speed;
         //If y has already reached the final position or it's greater
@@ -219,8 +218,24 @@ int (sprite)(uint16_t* x, uint16_t* y, uint16_t xf, uint16_t yf, int16_t speed, 
         *length -= speed;
         //In case it has already passed the final position
         if(*length < 0) *y = yf;
-    }
+    }*/
+    if(*y == yf) // horizontal movement - along x
+        movement_sprite(x, xf, speed, length);
+    else if(*x == xf) //Vertical movement - along y
+        movement_sprite(y, yf, speed, length);
+
     vg_draw_rectangle(0, 0, h_res, v_res, 0);
     if(draw_pixmap(*x, *y) != OK) return 1;
     return 0;
+}
+
+void (movement_sprite)(uint16_t *pos, uint16_t posf, int16_t speed, int32_t* length){
+    //While pos doesn't reach the final position
+    if(posf > *pos) *pos += speed;
+    //If pos has already reached the final position or it's greater 
+    else *pos -= speed;
+    //Length decreases at the same time that pos increases
+    *length -= speed;
+    //In case it has already passed the final position
+    if(*length < 0) *pos = posf;
 }
