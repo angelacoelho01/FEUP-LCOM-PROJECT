@@ -30,6 +30,8 @@ int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color);
 
 int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color);
 
+int (vg_load_xpm)(xpm_map_t xpm);
+
 int (vg_draw_pixmap)(uint16_t xi, uint16_t yi);
 
 void (get_color)(uint32_t* color, uint32_t first, uint16_t row, uint16_t col, uint8_t no_rectangles, uint8_t step);

@@ -152,7 +152,17 @@ int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
     return 0;
  }
 
-int (draw_pixmap)(uint16_t xi, uint16_t yi) {
+int (vg_load_xpm)(xpm_map_t xpm) {
+  //Loads the xpm
+  uint8_t *address;
+  if((address = xpm_load(xpm, xpm_type, &xpm_image)) == NULL){
+    return 1;
+  }
+
+  return 0;
+}
+
+int (vg_draw_pixmap)(uint16_t xi, uint16_t yi) {
      //Checks if the y position is valid
     if(yi >= v_res){
         printf("Y is an invalid position!\n");
@@ -168,9 +178,7 @@ int (draw_pixmap)(uint16_t xi, uint16_t yi) {
         if((x - xi) == xpm_image.width){
             x = xi;
             y++;
-            //printf("\n");
         }
-        //printf("%d ", xpm_image.bytes[i]);
         if(vg_draw_pixel(x, y, xpm_image.bytes[i]) != OK) return 1;
         x++;
     }
@@ -225,7 +233,7 @@ int (sprite)(uint16_t* x, uint16_t* y, uint16_t xf, uint16_t yf, int16_t speed, 
         movement_sprite(y, yf, speed, length);
 
     vg_draw_rectangle(0, 0, h_res, v_res, 0);
-    if(draw_pixmap(*x, *y) != OK) return 1;
+    if(vg_draw_pixmap(*x, *y) != OK) return 1;
     return 0;
 }
 
