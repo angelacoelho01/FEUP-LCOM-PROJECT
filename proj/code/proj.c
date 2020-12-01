@@ -7,6 +7,11 @@
 #include <stdint.h>
 
 // Any header files included below this line should have been created by you
+#include "modules/video/video.h"
+#include "modules/keyboard/keyboard.h"
+#include "modules/timer/timer.h"
+#include "modules/mouse/mouse.h"
+#include "utils/utils.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
