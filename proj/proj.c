@@ -14,11 +14,11 @@ int main(int argc, char *argv[]) {
 
   // enables to log function invocations that are being "wrapped" by LCF
   // [comment this out if you don't want/need it]
-  lcf_trace_calls("/home/lcom/labs/proj/trace.txt");
+  lcf_trace_calls("/home/lcom/labs/g08/proj/trace.txt");
 
   // enables to save the output of printf function calls on a file
   // [comment this out if you don't want/need it]
-  lcf_log_output("/home/lcom/labs/proj/output.txt");
+  lcf_log_output("/home/lcom/labs/g08/proj/output.txt");
 
   // handles control over to LCF
   // [LCF handles command line arguments and invokes the right function]
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 }
 
 static int print_usage() {
-  printf("Usage: <mode - hex>\n");
+  printf("Usage: <mode - hex> <mini3 logo - true|false> <grayscale - true|false> <delay (secs)>\n");
 
   return 1;
 }
@@ -47,20 +47,45 @@ int(proj_main_loop)(int argc, char *argv[]) {
   // if you're interested, try to extend the command line options so that the usage becomes:
   // <mode - hex> <minix3 logo  - true|false> <grayscale - true|false> <delay (secs)>
   //
-  bool const minix3_logo = true;
-  bool const grayscale = false;
-  uint8_t const delay = 5;
+  bool minix3_logo, grayscale;
+  uint8_t delay;
   uint16_t mode;
 
-  if (argc != 1)
+
+  if (argc != 4)
     return print_usage();
 
-  // parse mode info (it has some limitations for the sake of simplicity)
+  //Parse mode info (it has some limitations for the sake of simplicity)
   if (sscanf(argv[0], "%hx", &mode) != 1) {
     printf("%s: invalid mode (%s)\n", __func__, argv[0]);
-
     return print_usage();
   }
+
+  //Parse minix3_logo info 
+  char temp1[5];
+  if(sscanf(argv[1], "%s", temp1) != 1){
+    printf("%s: error in reading minix3 logo (%s)\n", __func__, argv[1]);
+    return print_usage();
+  }
+  //If the return value of strncmp != 0, then the strings are different
+  minix3_logo = strncmp(temp1, "true", 5) ? false : true;
+
+  //Parse grayscale infor
+  char temp2[5];
+  if(sscanf(argv[2], "%s", temp2) != 1){
+    printf("%s: error in reading grasyscale (%s)\n", __func__, argv[2]);
+    return print_usage();
+  }
+  //If the return value of the strncmp != 0, then the strings are different
+  grayscale = strncmp(temp2, "true", 5) ? false : true;
+
+  //Parse the number of the delay seconds
+  char temp3[5];
+  if(sscanf(argv[3], "%s", temp3) != 1){
+    printf("%s: invalid number of delay seconds (%s)\n", __func__, argv[3]);
+    return print_usage();
+  }
+  delay = atoi(temp3);
 
   return proj_demo(mode, minix3_logo, grayscale, delay);
 }
