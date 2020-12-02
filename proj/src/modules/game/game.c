@@ -25,8 +25,10 @@ int (draw_scenario)(uint16_t mode){
   }
 
   // printf(" AQUI ");
-  
-  if (draw_plataform(mode, 0, 0) != OK){
+  // passada aqui a plataform pois aquela a desenhar vai variar consoante o tempo 
+  // com o passar do tempo vamos desenhar uma plataform mais pequena
+  // os diferentes tamanhos correspondem a xpms da plataform com diferentes width
+  if (draw_plataform(mode, minix3_xpm, 0, 0) != OK){
     printf("Error draw_scenario: draw_plataform!");
     vg_exit();
     return 1;
@@ -43,16 +45,18 @@ int (draw_scenario)(uint16_t mode){
 }
 
 // the plataform is a xpm (there are plataform with different widht - chosen accordly to the time that has already passed)
-int (draw_plataform)(uint16_t mode, uint16_t x, uint16_t y){
-  /*if (0x105 == mode) xpm_type = 0;
-  else if (0x110 == mode) xpm_type = 1;
-  else if (0x115 == mode) xpm_type = 2;
-  else if (0x11A == mode) xpm_type = 3;
-  else if (0x14C == mode) xpm_type = 4;
-  else xpm_type = 5;*/
+int (draw_plataform)(uint16_t mode, xpm_map_t xpm, uint16_t x, uint16_t y){
+  // NOTA: o enum nao esta por ordem é mais facil associar o nome do numero do que o numero
+  // considerando apenas modes não gray
+  if (0x105 == mode) xpm_type = XPM_INDEXED; 
+  else if (0x110 == mode) xpm_type = XPM_1_5_5_5;
+  else if (0x115 == mode) xpm_type = XPM_8_8_8;
+  else if (0x11A == mode) xpm_type = XPM_5_6_5;
+  else if (0x14C == mode) xpm_type = XPM_8_8_8_8;
+  else xpm_type = INVALID_XPM;
 
   // download of the corresponding xpm to draw
-  if(vg_load_xpm(plataform) != OK){
+  if(vg_load_xpm(xpm) != OK){
     printf("Error draw_plataform: vg_load_xpm!");
     vg_exit();
     return 1;

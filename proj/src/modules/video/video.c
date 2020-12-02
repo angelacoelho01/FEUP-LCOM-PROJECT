@@ -17,7 +17,7 @@ xpm_image_t xpm_image;
 //screens dimensions, color depth and VRAM physical address
  int(video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p) {
     //Get the size of a vbe_mode_info_t variable
-    uint32_t size=sizeof(vbe_mode_info_t);
+    uint32_t size = sizeof(vbe_mode_info_t);
 
     //Creates a struct that keeps info regardin the mapping of physical memory to virtual memory
     mmap_t address;
@@ -26,7 +26,7 @@ xpm_image_t xpm_image;
     //vbe_mode_info_t vairble and initializes the input mmap_t struct with the mapping information
     lm_alloc(size,&address);
 
-    reg86_t r;  
+    struct reg86 r;  
     //Starts an address of memory startign in reg, filled with 0 and with the size of the struct reg 
     memset(&r, 0, sizeof(r));  
 
@@ -39,8 +39,6 @@ xpm_image_t xpm_image;
     r.ax = VBE_GET_MODE_INFO;  
     //The mode number        
     r.cx = mode; 
-
-    
             
     //BIOS videos servic
     r.intno = BIOS_SERVICE_VIDEO;
@@ -181,7 +179,7 @@ int (vg_draw_pixmap)(uint16_t xi, uint16_t yi) {
         if((x - xi) == xpm_image.width){
             x = xi;
             y++;
-            printf("\n");
+            //printf("\n");
         }
         if(vg_draw_pixel(x, y, xpm_image.bytes[i]) != OK) return 1;
         x++;
