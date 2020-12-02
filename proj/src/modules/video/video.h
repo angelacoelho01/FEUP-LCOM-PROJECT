@@ -16,6 +16,7 @@
 //#include "vbe.h"
 #include "video_gr.h"
 
+
 int (video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p);
 
 int (map_memory)();

@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
 }
 
 static int print_usage() {
-  printf("Usage: <mode - hex> <mini3 logo - true|false> <grayscale - true|false> <delay (secs)>\n");
-
+  //printf("Usage: <mode - hex> <mini3 logo - true|false> <grayscale - true|false> <delay (secs)>\n");
+  printf("Usage: <mode - hex>\n");
   return 1;
 }
 
@@ -53,12 +53,14 @@ int(proj_main_loop)(int argc, char *argv[]) {
   // if you're interested, try to extend the command line options so that the usage becomes:
   // <mode - hex> <minix3 logo  - true|false> <grayscale - true|false> <delay (secs)>
   //
-  bool minix3_logo, grayscale;
-  uint8_t delay;
+  //bool minix3_logo, grayscale;
+  //uint8_t delay;
   uint16_t mode;
 
 
-  if (argc != 4)
+  /*if (argc != 4)
+    return print_usage();*/
+    if(argc != 1)
     return print_usage();
 
   //Parse mode info (it has some limitations for the sake of simplicity)
@@ -68,7 +70,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
   }
 
   //Parse minix3_logo info 
-  char temp1[5];
+  /*char temp1[5];
   if(sscanf(argv[1], "%s", temp1) != 1){
     printf("%s: error in reading minix3 logo (%s)\n", __func__, argv[1]);
     return print_usage();
@@ -91,7 +93,7 @@ int(proj_main_loop)(int argc, char *argv[]) {
     printf("%s: invalid number of delay seconds (%s)\n", __func__, argv[3]);
     return print_usage();
   }
-  delay = atoi(temp3);
+  delay = atoi(temp3);*/
 
   /*
   Test my function
@@ -101,5 +103,5 @@ int(proj_main_loop)(int argc, char *argv[]) {
   draw_scenario(mode);
 
 
-  return proj_demo(mode, minix3_logo, grayscale, delay);
+  return 0;
 }

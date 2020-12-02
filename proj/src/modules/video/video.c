@@ -26,18 +26,21 @@ xpm_image_t xpm_image;
     //vbe_mode_info_t vairble and initializes the input mmap_t struct with the mapping information
     lm_alloc(size,&address);
 
-    struct reg86 r;  
+    reg86_t r;  
     //Starts an address of memory startign in reg, filled with 0 and with the size of the struct reg 
     memset(&r, 0, sizeof(r));  
-    //VBE get mode info
-    r.ax = VBE_GET_MODE_INFO;  
-    //The mode number        
-    r.cx = mode; 
 
     //Set a segment base
     r.es = PB2BASE(address.phys);    
     //Set the offset accordingly
     r.di = PB2OFF(address.phys);
+
+    //VBE get mode info
+    r.ax = VBE_GET_MODE_INFO;  
+    //The mode number        
+    r.cx = mode; 
+
+    
             
     //BIOS videos servic
     r.intno = BIOS_SERVICE_VIDEO;
@@ -178,6 +181,7 @@ int (vg_draw_pixmap)(uint16_t xi, uint16_t yi) {
         if((x - xi) == xpm_image.width){
             x = xi;
             y++;
+            printf("\n");
         }
         if(vg_draw_pixel(x, y, xpm_image.bytes[i]) != OK) return 1;
         x++;

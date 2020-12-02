@@ -26,13 +26,13 @@ int (draw_scenario)(uint16_t mode){
 
   // printf(" AQUI ");
   
-  if (draw_plataform(mode, minix3_xpm, 10, 10) != OK){
+  if (draw_plataform(mode, 0, 0) != OK){
     printf("Error draw_scenario: draw_plataform!");
     vg_exit();
     return 1;
   }
 
-  vg_draw_rectangle(10, 10, 40, 50, 0xB82A0B);
+  //vg_draw_rectangle(10, 10, 40, 50, 0xB82A0B);
   
   sleep(5);
   
@@ -43,16 +43,16 @@ int (draw_scenario)(uint16_t mode){
 }
 
 // the plataform is a xpm (there are plataform with different widht - chosen accordly to the time that has already passed)
-int (draw_plataform)(uint16_t mode, xpm_map_t xpm, uint16_t x, uint16_t y){
-  if (0x105 == mode) xpm_type = XPM_INDEXED;
-  else if (0x110 == mode) xpm_type = XPM_1_5_5_5;
-  else if (0x115 == mode) xpm_type = XPM_8_8_8;
-  else if (0x11A == mode) xpm_type = XPM_5_6_5;
-  else if (0x14C == mode) xpm_type = XPM_8_8_8_8;
-  else xpm_type = INVALID_XPM;
+int (draw_plataform)(uint16_t mode, uint16_t x, uint16_t y){
+  /*if (0x105 == mode) xpm_type = 0;
+  else if (0x110 == mode) xpm_type = 1;
+  else if (0x115 == mode) xpm_type = 2;
+  else if (0x11A == mode) xpm_type = 3;
+  else if (0x14C == mode) xpm_type = 4;
+  else xpm_type = 5;*/
 
   // download of the corresponding xpm to draw
-  if(vg_load_xpm(xpm) != OK){
+  if(vg_load_xpm(plataform) != OK){
     printf("Error draw_plataform: vg_load_xpm!");
     vg_exit();
     return 1;
