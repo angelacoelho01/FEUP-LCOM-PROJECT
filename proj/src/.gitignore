@@ -1,0 +1,13 @@
+# Ignore all text files
+*.txt
+*.o
+modules/keyboard/*.txt
+modules/keyboard/*.o
+modules/mouse/*.txt
+modules/mouse/*.o
+modules/timer/*.txt
+modules/timer/*.o
+modules/video/*.txt
+modules/video/*.o
+utils/*.txt
+utils/*.o
