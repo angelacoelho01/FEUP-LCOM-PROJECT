@@ -5,10 +5,10 @@ static void *video_mem;
 static unsigned h_res;
 static unsigned v_res;
 unsigned bits_per_pixel;
-unsigned bytes_per_pixel;
 
 enum xpm_image_type xpm_type;
 xpm_image_t xpm_image;
+uint8_t bytes_per_pixel;
 
 int(video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p) {
   uint32_t size = sizeof(vbe_mode_info_t);
@@ -31,8 +31,6 @@ int(video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p) {
   h_res = mode_conf.XResolution;
   v_res = mode_conf.YResolution;
   bits_per_pixel = mode_conf.BitsPerPixel;
-  xpm_type = get_xpm_image_type(mode);
-  bytes_per_pixel = get_bytes_size(bits_per_pixel);
 
   return 0;
 }
@@ -77,26 +75,32 @@ int(video_set_graphic_mode)(uint16_t mode) {
   return 0;
 }
 
-uint8_t(get_bytes_size)(uint8_t bits) {
+int (set_mode_settings)(uint16_t mode){
+  xpm_type = get_xpm_image_type(mode);
+  bytes_per_pixel = get_bytes_size(bits_per_pixel);
+
+  return 0;
+}
+
+uint8_t (get_bytes_size)(uint8_t bits) {
   return (uint8_t)(bits / BYTE_SIZE) + (bits % BYTE_SIZE ? 1 : 0);
 }
 
 int (get_xpm_image_type)(uint16_t mode){
-    if(mode == MODE_0) return XPM_INDEXED;
-    else if(mode == MODE_1) return XPM_1_5_5_5;
-    else if(mode == MODE_2) return XPM_8_8_8;
-    else if(mode == MODE_3) return XPM_5_6_5;
-    else if(mode == MODE_4) return XPM_8_8_8_8;
-    else return INVALID_XPM;
+  if (mode == MODE_0) return XPM_INDEXED;
+  else if (mode == MODE_1) return XPM_1_5_5_5;
+  else if (mode == MODE_2) return XPM_8_8_8;
+  else if (mode == MODE_3) return XPM_5_6_5;
+  else if (mode == MODE_4) return XPM_8_8_8_8;
+  else return INVALID_XPM;
+  // maybe add if gray true?
 }
-
 
 void (video_draw_pixel)(uint16_t x, uint16_t y, uint32_t color) {
   char *ptr = video_mem;
-  uint8_t pixel_size = get_bytes_size(bits_per_pixel);
-  uint32_t y_coord = y * h_res * pixel_size;
-  uint32_t x_coord = x * pixel_size;
-  memcpy(ptr + y_coord + x_coord, &color, pixel_size);
+  uint32_t y_coord = y * h_res * bytes_per_pixel;
+  uint32_t x_coord = x * bytes_per_pixel;
+  memcpy(ptr + y_coord + x_coord, &color, bytes_per_pixel);
 }
 
 void (video_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color) {
@@ -104,15 +108,15 @@ void (video_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color) {
     video_draw_pixel(x + i, y, color);
 }
 
-void (video_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color){
+void (video_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color) {
   for (uint32_t line = 0; line != height; line++)
     video_draw_hline(x, y + line, width, color);
 }
 
-int(video_load_xpm)(xpm_map_t xpm) {
+int (video_load_xpm)(xpm_map_t xpm) {
   uint8_t *address;
   if ((address = xpm_load(xpm, xpm_type, &xpm_image)) == NULL) {
-    printf("Error loading xpm.\n");
+    printf("Error video_load_xpm: loading xpm.\n");
     return 1;
   }
   return 0;
@@ -121,23 +125,32 @@ int(video_load_xpm)(xpm_map_t xpm) {
 void (video_draw_pixmap)(uint16_t xi, uint16_t yi) {
   uint32_t color;
   uint8_t red, green, blue;
+
   uint16_t y = yi, x = xi, counter = 0;
   for (size_t i = 0; i < xpm_image.size / bytes_per_pixel; i++) {
+    // draw next line
     if ((x - xi) == xpm_image.width) {
       x = xi;
       y++;
     }
-    blue = xpm_image.bytes[counter];
-    green = xpm_image.bytes[++counter];
-    red = xpm_image.bytes[++counter];
-    color = (red << mode_conf.RedFieldPosition) | (green << mode_conf.GreenFieldPosition) | blue;
+
+    if (xpm_type == XPM_INDEXED){
+      color = xpm_image.bytes[counter];
+    } else {
+      // build the color of the pixel if is a direct mode
+      blue = xpm_image.bytes[counter];
+      green = xpm_image.bytes[++counter];
+      red = xpm_image.bytes[++counter];
+      color = (red << mode_conf.RedFieldPosition) | (green << mode_conf.GreenFieldPosition) | blue;
+    }
+    
     counter++;
     video_draw_pixel(x, y, color);
     x++;
   }
 }
 
-int(sprite)(uint16_t *x, uint16_t *y, uint16_t xf, uint16_t yf, int16_t speed, int32_t *length) {
+int (sprite)(uint16_t *x, uint16_t *y, uint16_t xf, uint16_t yf, int16_t speed, int32_t *length) {
   if (*y == yf) // horizontal movement - along x
     movement_sprite(x, xf, speed, length);
   else if (*x == xf) //Vertical movement - along y
@@ -148,7 +161,7 @@ int(sprite)(uint16_t *x, uint16_t *y, uint16_t xf, uint16_t yf, int16_t speed, i
   return 0;
 }
 
-void(movement_sprite)(uint16_t *pos, uint16_t posf, int16_t speed, int32_t *length) {
+void (movement_sprite)(uint16_t *pos, uint16_t posf, int16_t speed, int32_t *length) {
   //While pos doesn't reach the final position
   if (posf > *pos)
     *pos += speed;

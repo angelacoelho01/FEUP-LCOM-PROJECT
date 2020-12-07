@@ -12,7 +12,6 @@
 
 #define BYTE_SIZE 8
 
-
 #define INDEXED_COLOR_MODE 0x04
 #define DIRECT_COLOR_MODE 0x06
 
@@ -21,7 +20,5 @@
 #define MODE_2 0x115
 #define MODE_3 0x11a
 #define MODE_4 0x14c
-
-#define BLOCK_NUMBERS 7
 
 #endif /* _LCOM_BIOS_VBE_H */

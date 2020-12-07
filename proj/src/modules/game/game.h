@@ -9,16 +9,33 @@
 #include <stdint.h>
 #include <machine/int86.h>
 
+#include "../macros/block_breaker.h"
+#include "../macros/i8042.h"
+
+#include "../keyboard/keyboard.h"
+#include "../mouse/mouse.h"
+#include "../timer/timer.h"
 #include "../video/video.h"
+#include "../../utils/utils.h"
+
+int (play_solo_game)(uint16_t mode);
 
 int (start_video_mode)(uint16_t mode);
 
-int (draw_scenario)(uint16_t mode);
-
 int (return_to_text_mode)();
 
-int (draw_plataform)(uint16_t mode, xpm_map_t xpm, uint16_t x, uint16_t y);
+int (draw_scenario)(uint16_t xi, uint16_t yi);
 
-void (draw_blocks)();
+int (draw_plataform)(xpm_map_t xpm, uint16_t x, uint16_t y, uint16_t scenario_x);
+
+int (draw_blocks)(uint16_t xi, uint16_t yi);
+
+int (draw_ball)(uint16_t x, uint16_t y);
+
+int (draw_clock)(uint8_t minutes, uint8_t seconds, uint16_t xi, uint16_t yi);
+
+int (draw_number)(size_t n, uint16_t x, uint16_t y);
+
+int (draw_hearts)(size_t n, uint8_t number_of_lives, uint16_t xi, uint16_t yi);
 
 #endif /* __GAME_H */
