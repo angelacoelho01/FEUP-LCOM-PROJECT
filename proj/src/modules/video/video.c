@@ -10,7 +10,7 @@ static unsigned v_res;
 //Number of VRAM bits per pixel
 unsigned bits_per_pixel;
 
-enum xpm_image_type xpm_type;
+enum xpm_image_type xpm_type = XPM_8_8_8;
 xpm_image_t xpm_image;
 
 //Initializes the vbe_mode_info_t with the input VBE mode, including
@@ -126,7 +126,6 @@ int (vg_draw_hline)(uint16_t x, uint16_t y, uint16_t len, uint32_t color) {
 }
 
 int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint32_t color) {
-
     //Checks if the y position is valid
     if(y >= v_res){
         printf("Y is an invalid position!\n");
@@ -154,9 +153,9 @@ int (vg_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t height,
  }
 
 int (vg_load_xpm)(xpm_map_t xpm) {
-  //Loads the xpm
+  
   uint8_t *address;
-  if((address = xpm_load(xpm, xpm_type, &xpm_image)) == NULL){
+  if((address = xpm_load(xpm,xpm_type, &xpm_image)) == NULL){
     return 1;
   }
 
@@ -174,16 +173,27 @@ int (vg_draw_pixmap)(uint16_t xi, uint16_t yi) {
         printf("X is an invalid position!\n");
         return 1;
     }
+
+    uint16_t counter = 0;
+    uint32_t color;
+    uint8_t red, green, blue;
     uint16_t y = yi, x = xi;
-    for(size_t i = 0; i < xpm_image.size; i++){
+    for(size_t i = 0; i < xpm_image.size/3; i++){
         if((x - xi) == xpm_image.width){
             x = xi;
             y++;
-            //printf("\n");
         }
-        if(vg_draw_pixel(x, y, xpm_image.bytes[i]) != OK) return 1;
+        blue = xpm_image.bytes[counter];
+        green = xpm_image.bytes[++counter];
+        red = xpm_image.bytes[++counter];
+        color = (red << 16) | (green << 8) | blue;
+        counter++;
+        if(vg_draw_pixel(x, y, color) != OK) return 1;
         x++;
     }
+
+    sleep(10);
+
 
     return 0;
 }

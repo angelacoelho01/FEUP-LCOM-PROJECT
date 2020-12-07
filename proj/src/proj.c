@@ -100,8 +100,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
   */
   // draw inicial scenario - only draw the plataform in a concrete position - to see if its working
   // not the real xpm for the plataform
-  draw_scenario(mode);
-
+  start_video_mode(mode);
+  draw_blocks();
+  return_to_text_mode();
 
   return 0;
 }

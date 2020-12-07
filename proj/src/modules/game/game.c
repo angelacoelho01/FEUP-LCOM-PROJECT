@@ -1,13 +1,26 @@
 #include "game.h"
 
+#include <time.h>
+#include <stdlib.h>
+
 extern vbe_mode_info_t mode_conf;
 // extern xpm_row_t const plataform[];
 extern enum xpm_image_type xpm_type;
 extern xpm_image_t xpm_image;
 // typedef xpm_row_t *const 	xpm_map_t 
 
-int (draw_scenario)(uint16_t mode){
-  //uint16_t m = 0x105;
+static xpm_map_t blocks[] = {
+  blue_block_xpm,
+  green_block_xpm,
+  orange_block_xpm,
+  yellow_block_xpm,
+  red_block_xpm,
+  purple_block_xpm,
+  pink_block_xpm
+};
+
+int (start_video_mode)(uint16_t mode){
+  srand(time(NULL));
   if (video_get_mode_info(mode, &mode_conf) != OK){
     printf("Error draw_scenario: video_get_mode_info!");
     return 1;
@@ -23,6 +36,12 @@ int (draw_scenario)(uint16_t mode){
     vg_exit();
     return 1;
   }
+  return 0;
+}
+
+int (draw_scenario)(uint16_t mode){
+  //uint16_t m = 0x105;
+  
 
   // printf(" AQUI ");
   // passada aqui a plataform pois aquela a desenhar vai variar consoante o tempo 
@@ -39,10 +58,18 @@ int (draw_scenario)(uint16_t mode){
   sleep(5);
   
   // printf(" AQUI2 ");
-  vg_exit();
 
   return 0;
 }
+
+int (return_to_text_mode)(){
+  if(vg_exit() != OK){
+    printf("Error returning to text mode.\n");
+    return 1;
+  }
+  return 0;
+}
+
 
 // the plataform is a xpm (there are plataform with different widht - chosen accordly to the time that has already passed)
 int (draw_plataform)(uint16_t mode, xpm_map_t xpm, uint16_t x, uint16_t y){
@@ -70,4 +97,33 @@ int (draw_plataform)(uint16_t mode, xpm_map_t xpm, uint16_t x, uint16_t y){
   }
 
   return 0;
+}
+
+
+void (draw_blocks)(){
+  /*unsigned int width = mode_conf.XResolution/no_blocks;
+  unsigned int height = mode_conf.YResolution/(1.5*no_blocks);*/
+  uint16_t x = 240, y = 60;
+  unsigned int width = 40, height = 20;
+  uint32_t no_blocks_h = (320-10)/width, no_blocks_v = (480-80)/height;
+
+  for(uint16_t i = 0; i  < no_blocks_v; i++){
+    for(uint16_t j = 0; j < no_blocks_h; j++){
+      xpm_row_t* xpm = blocks[rand() % BLOCK_NUMBERS];
+      //Gets the color throught the given functions and according to the color mode
+      //Draws a rectangle; in case it doesn't work, returns to text mode
+      vg_load_xpm(xpm);
+      vg_draw_pixmap(x, y);
+
+      //Goes to the next column according to the calculated width
+      x += width;
+    }
+    //Resets the column to start a new line
+    x = 240;
+    //Goes to the next line according to the calculated height
+    y += height; 
+  }
+
+  sleep(10);
+
 }
