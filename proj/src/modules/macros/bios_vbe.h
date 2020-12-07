@@ -18,4 +18,6 @@
 #define INDEXED_COLOR_MODE 0x04
 #define DIRECT_COLOR_MODE 0x06
 
+#define BLOCK_NUMBERS 7
+
 #endif /* _LCOM_BIOS_VBE_H */
