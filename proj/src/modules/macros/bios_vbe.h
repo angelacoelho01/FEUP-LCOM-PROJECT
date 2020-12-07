@@ -9,14 +9,18 @@
 
 #define VBE_SET_MODE 0x4f02
 #define VBE_GET_MODE_INFO 0x4f01
-#define VBE_GET_CONTROLLER_INFO 0x4f00
 
 #define BYTE_SIZE 8
 
-#define COLOR_BIT_MASK 0xff
 
 #define INDEXED_COLOR_MODE 0x04
 #define DIRECT_COLOR_MODE 0x06
+
+#define MODE_0 0x105
+#define MODE_1 0x110
+#define MODE_2 0x115
+#define MODE_3 0x11a
+#define MODE_4 0x14c
 
 #define BLOCK_NUMBERS 7
 
