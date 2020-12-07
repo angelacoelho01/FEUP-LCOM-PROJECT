@@ -64,10 +64,12 @@ int (play_solo_game)(uint16_t mode){
 
   uint32_t timer_irq_set = BIT(timer_bit_no);
   uint32_t kbc_irq_set = BIT(kbc_bit_no);
+
+  bool game_started = false;
   
   // driver_receive() loop
   // Terminate when ... 
-  while (timer_counter / 60 < 5) { // wait 5 seconds 
+  while (kbc_scancode != ESC_BREAKCODE_KEY) { // wait 5 seconds 
     int r;
     // Get a request message. 
     if ( (r = driver_receive(ANY, &msg, &ipc_status)) != 0 ) { 
@@ -83,26 +85,54 @@ int (play_solo_game)(uint16_t mode){
           if (msg.m_notify.interrupts & timer_irq_set){
             timer_int_handler();
             if (timer_counter % 60 == 0){ // true de 1 em 1 seg, admitindo freq normal = 60 
-              // TO DO:: call draw_clock(minutes, seconds, SOLO_SCENARIO_CORNER_X + FIRST_NUMBER_TO_LEFT_X, SOLO_SCENARIO_CORNER_Y + FIRST_NUMBER_TO_TOP_Y)
-              // with the corresponding minutes and seconds
-              // seconds = timer_counter / 60;
-              // minutes = seconds / 60; seconds = seconds % 60, if i'm not wrong
-              // reset timer_counter while ball not in movement and lives = 3 (wait for the player to realy start playing)
+              if (game_started){ // the player moved the plataform for the first time (3 lives) - start the clock
+                // TO DO:: call draw_clock(minutes, seconds, SOLO_SCENARIO_CORNER_X + FIRST_NUMBER_TO_LEFT_X, SOLO_SCENARIO_CORNER_Y + FIRST_NUMBER_TO_TOP_Y)
+                // with the corresponding minutes and seconds
+                unsigned int seconds = timer_counter / 60;
+                uint8_t minutes = seconds / 60;
+                seconds = (seconds < 60 ? seconds : seconds % 60);
+                
+                draw_clock(minutes, (uint8_t)seconds, SOLO_SCENARIO_CORNER_X + FIRST_NUMBER_TO_LEFT_X, SOLO_SCENARIO_CORNER_Y + FIRST_NUMBER_TO_TOP_Y);
+
+                if ((timer_counter / 60) % 30 == 0){ // de 30 em 30 segundos - diminuir a barra
+                  if (plataform_to_draw != 4){ // if not in it's final form
+                    ++plataform_to_draw;
+                    draw_plataform(plataforms[plataform_to_draw], plataform_x, SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y_INIT, SOLO_SCENARIO_CORNER_X);
+                  }
+                }
+              } else {
+                timer_counter = 0;
+              }          
             }
           }
 
           if (msg.m_notify.interrupts & kbc_irq_set) { // KBC subscribed interrupt 
             kbc_ih(); // reads ONE BYTE from the KBC’s OUT_BUF PER INTERRUPT     
-            if(kbc_ih_error == 0){ // if there was no error
+            if (kbc_ih_error == 0){ // if there was no error
+              // seta direita -> MAKE: 0x4d BREAcK: 0xe0 0xcd 0xe0
+              // seta esquerda -> MAKE: 0x4b BREAK: 0xe0 0xcd 0xe0
               // OBJECTIVE:: moves the plataform according the scancode read
-              /*
-              if(!(scancode & BYTE_MSB)){ // if MSB = 0 -> make code
-                
+              // --> MOVES ONE PIXEL AT A TIME ONLY <--
+              if (!(kbc_scancode & BYTE_MSB)){ // if MSB = 0 -> make code
+                bool key_flag = false;
+                if (kbc_scancode == RIGHT_ARROW_MAKECODE){ // to the right, if not already on the limit
+                  // 86 é a width da barra no seu estado inicial
+                  if ((plataform_x + plataform_width[plataform_to_draw]) < scenario_limit_right){
+                    key_flag = true;
+                    ++plataform_x;
+                  }
+                } else if (kbc_scancode == LEFT_ARROW_MAKECODE){ // to the left, if not already on the limit
+                  if (plataform_x > scenario_limit_left){
+                    key_flag = true;
+                    --plataform_x;
+                  }
+                }
+
+                if (key_flag){
+                  draw_plataform(plataforms[plataform_to_draw], plataform_x, SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y_INIT, SOLO_SCENARIO_CORNER_X);
+                  game_started = true; // the ball start moving and the timer starts to count just only there was a movement from the player
+                }
               }
-              else{ // if MSB = 1 -> break
-                
-              }
-              */
             }
             tickdelay(micros_to_ticks(WAIT_KBC)); // <<-- ?? -->>
           }

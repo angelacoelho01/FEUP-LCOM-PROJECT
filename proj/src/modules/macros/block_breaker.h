@@ -14,6 +14,9 @@
 #define PLATAFORM_TO_LEFT_X 116
 #define PLATAFORM_TO_TOP_Y_INIT 428
 #define PLATAFORM_HEIGHT 10
+static uint16_t plataform_width[] = {
+  86, 74, 62, 50, 38
+};
 
 #define BLOCKS_TO_LEFT_X 20
 #define BLOCKS_TO_TOP_Y 90
