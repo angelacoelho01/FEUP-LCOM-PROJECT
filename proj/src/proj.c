@@ -40,6 +40,8 @@ static int print_usage() {
 
 int(proj_main_loop)(int argc, char *argv[]) {
   uint16_t mode;
+  srand(time(NULL));
+
 
   if (argc != 1)
     return print_usage();

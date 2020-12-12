@@ -113,6 +113,8 @@ int (draw_blocks)(uint16_t xi, uint16_t yi){
 }
 
 int (draw_ball)(uint16_t x, uint16_t y){
+  video_draw_rectangle(x, y+1, BALL_WIDTH, BALL_HEIGHT, SCENARIO_BACKGROUND_COLOR);
+
   if (video_load_xpm(ball) != OK){
     printf("Error draw_plataform: vg_load_xpm!\n");
     return 1;
