@@ -8,11 +8,6 @@
 
 // Any header files included below this line should have been created by you
 #include "modules/game/game.h"
-#include "modules/keyboard/keyboard.h"
-#include "modules/mouse/mouse.h"
-#include "modules/timer/timer.h"
-#include "modules/video/video.h"
-#include "utils/utils.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -49,26 +44,14 @@ int(proj_main_loop)(int argc, char *argv[]) {
   if (argc != 1)
     return print_usage();
 
-  //Parse mode info (it has some limitations for the sake of simplicity)
+  // Parse mode info (it has some limitations for the sake of simplicity)
   if (sscanf(argv[0], "%hx", &mode) != 1) {
     printf("%s: invalid mode (%s)\n", __func__, argv[0]);
     return print_usage();
   }
 
-  /*
-  Test my function
-  */
-  // draw inicial scenario - only draw the plataform in a concrete position - to see if its working
-  // not the real xpm for the plataform
-  start_video_mode(mode);
-  draw_plataform(mode, plataform_initial, 0, 0);
-  draw_plataform(mode, plataform_mid1, 0, 30);
-  draw_plataform(mode, plataform_mid2, 0, 60);
-  draw_plataform(mode, plataform_mid3, 0, 90);
-  draw_plataform(mode, plataform_final, 0, 120);
-  draw_blocks();
-  sleep(5);
-  return_to_text_mode();
+  // some other arguments if needed
 
-  return 0;
+  // when implemented the menu, maybe that is the one that is called where, and play_solo_game from the meu corresponding option
+  return play_solo_game(mode);
 }

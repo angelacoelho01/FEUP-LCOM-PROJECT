@@ -9,7 +9,7 @@ int kbc_hook_id = 1;
 char kbc_ih_error = 0;
 uint8_t kbc_scancode;
 
-void(kbc_ih)() {
+void (kbc_ih)() {
   uint8_t stat;
 
   if(util_sys_inb(KBC_ST_REG, &stat) != OK){ // Reads the status register 
