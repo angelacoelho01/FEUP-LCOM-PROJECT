@@ -35,24 +35,19 @@ void (kbc_ih)() {
 }
 
 int (keyboard_subscribe_int)(uint8_t *bit_no) {
-
   *bit_no = kbc_hook_id; 
-  // KBC interrupt subscription in exclusive mode
   if (sys_irqsetpolicy(KBC_IRQ, IRQ_REENABLE | IRQ_EXCLUSIVE, &kbc_hook_id) != OK){
-    printf("ERROR in subcribe_int: sys_irqsetpolicy!!\n");
+    printf("Error subscribing keyboard interruptions!\n");
     return 1;
   }
-
   return 0;
 }
 
 int (keyboard_unsubscribe_int)() {
-
   if (sys_irqrmpolicy(&kbc_hook_id) != OK){
-    printf("ERROR in unsubcribe_int: iqrmpolicy!\n");
+    printf("Error unsubscribing keyboard interruptions!\n");
     return 1;
   }
-
   return 0;
 }
 

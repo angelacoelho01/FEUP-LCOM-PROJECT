@@ -14,9 +14,8 @@
 #define PLATAFORM_TO_LEFT_X 116
 #define PLATAFORM_TO_TOP_Y_INIT 428
 #define PLATAFORM_HEIGHT 10
-static uint16_t plataform_width[] = {
-  86, 74, 62, 50, 38
-};
+
+
 
 #define BLOCKS_TO_LEFT_X 20
 #define BLOCKS_TO_TOP_Y 90
@@ -48,5 +47,7 @@ static uint16_t plataform_width[] = {
 #define TIMER_BACKGROUND_COLOR 0x343131
 #define NUMBERS_COLOR 0xffffff
 
+
+#define PLATAFORM_DISPLACEMENT 10
 
 #endif /* _LCOM_BLOCK_BREAKER_H_ */
