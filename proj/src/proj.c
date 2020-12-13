@@ -52,8 +52,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
     return print_usage();
   }
 
-  // some other arguments if needed
-
   // when implemented the menu, maybe that is the one that is called where, and play_solo_game from the meu corresponding option
   return play_solo_game(mode);
 }
