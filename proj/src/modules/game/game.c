@@ -116,6 +116,8 @@ int(play_solo_game)(uint16_t mode) {
 }
 
 void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left){
+  printf("RESETS GAME\n");
+  no_lives--;
   if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) return_to_text_mode();
   game_started = false;
   *ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
@@ -187,12 +189,12 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){
     }
   }
   else{
-    if((*y + BALL_SPEED) <= BALL_DOWN_LIMIT) *y += BALL_SPEED;
+    if((*y + BALL_SPEED + BALL_HEIGHT) <= BALL_DOWN_LIMIT) *y += BALL_SPEED;
     else{
       uint32_t pixel_color = get_pixel_color(xi, yi+ BALL_SPEED+ BALL_HEIGHT);
       if(pixel_color == SCENARIO_BACKGROUND_COLOR){
-        no_lives--;
         lost = true;
+        *y += BALL_SPEED;
       }
       else{
         *y = BALL_DOWN_LIMIT;
@@ -215,7 +217,7 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){
       *left = true;
     }
   }
-  if(lost && (*y+BALL_SPEED+BALL_HEIGHT) > FRAME_DOWN_LIMIT) reset_game(x, y, up, left);
+  if(lost && (*y + BALL_SPEED+ BALL_HEIGHT) >= FRAME_DOWN_LIMIT ) reset_game(x, y, up, left);
   else{
     clean_ball(xi, yi);
     draw_ball(*x, *y);
