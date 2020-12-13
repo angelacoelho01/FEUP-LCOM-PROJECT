@@ -47,6 +47,8 @@ int(play_solo_game)(uint16_t mode) {
 
   bool game_started = false;
   uint16_t ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X, ball_y = (uint16_t)SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
+  bool up = true, left = true;
+
   while (kbc_scancode != ESC_BREAKCODE_KEY) {
     int r;
     // Get a request message.
@@ -63,7 +65,7 @@ int(play_solo_game)(uint16_t mode) {
 
         if (msg.m_notify.interrupts & timer_irq_set) { // timer interruption
           timer_int_handler();
-          if(game_started) move_ball(&ball_x, &ball_y, 1);
+          if(game_started) move_ball(&ball_x, &ball_y, &up, &left);
           if (timer_counter % 60 == 0) { // true every 1 second (freq = 60Hz)
             if (game_started) start_game(); // the player moved the plataform for the first
                                 // time (3 lives) - start the clock
@@ -156,7 +158,43 @@ bool (move_plataform)(){
   return false; 
 }
 
-void (move_ball)(uint16_t* x, uint16_t* y, enum ball_direction dir){
+void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){
+  clean_ball(*x, *y);
+
+  if(*up){
+    if((*y - BALL_SPEED) > BALL_TOP_LIMIT) *y -= BALL_SPEED;
+    else{
+      *y = BALL_TOP_LIMIT;
+      *up = false;
+    }
+  }
+  else{
+    if((*y + BALL_SPEED) < BALL_DOWN_LIMIT) *y += BALL_SPEED;
+    else{
+      *y = BALL_DOWN_LIMIT;
+      *up = true;
+    }
+  }
+
+  if(*left){
+    if((*x - BALL_SPEED) > BALL_LEFT_LIMIT) *x -= BALL_SPEED;
+    else{
+      *x = BALL_LEFT_LIMIT;
+      *left = false;
+    }
+  }
+  else{
+    if((*x + BALL_SPEED) < BALL_RIGHT_LIMIT) *x += BALL_SPEED;
+    else{
+      *x = BALL_RIGHT_LIMIT;
+      *left = true;
+    }
+  }
+  draw_ball(*x, *y);
+}
+
+
+/*void (move_ball)(uint16_t* x, uint16_t* y, enum ball_direction dir){
   clean_ball(*x, *y);
 
   switch(dir){
@@ -179,4 +217,4 @@ void (move_ball)(uint16_t* x, uint16_t* y, enum ball_direction dir){
   }
 
   draw_ball(*x, *y);
-}
+}*/
