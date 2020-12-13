@@ -18,6 +18,10 @@ extern xpm_image_t xpm_image;
 
 extern uint16_t plataform_x, scenario_limit_right, scenario_limit_left;
 extern size_t plataform_to_draw;
+extern uint8_t no_lives;
+
+bool lost = false;  
+bool game_started = false;
 
 int(play_solo_game)(uint16_t mode) {
 
@@ -29,12 +33,12 @@ int(play_solo_game)(uint16_t mode) {
     return 1;
   }
 
-  // To subscribe the Timer interrupts
+  // to subscribe the Timer interrupts
   uint8_t timer_bit_no;
   if (timer_subscribe_int(&timer_bit_no) != OK)
     return 1;
 
-  // To subscribe the KBC interrupts
+  // to subscribe the KBC interrupts
   uint8_t kbc_bit_no;
   if (keyboard_subscribe_int(&kbc_bit_no) != OK)
     return 1;
@@ -45,13 +49,14 @@ int(play_solo_game)(uint16_t mode) {
   uint32_t timer_irq_set = BIT(timer_bit_no);
   uint32_t kbc_irq_set = BIT(kbc_bit_no);
 
-  bool game_started = false;
-  uint16_t ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X, ball_y = (uint16_t)SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
+  // initial informations relative to the ball
+  uint16_t ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
+  uint16_t ball_y = (uint16_t)SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
   bool up = true, left = true;
 
   while (kbc_scancode != ESC_BREAKCODE_KEY) {
     int r;
-    // Get a request message.
+    // get a request message
     if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
       printf("driver_receive failed with: %d", r);
       continue;
@@ -110,6 +115,20 @@ int(play_solo_game)(uint16_t mode) {
   return 0;
 }
 
+void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left){
+  if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) return_to_text_mode();
+  game_started = false;
+  *ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
+  *ball_y = (uint16_t)SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
+  *up = true;
+  *left = true;
+  lost = false;
+  kbc_scancode = 0;
+  plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X;
+  plataform_to_draw = 0;
+  timer_counter = 0;
+}
+
 void (start_game)(){
   unsigned int seconds = timer_counter / 60;
   uint8_t minutes = seconds / 60;
@@ -159,8 +178,7 @@ bool (move_plataform)(){
 }
 
 void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){
-  clean_ball(*x, *y);
-
+  uint16_t xi = *x, yi = *y;
   if(*up){
     if((*y - BALL_SPEED) > BALL_TOP_LIMIT) *y -= BALL_SPEED;
     else{
@@ -169,10 +187,17 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){
     }
   }
   else{
-    if((*y + BALL_SPEED) < BALL_DOWN_LIMIT) *y += BALL_SPEED;
+    if((*y + BALL_SPEED) <= BALL_DOWN_LIMIT) *y += BALL_SPEED;
     else{
-      *y = BALL_DOWN_LIMIT;
-      *up = true;
+      uint32_t pixel_color = get_pixel_color(xi, yi+ BALL_SPEED+ BALL_HEIGHT);
+      if(pixel_color == SCENARIO_BACKGROUND_COLOR){
+        no_lives--;
+        lost = true;
+      }
+      else{
+        *y = BALL_DOWN_LIMIT;
+        *up = true;
+      }
     }
   }
 
@@ -190,7 +215,11 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){
       *left = true;
     }
   }
-  draw_ball(*x, *y);
+  if(lost && (*y+BALL_SPEED+BALL_HEIGHT) > FRAME_DOWN_LIMIT) reset_game(x, y, up, left);
+  else{
+    clean_ball(xi, yi);
+    draw_ball(*x, *y);
+  }
 }
 
 

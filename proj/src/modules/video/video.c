@@ -109,6 +109,19 @@ uint8_t (get_bytes_size)(uint8_t bits) {
   return (uint8_t)(bits / BYTE_SIZE) + (bits % BYTE_SIZE ? 1 : 0);
 }
 
+uint32_t (get_pixel_color)(uint16_t x, uint16_t y){
+  uint32_t y_coord = y * h_res * bytes_per_pixel;
+  uint32_t x_coord = x * bytes_per_pixel;
+  char* ptr = (char*)video_mem + x_coord + y_coord;
+
+  uint8_t blue = ptr[0];
+  uint8_t green = ptr[1];
+  uint8_t red = ptr[2];
+
+  return (red << mode_conf.RedFieldPosition) | (green << mode_conf.GreenFieldPosition) | (blue);
+}
+
+
 int (get_xpm_image_type)(uint16_t mode){
   if (mode == MODE_0) return XPM_INDEXED;
   else if (mode == MODE_1) return XPM_1_5_5_5;

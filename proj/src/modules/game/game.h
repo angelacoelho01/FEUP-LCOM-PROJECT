@@ -23,21 +23,11 @@ static uint16_t plataform_width[] = {
   86, 74, 62, 50, 38
 };
 
-/*enum ball_direction{
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT
-  UP_RIGHT,
-  UP_LEFT,
-  DOWN_RIGHT,
-  DOWN_LEFT
-};
-*/
-
 int (play_solo_game)(uint16_t mode);
 
 void (start_game)();
+
+void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left);
 
 bool (move_plataform)();
 

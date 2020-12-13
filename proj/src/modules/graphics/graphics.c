@@ -20,7 +20,7 @@ uint16_t ball_limit_bottom = SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y_INIT; /
 
 // Represents the plataform to be draw (after x time the plataform in game is one with a smaller width)
 size_t plataform_to_draw = 0;
-uint8_t lives = 3; // the amount of lives left for the player
+uint8_t no_lives = 3; // the amount of lives left for the player
 
 
 int (draw_scenario)(uint16_t xi, uint16_t yi){
@@ -59,10 +59,11 @@ int (draw_scenario)(uint16_t xi, uint16_t yi){
   }
 
   // Draw the 3 inicial lives of the player
-  if (draw_hearts(0, lives, xi + SCENARIO_WIDTH - FIRST_HEART_TO_RIGHT_X, yi + FIRST_HEART_TO_TOP_Y) != OK){
+  if (draw_hearts(0, no_lives, xi + SCENARIO_WIDTH - FIRST_HEART_TO_RIGHT_X, yi + FIRST_HEART_TO_TOP_Y) != OK){
     printf("Error draw_scenario: draw_hearts!\n");
     return 1;
   }
+
 
   // Draw the inicial clock 00:00
   if (draw_clock(0, 0, xi + FIRST_NUMBER_TO_LEFT_X, yi + FIRST_NUMBER_TO_TOP_Y) != OK){
@@ -72,6 +73,7 @@ int (draw_scenario)(uint16_t xi, uint16_t yi){
   
   return 0;
 }
+
 
 int (draw_plataform)(xpm_map_t xpm, uint16_t x, uint16_t y, uint16_t scenario_x){
   // clear the reagion of the plataform first

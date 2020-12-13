@@ -28,6 +28,8 @@ int (return_to_text_mode)();
 
 uint8_t (get_bytes_size)(uint8_t bits);
 
+uint32_t (get_pixel_color)(uint16_t x, uint16_t y);
+
 int (get_xpm_image_type)(uint16_t mode);
 
 void (video_draw_pixel)(uint16_t x, uint16_t y, uint32_t color);
