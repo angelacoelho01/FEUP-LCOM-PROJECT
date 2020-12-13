@@ -29,4 +29,6 @@ void (start_game)();
 
 bool (move_plataform)();
 
+void (move_ball)(uint16_t* x, uint16_t* y);
+
 #endif /* __GAME_H */

@@ -22,6 +22,8 @@ int (draw_plataform)(xpm_map_t xpm, uint16_t x, uint16_t y, uint16_t scenario_x)
 
 int (draw_blocks)(uint16_t xi, uint16_t yi);
 
+void (clean_ball)(uint16_t x, uint16_t y);
+
 int (draw_ball)(uint16_t x, uint16_t y);
 
 int (draw_clock)(uint8_t minutes, uint8_t seconds, uint16_t xi, uint16_t yi);

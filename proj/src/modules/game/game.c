@@ -46,7 +46,7 @@ int(play_solo_game)(uint16_t mode) {
   uint32_t kbc_irq_set = BIT(kbc_bit_no);
 
   bool game_started = false;
-  uint16_t ball_x = SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X, ball_y = SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
+  uint16_t ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X, ball_y = (uint16_t)SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
   while (kbc_scancode != ESC_BREAKCODE_KEY) {
     int r;
     // Get a request message.
@@ -63,8 +63,7 @@ int(play_solo_game)(uint16_t mode) {
 
         if (msg.m_notify.interrupts & timer_irq_set) { // timer interruption
           timer_int_handler();
-          if(ball_y-1 > BALL_LIMIT_TOP)
-            draw_ball(ball_x, --ball_y);
+          if(game_started) move_ball(&ball_x, &ball_y);
           if (timer_counter % 60 == 0) { // true every 1 second (freq = 60Hz)
             if (game_started) start_game(); // the player moved the plataform for the first
                                 // time (3 lives) - start the clock
@@ -155,4 +154,12 @@ bool (move_plataform)(){
   }
 
   return false; 
+}
+
+void (move_ball)(uint16_t* x, uint16_t* y){
+  if(*y-BALL_SPEED > BALL_LIMIT_TOP){
+    clean_ball(*x, *y);
+    *y -= BALL_SPEED;
+    draw_ball(*x, *y);
+  }
 }
