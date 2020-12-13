@@ -116,16 +116,13 @@ int(play_solo_game)(uint16_t mode) {
 }
 
 void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left){
-  printf("RESETS GAME\n");
-  no_lives--;
   if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) return_to_text_mode();
+  no_lives--;
   game_started = false;
   *ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
   *ball_y = (uint16_t)SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
   *up = true;
-  *left = true;
   lost = false;
-  kbc_scancode = 0;
   plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X;
   plataform_to_draw = 0;
   timer_counter = 0;
@@ -136,11 +133,10 @@ void (start_game)(){
   uint8_t minutes = seconds / 60;
   seconds = (seconds < 60 ? seconds : seconds % 60);
 
-  draw_clock(minutes, (uint8_t)seconds,
-              SOLO_SCENARIO_CORNER_X + FIRST_NUMBER_TO_LEFT_X,
+  draw_clock(minutes, (uint8_t)seconds, SOLO_SCENARIO_CORNER_X + FIRST_NUMBER_TO_LEFT_X,
               SOLO_SCENARIO_CORNER_Y + FIRST_NUMBER_TO_TOP_Y);
 
-  if (seconds % 30 == 0) { //Decreases platform every 30 seconds
+  if (seconds % 30 == 0) { // decreases platform every 30 seconds
     if (plataform_to_draw != 4) { // if not in it's final form
       ++plataform_to_draw;
       draw_plataform(plataforms[plataform_to_draw], plataform_x,
@@ -156,7 +152,7 @@ bool (move_plataform)(){
 
   if((kbc_scancode == RIGHT_ARROW_MAKECODE) || (kbc_scancode == D_MAKECODE)){
     uint16_t plataform_end = plataform_x + width;
-    if (plataform_end < scenario_limit_right){ //Right Arrow => shift to the right
+    if (plataform_end < scenario_limit_right){ // right Arrow or D => shift to the right
       if((plataform_end + PLATAFORM_DISPLACEMENT) < scenario_limit_right)
         plataform_x += PLATAFORM_DISPLACEMENT;
       else
@@ -166,7 +162,7 @@ bool (move_plataform)(){
     }
   }
   else if((kbc_scancode == LEFT_ARROW_MAKECODE) || (kbc_scancode == A_MAKECODE)){
-    if (plataform_x > scenario_limit_left){ //Left Arrow => shift to the left
+    if (plataform_x > scenario_limit_left){ // left Arrow or A=> shift to the left
       if((plataform_x - PLATAFORM_DISPLACEMENT) > scenario_limit_left)
         plataform_x -= PLATAFORM_DISPLACEMENT;
       else
@@ -223,29 +219,3 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){
     draw_ball(*x, *y);
   }
 }
-
-
-/*void (move_ball)(uint16_t* x, uint16_t* y, enum ball_direction dir){
-  clean_ball(*x, *y);
-
-  switch(dir){
-    case UP: // upward direction
-      if((*y - BALL_SPEED) > BALL_TOP_LIMIT) *y -= BALL_SPEED;
-      else *y = BALL_TOP_LIMIT;
-      break;
-    case DOWN: // downward direction
-      if((*y + BALL_SPEED) < BALL_DOWN_LIMIT) *y += BALL_SPEED;
-      else *y = BALL_DOWN_LIMIT;
-      break;
-    case LEFT: // left direction
-      if((*x - BALL_SPEED) > BALL_LEFT_LIMIT) *x -= BALL_SPEED;
-      else *x = BALL_LEFT_LIMIT;
-      break;
-    case RIGHT:
-      if((*x + BALL_SPEED) < BALL_RIGHT_LIMIT) *x += BALL_SPEED;
-      else *x = BALL_RIGHT_LIMIT;
-      break;
-  }
-
-  draw_ball(*x, *y);
-}*/
