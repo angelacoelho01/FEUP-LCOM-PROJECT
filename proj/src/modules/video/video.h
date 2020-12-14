@@ -14,15 +14,21 @@
 #include "video_gr.h"
 #include "xpm.h"
 
-int (video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p);
+void (video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p);
 
 int (map_memory)();
 
 int (video_set_graphic_mode)(uint16_t mode);
 
-int (set_mode_settings)(uint16_t mode);
+void (set_mode_settings)(uint16_t mode);
+
+int (start_video_mode)(uint16_t mode);
+
+int (return_to_text_mode)();
 
 uint8_t (get_bytes_size)(uint8_t bits);
+
+uint32_t (get_pixel_color)(uint16_t x, uint16_t y);
 
 int (get_xpm_image_type)(uint16_t mode);
 

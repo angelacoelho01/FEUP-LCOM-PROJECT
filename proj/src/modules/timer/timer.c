@@ -61,23 +61,19 @@ int (timer_set_frequency)(uint8_t timer, uint32_t freq) {
 }
 
 int (timer_subscribe_int)(uint8_t *bit_no) {
-  
   *bit_no = timer_hook_id; 
   if (sys_irqsetpolicy(TIMER0_IRQ, IRQ_REENABLE, &timer_hook_id) != OK){
-    printf("ERROR in subcribe_int: sys_irqsetpolicy!!\n");
+    printf("Error subscribing mouse interruptions!\n");
     return 1;
   }
-
   return 0;
 }
 
 int (timer_unsubscribe_int)() {
-    
   if (sys_irqrmpolicy(&timer_hook_id) != OK){
-    printf("ERROR in unsubcribe_int: iqrmpolicy!\n");
+    printf("Error unsubscribing mouse interruptions!\n");
     return 1;
   }
-
   return 0;
 }
 

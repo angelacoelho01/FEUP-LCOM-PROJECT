@@ -8,6 +8,7 @@
 
 // Any header files included below this line should have been created by you
 #include "modules/game/game.h"
+#include "modules/player/player.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
@@ -40,6 +41,8 @@ static int print_usage() {
 
 int(proj_main_loop)(int argc, char *argv[]) {
   uint16_t mode;
+  srand(time(NULL));
+
 
   if (argc != 1)
     return print_usage();
@@ -49,8 +52,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
     printf("%s: invalid mode (%s)\n", __func__, argv[0]);
     return print_usage();
   }
-
-  // some other arguments if needed
 
   // when implemented the menu, maybe that is the one that is called where, and play_solo_game from the meu corresponding option
   return play_solo_game(mode);
