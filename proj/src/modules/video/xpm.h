@@ -10,8 +10,7 @@
 #include "../../xpm/block.h"
 #include "../../xpm/plataform.h"
 #include "../../xpm/ball.h"
-#include "../../xpm/number_gray.h"
-#include "../../xpm/number_blue.h"
+#include "../../xpm/number.h"
 #include "../../xpm/heart.h"
 
 static xpm_map_t blocks[] = {
@@ -43,19 +42,6 @@ static xpm_map_t numbers[] = {
   number_7,
   number_8,
   number_9
-};
-
-static xpm_map_t numbers_blue[] = {
-  number_blue_0,
-  number_blue_1,
-  number_blue_2,
-  number_blue_3,
-  number_blue_4,
-  number_blue_5,
-  number_blue_6,
-  number_blue_7,
-  number_blue_8,
-  number_blue_9
 };
 
 static xpm_map_t hearts[] = {

@@ -16,8 +16,6 @@
 #define ESC_BREAKCODE_KEY 0x81
 #define RIGHT_ARROW_MAKECODE 0x4D
 #define LEFT_ARROW_MAKECODE 0x4B
-#define A_MAKECODE 0x1E
-#define D_MAKECODE 0x20
 
 //Keyboard-Related KBC Commands for PC-AT/PS2
 #define READ_COMD_BYTE 0x20 /*Returns Command Byte*/

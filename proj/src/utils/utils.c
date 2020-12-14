@@ -23,12 +23,3 @@ int (util_sys_inb)(int port, uint8_t *value) {
   
   return 0;
 }
-
-uint8_t (util_get_no_digits)(unsigned int n){
-  uint8_t count = 0;
-  while(n != 0){
-    n /= 10;
-    ++count;
-  }
-  return count;
-}
