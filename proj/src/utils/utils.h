@@ -18,3 +18,9 @@
 int (util_sys_inb)(int port, uint8_t *value);
 
 uint8_t (util_get_no_digits)(unsigned int n);
+
+uint16_t (util_get_lower_left_corner)(uint16_t xi);
+
+uint16_t (util_get_lower_right_corner)(uint16_t xi);
+
+uint16_t (util_get_upper_right_corner)(uint16_t xi);
