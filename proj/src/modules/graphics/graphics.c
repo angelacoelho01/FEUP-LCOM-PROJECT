@@ -23,6 +23,7 @@ size_t plataform_to_draw = 0;
 uint8_t no_lives = 3; // the amount of lives left for the player
 
 uint8_t minutes = 0, seconds = 0;
+bool lost = false;
 
 
 int (draw_scenario)(uint16_t xi, uint16_t yi){
@@ -132,13 +133,14 @@ int (draw_ball)(uint16_t x, uint16_t y){
 }
 
 int (draw_clock)(uint8_t minutes, uint8_t seconds, uint16_t xi, uint16_t yi){
+  bool clock = true;
   // clear the reagion of the clock first
   video_draw_rectangle(xi, yi, (NUMBERS_WIDTH*4) + (SPACE_BETWEEN_NUMBERS*7), NUMBERS_HEIGHT, TIMER_BACKGROUND_COLOR);
 
   // minutes first digit
-  if (draw_number(minutes / 10, xi, yi) != OK) return 1;
+  if (draw_number(minutes / 10, xi, yi, clock) != OK) return 1;
   // minutes last digit
-  if (draw_number(minutes % 10, xi + NUMBERS_WIDTH + SPACE_BETWEEN_NUMBERS, yi) != OK) return 1;
+  if (draw_number(minutes % 10, xi + NUMBERS_WIDTH + SPACE_BETWEEN_NUMBERS, yi, clock) != OK) return 1;
 
   // separador :
   // Top point
@@ -147,17 +149,25 @@ int (draw_clock)(uint8_t minutes, uint8_t seconds, uint16_t xi, uint16_t yi){
   video_draw_rectangle(xi + (NUMBERS_WIDTH*2) + (SPACE_BETWEEN_NUMBERS*3), yi + 6 + SPACE_BETWEEN_NUMBERS*2, SPACE_BETWEEN_NUMBERS, SPACE_BETWEEN_NUMBERS, NUMBERS_COLOR);
 
   // seconds first digit
-  if (draw_number(seconds / 10, xi + (NUMBERS_WIDTH*2) + (SPACE_BETWEEN_NUMBERS*6), yi) != OK) return 1;
+  if (draw_number(seconds / 10, xi + (NUMBERS_WIDTH*2) + (SPACE_BETWEEN_NUMBERS*6), yi, clock) != OK) return 1;
   // seconds last digit
-  if (draw_number(seconds % 10, xi + (NUMBERS_WIDTH*3) + (SPACE_BETWEEN_NUMBERS*7), yi) != OK) return 1;
+  if (draw_number(seconds % 10, xi + (NUMBERS_WIDTH*3) + (SPACE_BETWEEN_NUMBERS*7), yi, clock) != OK) return 1;
 
   return 0;
 }
 
-int (draw_number)(size_t n, uint16_t x, uint16_t y){
-  if (video_load_xpm(numbers[n]) != OK){
-    printf("Error draw_number: vg_load_xpm!\n");
-    return 1;
+int (draw_number)(size_t n, uint16_t x, uint16_t y, bool clock){
+  if(clock){
+    if (video_load_xpm(numbers[n]) != OK){
+      printf("Error draw_number: vg_load_xpm!\n");
+      return 1;
+    }
+  }
+  else{
+    if (video_load_xpm(numbers_blue[n]) != OK){
+      printf("Error draw_number: vg_load_xpm!\n");
+      return 1;
+    }
   }
 
   video_draw_pixmap(x, y);
@@ -184,10 +194,9 @@ int (draw_hearts)(size_t n, uint8_t number_of_lives, uint16_t xi, uint16_t yi){
   return 0;
 }
 
-/*
+
 // // when lives = 0 -> call like  game_over(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y)
-void game_over (uint16_t xi, uint16_t yi){
-	lost = true;
+void (game_over)(uint16_t xi, uint16_t yi){
 	// o jogador nao pode interagir mais com o jogo - nao permite mover a paltaforma
 	// timer para de contar - no more interrupçoes
 	// blocos ficam onde estao como estao
@@ -200,15 +209,13 @@ void game_over (uint16_t xi, uint16_t yi){
 	
 	// label of game over
 	draw_game_over(xi + GAME_OVER_TO_LEFT_X, yi + GAME_OVER_TO_TOP_Y);
-	
-	sleep(5); //?? - ou depois de sair do loop antes de voltar ao menu principal "neste primeiro caso antes de voltar ao mode de texto"
 }
 
-bool draw_game_over (uint16_t x, uint16_t y){
+bool (draw_game_over)(uint16_t x, uint16_t y){
   // clear the reagion first
   video_draw_rectangle(x, y, GAME_OVER_WIDTH , GAMR_OVER_HEIGHT, SCENARIO_BACKGROUND_COLOR);
 
-  if (video_load_xpm(game_over) != OK){
+  if (video_load_xpm(game_over_label) != OK){
     printf("Error draw_game_over: vg_load_xpm!\n");
     return 1;
   }
@@ -219,7 +226,7 @@ bool draw_game_over (uint16_t x, uint16_t y){
 }
 
 
-void game_win (uint16_t xi, uint16_t yi){
+void (game_win)(uint16_t xi, uint16_t yi, struct Player player){
 	// o jogador nao pode interagir mais com o jogo - nao permite mover a paltaforma
 	// timer para de contar - gerada a pontuacao do jogador
 	// nao existem blocos
@@ -231,21 +238,21 @@ void game_win (uint16_t xi, uint16_t yi){
 	draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);
 	
 	// label of you win
-	draw_you_win(xi + YOU_WIN_TO_LEFT_X, yi + YOU_WIN_TO_TOP_Y);
+	draw_game_win_label(xi + YOU_WIN_TO_LEFT_X, yi + YOU_WIN_TO_TOP_Y);
 	
 	// label of score
-	score_label(xi + SCORE_LABEL_TO_LEFT_X, yi + SCORE_LABEL_TO_TOP_Y);
+	draw_score_label(xi + SCORE_LABEL_TO_LEFT_X, yi + SCORE_LABEL_TO_TOP_Y);
 	
 	// draw score value
-	unsigned int player_score = 1782;
+	unsigned int player_score = player_calculate_score(minutes, seconds, no_lives);
 	draw_score_value(xi + SCORE_VALUE_TO_LEFT_X, yi + SCORE_VALUE_TO_TOP_Y, player_score);
 }
 
-bool draw_you_win (uint16_t x, uint16_t y) {
+bool (draw_game_win_label)(uint16_t x, uint16_t y) {
   // clear the reagion first
   video_draw_rectangle(x, y, YOU_WIN_WIDTH , YOU_WIN_HEIGHT, SCENARIO_BACKGROUND_COLOR);
 
-  if (video_load_xpm(you_win) != OK){
+  if (video_load_xpm(winner_label) != OK){
     printf("Error draw_game_over: vg_load_xpm!\n");
     return 1;
   }
@@ -255,7 +262,7 @@ bool draw_you_win (uint16_t x, uint16_t y) {
   return 0;
 }
 
-bool score_label (uint16_t x, uint16_t y) {
+bool (draw_score_label)(uint16_t x, uint16_t y) {
   // clear the reagion first
   video_draw_rectangle(x, y, SCORE_LABEL_WIDTH , SCORE_LABEL_HEIGHT, SCENARIO_BACKGROUND_COLOR);
 
@@ -269,20 +276,21 @@ bool score_label (uint16_t x, uint16_t y) {
   return 0;
 }
 
-bool draw_score_value (uint16_t x, uint16_t y, unsigned int score) {
-	uint8_t no_digits = floor (log10 (abs (score))) + 1;
-	
+bool (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
+  bool clock = false;
+	uint8_t no_digits = util_get_no_digits(score);
+
 	// get the digits of the score value from the last to the first
 	while (no_digits > 0){
 		uint8_t number = score / pow(10, no_digits - 1);
-		draw_number(number, x, y);
+		draw_number(number, x, y, clock);
 		
 		// next number
-		score %= pow(10, no_digits - 1);
+		score %= (unsigned int)pow(10, no_digits - 1);
 		x += NUMBERS_WIDTH + SPACE_BETWEEN_NUMBERS; 
-		--n_digits;
+		--no_digits;
 	}
 
 	return 0;
 }
-*/
+

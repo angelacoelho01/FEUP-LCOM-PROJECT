@@ -3,8 +3,8 @@
 #include <stdlib.h>
 
 unsigned int (player_calculate_score)(uint8_t minutes, uint8_t seconds, uint8_t no_lives){
-  if(minutes >= 5) return 250;
-  else return (3500 - (minutes * 5000) - (seconds * 1000) - (3 * no_lives) * 250);
+  if(minutes >= 5) return (unsigned int)250;
+  else return (unsigned int)(35000 - (minutes * 5000) - (seconds * 1000) - (3 - no_lives) * 250);
 }
 
 int (player_compare)(const void* p1, const void* p2){

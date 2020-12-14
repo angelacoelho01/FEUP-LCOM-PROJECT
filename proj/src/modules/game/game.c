@@ -20,7 +20,7 @@ extern uint16_t plataform_x, scenario_limit_right, scenario_limit_left;
 extern size_t plataform_to_draw;
 extern uint8_t no_lives;
 
-bool lost = false;  
+extern bool lost;  
 bool game_started = false;
 
 extern uint8_t minutes, seconds;
@@ -29,7 +29,8 @@ uint16_t ball_speed = BALL_SPEED;
 uint16_t plataform_speed = PLATAFORM_SPEED;
 
 int(play_solo_game)(uint16_t mode) {
-
+  struct Player p1 = {"Joao", 0};
+ 
   if (start_video_mode(mode) != OK)
     return 1;
 
@@ -59,7 +60,7 @@ int(play_solo_game)(uint16_t mode) {
   uint16_t ball_y = (uint16_t)SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
   bool up = true, left = true;
 
-  while (kbc_scancode != ESC_BREAKCODE_KEY) {
+  while ((kbc_scancode != ESC_BREAKCODE_KEY) && (0 != no_lives)) {
     int r;
     // get a request message
     if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -104,7 +105,8 @@ int(play_solo_game)(uint16_t mode) {
       }
     } 
   }
-
+  game_win(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y, p1);
+  sleep(5);
   // To unsubscribe the Timer interrupts
   if (timer_unsubscribe_int() != OK) return 1;
 
@@ -217,7 +219,8 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){
       *left = true;
     }
   }
-  if(lost && (*y + ball_speed + BALL_HEIGHT) >= FRAME_DOWN_LIMIT ) reset_game(x, y, up, left);
+  if(lost && (*y + ball_speed + BALL_HEIGHT) >= FRAME_DOWN_LIMIT)
+    reset_game(x, y, up, left);
   else{
     clean_ball(xi, yi);
     draw_ball(*x, *y);

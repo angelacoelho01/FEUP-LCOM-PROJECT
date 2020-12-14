@@ -1,4 +1,4 @@
-#ifndef _LABLES_H
+#ifndef _LABELS_H
 #define _LABELS_H
 
 static xpm_row_t const game_over_label[] = {
