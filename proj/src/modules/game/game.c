@@ -21,7 +21,7 @@ extern size_t plataform_to_draw;
 extern uint8_t no_lives;
 
 extern bool lost;  
-bool game_started = false;
+bool game_started = false, is_move_ball = false;
 
 extern uint8_t minutes, seconds;
 
@@ -76,11 +76,10 @@ int(play_solo_game)(uint16_t mode) {
 
         if (msg.m_notify.interrupts & timer_irq_set) { // timer interruption
           timer_int_handler();
-          if(game_started) move_ball(&ball_x, &ball_y, &up, &left);
           if (timer_counter % 60 == 0) { // true every 1 second (freq = 60Hz)
-            start_game(); // the player moved the plataform for the first
-                                // time (3 lives) - start the clock
+            start_clock(); // the player moved the plataform for the first time (3 lives) - start the clock
           }
+          if (is_move_ball) move_ball(&ball_x, &ball_y, &up, &left);
         }
 
         if (msg.m_notify.interrupts & kbc_irq_set) { // KBC interruption
@@ -92,12 +91,12 @@ int(play_solo_game)(uint16_t mode) {
                                SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y_INIT,
                                SOLO_SCENARIO_CORNER_X);
                 game_started =
-                    true; // the ball start moving and the timer starts to count
-                          // just only there was a movement from the player
+                    true; // the ball start moving and the timer starts to count - just only if there was a movement from the player
+                is_move_ball = true;
               }
             }
           }
-          tickdelay(micros_to_ticks(WAIT_KBC));
+          // tickdelay(micros_to_ticks(WAIT_KBC));
         }
         break;
       default:
@@ -105,8 +104,16 @@ int(play_solo_game)(uint16_t mode) {
       }
     } 
   }
-  game_win(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y, p1);
+
+  // check the reason why we break for the cicle
+  if (0 == no_lives) {
+    game_over(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
+  } else{
+    game_win(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y, p1);
+  }
+
   sleep(5);
+
   // To unsubscribe the Timer interrupts
   if (timer_unsubscribe_int() != OK) return 1;
 
@@ -121,43 +128,37 @@ int(play_solo_game)(uint16_t mode) {
   return 0;
 }
 
-void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left){
-  no_lives--;
-  if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) return_to_text_mode();
-  game_started = false;
-  *ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
-  *ball_y = (uint16_t)SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
-  *up = true;
-  lost = false;
-  plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X;
-}
+void (start_clock)(){
+  if (game_started){
+    seconds = timer_counter / 60;
+    minutes = seconds / 60;
+    seconds = (seconds < 60 ? seconds : seconds % 60);
 
-void (start_game)(){
-  seconds = timer_counter / 60;
-  minutes = seconds / 60;
-  seconds = (seconds < 60 ? seconds : seconds % 60);
+    draw_clock(minutes, (uint8_t)seconds, SOLO_SCENARIO_CORNER_X + FIRST_NUMBER_TO_LEFT_X,
+                SOLO_SCENARIO_CORNER_Y + FIRST_NUMBER_TO_TOP_Y);
 
-  draw_clock(minutes, (uint8_t)seconds, SOLO_SCENARIO_CORNER_X + FIRST_NUMBER_TO_LEFT_X,
-              SOLO_SCENARIO_CORNER_Y + FIRST_NUMBER_TO_TOP_Y);
-
-  if (seconds % 30 == 0) { // decreases platform every 30 seconds
-    if (plataform_to_draw != 4) { // if not in it's final form
-      ++plataform_to_draw;
-      ++ball_speed;
-      plataform_speed += 10;
-      draw_plataform(plataforms[plataform_to_draw], plataform_x,
-                      SOLO_SCENARIO_CORNER_Y +
-                          PLATAFORM_TO_TOP_Y_INIT,
-                      SOLO_SCENARIO_CORNER_X);
+    if (seconds % 30 == 0) { // every 30 seconds
+      if (plataform_to_draw != 4) { // if not in it's final form
+        ++plataform_to_draw; // decreases plataform width
+        ++ball_speed; // increases ball speed
+        plataform_speed += 10;
+        draw_plataform(plataforms[plataform_to_draw], plataform_x,
+                        SOLO_SCENARIO_CORNER_Y +
+                            PLATAFORM_TO_TOP_Y_INIT,
+                        SOLO_SCENARIO_CORNER_X);
+      }
     }
+  } else {
+    timer_counter = 0;
   }
 }
 
 bool (move_plataform)(){
   uint16_t width = plataform_width[plataform_to_draw];
 
-  if((kbc_scancode == RIGHT_ARROW_MAKECODE) || (kbc_scancode == D_MAKECODE)){
+  if ((kbc_scancode == RIGHT_ARROW_MAKECODE) || (kbc_scancode == D_MAKECODE)){
     uint16_t plataform_end = plataform_x + width;
+    
     if (plataform_end < scenario_limit_right){ // right Arrow or D => shift to the right
       if((plataform_end + plataform_speed) < scenario_limit_right)
         plataform_x += plataform_speed;
@@ -179,6 +180,19 @@ bool (move_plataform)(){
   }
 
   return false; 
+}
+
+void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left){
+  no_lives--;
+  // we most keep the info of the blocks in the scenario - this are the ones that will be draw
+  if (draw_scenario (SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) return_to_text_mode();
+  
+  *ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
+  *ball_y = (uint16_t) SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
+  *up = true; *left = true;
+  is_move_ball = false; // do not move the ball till the player move the plataform again
+  lost = false; // to keep track of the next try
+  plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X;
 }
 
 void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left){

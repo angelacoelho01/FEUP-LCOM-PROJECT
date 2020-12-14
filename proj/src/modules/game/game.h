@@ -33,7 +33,7 @@ static struct Block blocks_coord[100];
 
 int (play_solo_game)(uint16_t mode);
 
-void (start_game)();
+void (start_clock)();
 
 void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left);
 
