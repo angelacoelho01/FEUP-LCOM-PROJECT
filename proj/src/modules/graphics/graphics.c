@@ -22,6 +22,8 @@ uint16_t ball_limit_bottom = SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y_INIT; /
 size_t plataform_to_draw = 0;
 uint8_t no_lives = 3; // the amount of lives left for the player
 
+uint8_t minutes = 0, seconds = 0;
+
 
 int (draw_scenario)(uint16_t xi, uint16_t yi){
   // Draw the scenario background
@@ -66,7 +68,7 @@ int (draw_scenario)(uint16_t xi, uint16_t yi){
 
 
   // Draw the inicial clock 00:00
-  if (draw_clock(0, 0, xi + FIRST_NUMBER_TO_LEFT_X, yi + FIRST_NUMBER_TO_TOP_Y) != OK){
+  if (draw_clock(minutes, seconds, xi + FIRST_NUMBER_TO_LEFT_X, yi + FIRST_NUMBER_TO_TOP_Y) != OK){
     printf("Error draw_scenario: draw_clock!\n");
     return 1;
   }
@@ -181,3 +183,106 @@ int (draw_hearts)(size_t n, uint8_t number_of_lives, uint16_t xi, uint16_t yi){
 
   return 0;
 }
+
+/*
+// // when lives = 0 -> call like  game_over(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y)
+void game_over (uint16_t xi, uint16_t yi){
+	lost = true;
+	// o jogador nao pode interagir mais com o jogo - nao permite mover a paltaforma
+	// timer para de contar - no more interrupçoes
+	// blocos ficam onde estao como estao
+	
+	// plataforma volta à sua posicao inicial
+	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X, yi + PLATAFORM_TO_TOP_Y_INIT, xi);
+	
+	// a bola volta à sua posicao inicial
+	draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);
+	
+	// label of game over
+	draw_game_over(xi + GAME_OVER_TO_LEFT_X, yi + GAME_OVER_TO_TOP_Y);
+	
+	sleep(5); //?? - ou depois de sair do loop antes de voltar ao menu principal "neste primeiro caso antes de voltar ao mode de texto"
+}
+
+bool draw_game_over (uint16_t x, uint16_t y){
+  // clear the reagion first
+  video_draw_rectangle(x, y, GAME_OVER_WIDTH , GAMR_OVER_HEIGHT, SCENARIO_BACKGROUND_COLOR);
+
+  if (video_load_xpm(game_over) != OK){
+    printf("Error draw_game_over: vg_load_xpm!\n");
+    return 1;
+  }
+
+  video_draw_pixmap(x, y);
+
+  return 0;
+}
+
+
+void game_win (uint16_t xi, uint16_t yi){
+	// o jogador nao pode interagir mais com o jogo - nao permite mover a paltaforma
+	// timer para de contar - gerada a pontuacao do jogador
+	// nao existem blocos
+
+	// plataforma volta à sua posicao inicial
+	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X, yi + PLATAFORM_TO_TOP_Y_INIT, xi);
+	
+	// a bola volta à sua posicao inicial
+	draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);
+	
+	// label of you win
+	draw_you_win(xi + YOU_WIN_TO_LEFT_X, yi + YOU_WIN_TO_TOP_Y);
+	
+	// label of score
+	score_label(xi + SCORE_LABEL_TO_LEFT_X, yi + SCORE_LABEL_TO_TOP_Y);
+	
+	// draw score value
+	unsigned int player_score = 1782;
+	draw_score_value(xi + SCORE_VALUE_TO_LEFT_X, yi + SCORE_VALUE_TO_TOP_Y, player_score);
+}
+
+bool draw_you_win (uint16_t x, uint16_t y) {
+  // clear the reagion first
+  video_draw_rectangle(x, y, YOU_WIN_WIDTH , YOU_WIN_HEIGHT, SCENARIO_BACKGROUND_COLOR);
+
+  if (video_load_xpm(you_win) != OK){
+    printf("Error draw_game_over: vg_load_xpm!\n");
+    return 1;
+  }
+
+  video_draw_pixmap(x, y);
+
+  return 0;
+}
+
+bool score_label (uint16_t x, uint16_t y) {
+  // clear the reagion first
+  video_draw_rectangle(x, y, SCORE_LABEL_WIDTH , SCORE_LABEL_HEIGHT, SCENARIO_BACKGROUND_COLOR);
+
+  if (video_load_xpm(score_label) != OK){
+    printf("Error draw_game_over: vg_load_xpm!\n");
+    return 1;
+  }
+
+  video_draw_pixmap(x, y);
+
+  return 0;
+}
+
+bool draw_score_value (uint16_t x, uint16_t y, unsigned int score) {
+	uint8_t no_digits = floor (log10 (abs (score))) + 1;
+	
+	// get the digits of the score value from the last to the first
+	while (no_digits > 0){
+		uint8_t number = score / pow(10, no_digits - 1);
+		draw_number(number, x, y);
+		
+		// next number
+		score %= pow(10, no_digits - 1);
+		x += NUMBERS_WIDTH + SPACE_BETWEEN_NUMBERS; 
+		--n_digits;
+	}
+
+	return 0;
+}
+*/

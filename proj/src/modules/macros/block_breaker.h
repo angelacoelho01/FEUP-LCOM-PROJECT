@@ -52,6 +52,31 @@
 #define TIMER_BACKGROUND_COLOR 0x343131
 #define NUMBERS_COLOR 0xffffff
 
-#define PLATAFORM_DISPLACEMENT 40
+#define PLATAFORM_SPEED 20
+
+// game over
+#define GAME_OVER_TO_LEFT_X 101
+#define GAME_OVER_TO_TOP_Y 242
+#define GAME_OVER_WIDTH 121
+#define GAMR_OVER_HEIGHT 119
+
+// you win
+#define YOU_WIN_TO_LEFT_X 60
+#define YOU_WIN_TO_TOP_Y 142
+#define YOU_WIN_WIDTH 200
+#define YOU_WIN_HEIGHT 39
+
+// score:
+#define SCORE_LABEL_TO_LEFT_X 60
+#define SCORE_LABEL_TO_TOP_Y 210
+#define SCORE_LABEL_WIDTH 83
+#define SCORE_LABEL_HEIGHT 20
+
+// score value
+#define SCORE_VALUE_TO_LEFT_X 160
+#define SCORE_VALUE_TO_TOP_Y 210
+// score value
+#define SCORE_VALUE_X 400
+#define SCORE_VALUE_Y 270
 
 #endif /* _LCOM_BLOCK_BREAKER_H_ */
