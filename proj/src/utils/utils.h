@@ -16,3 +16,5 @@
  * @return Return 0 upon success and non-zero otherwise
  */
 int (util_sys_inb)(int port, uint8_t *value);
+
+uint8_t (util_get_no_digits)(unsigned int n);

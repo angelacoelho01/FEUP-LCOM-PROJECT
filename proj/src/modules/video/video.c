@@ -10,7 +10,7 @@ enum xpm_image_type xpm_type;
 xpm_image_t xpm_image;
 uint8_t bytes_per_pixel;
 
-int(video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p) {
+void (video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p) {
   uint32_t size = sizeof(vbe_mode_info_t);
 
   mmap_t address;
@@ -31,8 +31,6 @@ int(video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p) {
   h_res = mode_conf.XResolution;
   v_res = mode_conf.YResolution;
   bits_per_pixel = mode_conf.BitsPerPixel;
-
-  return 0;
 }
 
 int(map_memory)() {
@@ -46,13 +44,15 @@ int(map_memory)() {
 
   if ((r = sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mr)) != OK) {
     printf("sys_privctl (ADD_MEM) failed: %d\n", r);
+    return_to_text_mode();
     return 1;
   }
 
   video_mem = vm_map_phys(SELF, (void *) mr.mr_base, vram_size);
 
   if (video_mem == MAP_FAILED) {
-    printf("couldn't map video memory.\n");
+    printf("Error mapping video memory.\n");
+    return_to_text_mode();
     return 1;
   }
 
@@ -69,15 +69,38 @@ int(video_set_graphic_mode)(uint16_t mode) {
 
   if (sys_int86(&r) != OK) {
     printf("set_graph_mode: sys_int86() failed\n");
+    return_to_text_mode();
     return 1;
   }
+
+  // set the corresponding main variables to this mode
+  // eg.: xpm_type, bytes_per_pixel, ...
+  set_mode_settings(mode);
 
   return 0;
 }
 
-int (set_mode_settings)(uint16_t mode){
+void (set_mode_settings)(uint16_t mode){
   xpm_type = get_xpm_image_type(mode);
   bytes_per_pixel = get_bytes_size(bits_per_pixel);
+}
+
+int (start_video_mode)(uint16_t mode){
+
+  video_get_mode_info(mode, &mode_conf);
+
+  if (map_memory() != OK) return 1;
+
+  if (video_set_graphic_mode(mode) != OK) return 1;
+
+  return 0;
+}
+
+int (return_to_text_mode)(){
+  if(vg_exit() != OK){
+    printf("Error returning to text mode.\n");
+    return 1;
+  }
 
   return 0;
 }
@@ -85,6 +108,19 @@ int (set_mode_settings)(uint16_t mode){
 uint8_t (get_bytes_size)(uint8_t bits) {
   return (uint8_t)(bits / BYTE_SIZE) + (bits % BYTE_SIZE ? 1 : 0);
 }
+
+uint32_t (get_pixel_color)(uint16_t x, uint16_t y){
+  uint32_t y_coord = y * h_res * bytes_per_pixel;
+  uint32_t x_coord = x * bytes_per_pixel;
+  char* ptr = (char*)video_mem + x_coord + y_coord;
+
+  uint8_t blue = ptr[0];
+  uint8_t green = ptr[1];
+  uint8_t red = ptr[2];
+
+  return (red << mode_conf.RedFieldPosition) | (green << mode_conf.GreenFieldPosition) | (blue);
+}
+
 
 int (get_xpm_image_type)(uint16_t mode){
   if (mode == MODE_0) return XPM_INDEXED;

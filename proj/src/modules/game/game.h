@@ -17,25 +17,30 @@
 #include "../timer/timer.h"
 #include "../video/video.h"
 #include "../../utils/utils.h"
+#include "../graphics/graphics.h"
+#include "../player/player.h"
+
+static uint16_t plataform_width[] = {
+  86, 74, 62, 50, 38
+};
+
+struct Block{
+  uint16_t xi;
+  uint16_t xf;
+};
+
+static struct Block blocks_coord[100];
 
 int (play_solo_game)(uint16_t mode);
 
-int (start_video_mode)(uint16_t mode);
+void (start_clock)();
 
-int (return_to_text_mode)();
+void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left);
 
-int (draw_scenario)(uint16_t xi, uint16_t yi);
+bool (move_plataform)();
 
-int (draw_plataform)(xpm_map_t xpm, uint16_t x, uint16_t y, uint16_t scenario_x);
+void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left);
 
-int (draw_blocks)(uint16_t xi, uint16_t yi);
-
-int (draw_ball)(uint16_t x, uint16_t y);
-
-int (draw_clock)(uint8_t minutes, uint8_t seconds, uint16_t xi, uint16_t yi);
-
-int (draw_number)(size_t n, uint16_t x, uint16_t y);
-
-int (draw_hearts)(size_t n, uint8_t number_of_lives, uint16_t xi, uint16_t yi);
+void (block_break)();
 
 #endif /* __GAME_H */
