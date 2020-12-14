@@ -33,13 +33,13 @@ static struct Block blocks_coord[100];
 
 int (play_solo_game)(uint16_t mode);
 
-void (start_clock)();
+void (start_clock)(uint16_t xi, uint16_t yi);
 
-void (reset_game)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left);
+void (next_life)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left, uint16_t xi, uint16_t yi);
 
-bool (move_plataform)();
+bool (move_plataform)(uint16_t right_limit, uint16_t left_limit);
 
-void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left);
+void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenario_xi, uint16_t scenario_yi);
 
 void (block_break)();
 
