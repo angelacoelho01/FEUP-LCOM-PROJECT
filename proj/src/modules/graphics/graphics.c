@@ -10,21 +10,13 @@ extern xpm_image_t xpm_image;
 
 // Varible that keep the x of the plataform, witch is change 
 // according to the key pressed between the limits of the scenario: 
-uint16_t plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X; // para ja ainda so para o modo de jogo a solo
-
-// Limits of the game
-uint16_t scenario_limit_left = SOLO_SCENARIO_CORNER_X + BORDER_WIDTH;
-uint16_t scenario_limit_right = SOLO_SCENARIO_CORNER_X + SCENARIO_WIDTH - BORDER_WIDTH;
-uint16_t ball_limit_top = SOLO_SCENARIO_CORNER_Y + TIMER_BACK_HEIGHT;
-uint16_t ball_limit_bottom = SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y_INIT; // when surpassed this value that means that the user lose a life
+uint16_t plataform_x; // inicial value of the x of the plataform
 
 // Represents the plataform to be draw (after x time the plataform in game is one with a smaller width)
 size_t plataform_to_draw = 0;
 uint8_t no_lives = 3; // the amount of lives left for the player
 
 uint8_t minutes = 0, seconds = 0;
-bool lost = false;
-
 
 int (draw_scenario)(uint16_t xi, uint16_t yi){
   // Draw the scenario background
@@ -50,7 +42,7 @@ int (draw_scenario)(uint16_t xi, uint16_t yi){
   }
 
   // Draw the plataform in is inicial coordenates and format
-  if (draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X, yi + PLATAFORM_TO_TOP_Y_INIT, xi) != OK){
+  if (draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi) != OK){
     printf("Error draw_scenario: draw_plataform!\n");
     return 1;
   }
@@ -66,7 +58,6 @@ int (draw_scenario)(uint16_t xi, uint16_t yi){
     printf("Error draw_scenario: draw_hearts!\n");
     return 1;
   }
-
 
   // Draw the inicial clock 00:00
   if (draw_clock(minutes, seconds, xi + FIRST_NUMBER_TO_LEFT_X, yi + FIRST_NUMBER_TO_TOP_Y) != OK){
@@ -194,24 +185,22 @@ int (draw_hearts)(size_t n, uint8_t number_of_lives, uint16_t xi, uint16_t yi){
   return 0;
 }
 
-
-// // when lives = 0 -> call like  game_over(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y)
-void (game_over)(uint16_t xi, uint16_t yi){
+void (game_over_display)(uint16_t xi, uint16_t yi){
 	// o jogador nao pode interagir mais com o jogo - nao permite mover a paltaforma
 	// timer para de contar - no more interrupçoes
 	// blocos ficam onde estao como estao
 	
 	// plataforma volta à sua posicao inicial
-	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X, yi + PLATAFORM_TO_TOP_Y_INIT, xi);
+	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi);
 	
 	// a bola volta à sua posicao inicial
 	draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);
 	
 	// label of game over
-	draw_game_over(xi + GAME_OVER_TO_LEFT_X, yi + GAME_OVER_TO_TOP_Y);
+	draw_game_over_label(xi + GAME_OVER_TO_LEFT_X, yi + GAME_OVER_TO_TOP_Y);
 }
 
-bool (draw_game_over)(uint16_t x, uint16_t y){
+bool (draw_game_over_label)(uint16_t x, uint16_t y){
   // clear the reagion first
   video_draw_rectangle(x, y, GAME_OVER_WIDTH , GAMR_OVER_HEIGHT, SCENARIO_BACKGROUND_COLOR);
 
@@ -226,13 +215,13 @@ bool (draw_game_over)(uint16_t x, uint16_t y){
 }
 
 
-void (game_win)(uint16_t xi, uint16_t yi, struct Player player){
+void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player){
 	// o jogador nao pode interagir mais com o jogo - nao permite mover a paltaforma
 	// timer para de contar - gerada a pontuacao do jogador
 	// nao existem blocos
 
 	// plataforma volta à sua posicao inicial
-	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X, yi + PLATAFORM_TO_TOP_Y_INIT, xi);
+	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi);
 	
 	// a bola volta à sua posicao inicial
 	draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);

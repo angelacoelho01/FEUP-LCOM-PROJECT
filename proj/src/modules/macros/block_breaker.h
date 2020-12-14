@@ -11,11 +11,11 @@
 #define TIMER_BACK_HEIGHT 40
 #define BORDER_WIDTH 5
 
-#define FRAME_DOWN_LIMIT 535
-
-#define PLATAFORM_TO_LEFT_X 116
-#define PLATAFORM_TO_TOP_Y_INIT 428
+#define PLATAFORM_TO_LEFT_X_INIT 116
+#define PLATAFORM_TO_TOP_Y 428
 #define PLATAFORM_HEIGHT 10
+
+#define PLATAFORM_SPEED 20
 
 #define BLOCKS_TO_LEFT_X 20
 #define BLOCKS_TO_TOP_Y 90
@@ -41,18 +41,19 @@
 #define BALL_TO_TOP_Y 410
 #define BALL_WIDTH 14
 #define BALL_HEIGHT 14
+// nao se encontra relativo ao canto do nivel em questao
+/*
 #define BALL_TOP_LIMIT 230
 #define BALL_DOWN_LIMIT 473
 #define BALL_LEFT_LIMIT 245
 #define BALL_RIGHT_LIMIT 541
-#define BALL_SPEED 3
+*/
+#define BALL_SPEED 1
 
 #define SCENARIO_BACKGROUND_COLOR 0x212b72
 #define SCENARIO_BORDER_COLOR 0x888787
 #define TIMER_BACKGROUND_COLOR 0x343131
 #define NUMBERS_COLOR 0xffffff
-
-#define PLATAFORM_SPEED 20
 
 // game over
 #define GAME_OVER_TO_LEFT_X 101

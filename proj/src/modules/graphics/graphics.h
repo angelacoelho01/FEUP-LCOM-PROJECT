@@ -36,11 +36,11 @@ int (draw_number)(size_t n, uint16_t x, uint16_t y, bool clock);
 
 int (draw_hearts)(size_t n, uint8_t number_of_lives, uint16_t xi, uint16_t yi);
 
-void (game_over)(uint16_t xi, uint16_t yi);
+void (game_over_display)(uint16_t xi, uint16_t yi);
 
-bool (draw_game_over)(uint16_t x, uint16_t y);
+bool (draw_game_over_label)(uint16_t x, uint16_t y);
 
-void (game_win)(uint16_t xi, uint16_t yi, struct Player player);
+void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player);
 
 bool (draw_game_win_label)(uint16_t x, uint16_t y);
 
