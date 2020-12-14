@@ -197,7 +197,7 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenar
   uint16_t xi = *x, yi = *y;
   // arranjar forma de nao calcular isto tantas vezes - mas ainda depender do canto do nivel - talvez por parametro ou ser global mas apenas inicializada dentro do play_solo
   uint16_t ball_top_limit = scenario_yi + BLOCKS_TO_TOP_Y + (BLOCKS_HEIGHT*NUMBER_BLOCKS_Y);
-  uint16_t ball_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y;
+  uint16_t ball_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y - BALL_HEIGHT;
   uint16_t ball_left_limit = scenario_xi + BORDER_WIDTH;
   uint16_t ball_right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
   unsigned int frame_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y + PLATAFORM_HEIGHT + 20;
