@@ -8,7 +8,7 @@
 
 // Any header files included below this line should have been created by you
 #include "modules/game/game.h"
-#include "modules/player/player.h"
+// #include "modules/player/player.h"
 
 int main(int argc, char *argv[]) {
   // sets the language of LCF messages (can be either EN-US or PT-PT)
