@@ -189,6 +189,7 @@ void (next_life)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left, uint1
   *up = true; *left = true;
   is_move_ball = false; // do not move the ball till the player move the plataform again
   lost = false; // to keep track of the next try
+  
   plataform_x = xi + yi + (6*plataform_to_draw);
 }
 
