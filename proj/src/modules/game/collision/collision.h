@@ -18,6 +18,7 @@ struct block_position{
   struct coordinates upper_right_corner;
   struct coordinates lower_left_corner;
   struct coordinates lower_right_corner;
+  xpm_row_t* xpm;
 };
 
 struct ball_position{
@@ -28,7 +29,7 @@ struct ball_position{
 static struct block_position blocks_pos[BLOCKS_POSITION_SIZE]; 
 static unsigned int no_blocks_positions = 0;
 
-void (get_all_blocks_positions)(unsigned int x, unsigned int y);
+void (get_all_blocks_positions)(unsigned int x, unsigned int y, xpm_row_t* xpm);
 
 void (get_upper_right_corner)(struct block_position* pos);
 
@@ -52,6 +53,9 @@ bool (delete_block_pos)(const struct block_position* pos);
 
 bool (delete_block_pos_by_index)(unsigned int i);
 
+struct block_position* (get_list_blocks_positions)();
+
+size_t (get_list_size)();
 
 /*-----------------------------------BALL--------------------------------------------*/
 

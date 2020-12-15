@@ -190,7 +190,7 @@ void (next_life)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left, uint1
   is_move_ball = false; // do not move the ball till the player move the plataform again
   lost = false; // to keep track of the next try
   
-  plataform_x = xi + yi + (6*plataform_to_draw);
+  plataform_x = xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw);
 }
 
 void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenario_xi, uint16_t scenario_yi){

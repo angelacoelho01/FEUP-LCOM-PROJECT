@@ -3,14 +3,19 @@
 #include "../../macros/block_breaker.h"
 #include "../../video/video.h"
 
-void (get_all_blocks_positions)(unsigned int x, unsigned int y){
+void (get_all_blocks_positions)(unsigned int x, unsigned int y, xpm_row_t* xpm){
   struct block_position pos;
   struct coordinates coord = {x,y};
   pos.upper_left_corner = coord;
   get_upper_right_corner(&pos);
   get_lower_left_corner(&pos);
   get_lower_right_corner(&pos);
+  pos.xpm = xpm;
   blocks_pos[no_blocks_positions++] = pos;
+}
+
+struct block_position* (get_list_blocks_positions)(){
+  return blocks_pos;
 }
 
 void (get_upper_right_corner)(struct block_position* pos){
@@ -80,7 +85,7 @@ bool (delete_block_pos)(const struct block_position* pos){
   for(size_t i = find_block_pos(*pos); i < blocks_position_size; i++)
     blocks_pos[i] = blocks_pos[i+1];
   blocks_position_size--;
-  //free((void*)pos);
+  free((void*)pos);
   return true;
 }
 
@@ -108,5 +113,9 @@ bool (handle_collision)(struct ball_position ball_pos){
       }
   }
   return false;
+}
+
+size_t (get_list_size)(){
+  return blocks_position_size;
 }
 
