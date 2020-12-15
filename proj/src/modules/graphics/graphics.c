@@ -298,4 +298,3 @@ bool (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
 
 	return 0;
 }
-
