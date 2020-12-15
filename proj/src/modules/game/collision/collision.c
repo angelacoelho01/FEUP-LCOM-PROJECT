@@ -1,8 +1,9 @@
 #include "collision.h"
 
 #include "../../macros/block_breaker.h"
+#include "../../video/video.h"
 
-void (get_block_position)(unsigned int x, unsigned int y){
+void (get_all_blocks_positions)(unsigned int x, unsigned int y){
   struct block_position pos;
   struct coordinates coord = {x,y};
   pos.upper_left_corner = coord;
@@ -30,8 +31,8 @@ void (get_lower_right_corner)(struct block_position* pos){
   pos->lower_right_corner.y = yi + BLOCKS_HEIGHT;
 }
 
-bool (get_block_pos)(unsigned int i, struct block_position* pos){
-  if(i > blocks_position_size) return false;
+bool (get_block_position)(unsigned int i, struct block_position* pos){
+  if(i >= blocks_position_size) return false;
   *pos = blocks_pos[i];
   return true;
 }
@@ -61,7 +62,6 @@ void (sort_block_pos)(){
 }
 
 bool (compare_coordinates)(const struct coordinates coord1, const struct coordinates coord2){
-  printf("COORD1 = (%d, %d), COORD2 = (%d, %d)\n", coord1.x, coord1.y, coord2.x, coord2.y);
   return ((coord1.x == coord2.x) && (coord1.y == coord2.y));
 }
 
@@ -80,6 +80,33 @@ bool (delete_block_pos)(const struct block_position* pos){
   for(size_t i = find_block_pos(*pos); i < blocks_position_size; i++)
     blocks_pos[i] = blocks_pos[i+1];
   blocks_position_size--;
-  free((void*)pos);
+  //free((void*)pos);
   return true;
 }
+
+bool (delete_block_pos_by_index)(unsigned int i){
+  if(i >= blocks_position_size) return false;
+  return delete_block_pos(&blocks_pos[i]);
+}
+
+struct ball_position (get_ball_position)(unsigned int x, unsigned int y){
+  struct coordinates coord_center = {x + (BALL_WIDTH/2), y + (BALL_HEIGHT/2)};
+  struct coordinates coord_upper_left_corner = {x, y};
+  struct ball_position ball_pos = {coord_center, coord_upper_left_corner};
+  return ball_pos;
+}
+
+bool (handle_collision)(struct ball_position ball_pos){
+  for(size_t i = 0; i < blocks_position_size; i++){
+    if((blocks_pos[i].lower_left_corner.x <= ball_pos.center.x) &&
+      (ball_pos.center.x <= blocks_pos[i].lower_right_corner.x) &&
+      (ball_pos.upper_left_corner.y == blocks_pos[i].lower_left_corner.y)){
+        video_draw_rectangle(blocks_pos[i].upper_left_corner.x, blocks_pos[i].upper_left_corner.y,
+                            BLOCKS_WIDTH, BLOCKS_HEIGHT, SCENARIO_BACKGROUND_COLOR);
+        delete_block_pos_by_index(i);
+        return true;
+      }
+  }
+  return false;
+}
+

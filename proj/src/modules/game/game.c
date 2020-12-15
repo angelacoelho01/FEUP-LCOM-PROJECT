@@ -208,6 +208,8 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenar
     else{
       *y = ball_top_limit;
       *up = false;
+      struct ball_position ball_pos = get_ball_position(*x,(unsigned int)*y);
+      handle_collision(ball_pos);
     }
   }
   else{

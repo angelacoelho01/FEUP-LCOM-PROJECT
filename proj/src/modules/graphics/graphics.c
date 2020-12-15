@@ -3,6 +3,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "../game/collision/collision.h"
+
 
 extern vbe_mode_info_t mode_conf;
 extern enum xpm_image_type xpm_type;
@@ -97,14 +99,13 @@ int (draw_blocks)(uint16_t xi, uint16_t yi){
         return 1;
       }
       video_draw_pixmap(x, y);
-
+      get_all_blocks_positions(x,y);
       x += BLOCKS_WIDTH;
     }
     // Next Line
     x = xi;
     y += BLOCKS_HEIGHT; 
   }
-
   return 0;
 }
 

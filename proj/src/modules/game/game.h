@@ -20,6 +20,8 @@
 #include "../graphics/graphics.h"
 #include "../player/player.h"
 
+#include "collision/collision.h"
+
 static uint16_t plataform_width[] = {
   86, 74, 62, 50, 38
 };
