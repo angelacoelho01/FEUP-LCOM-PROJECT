@@ -18,7 +18,7 @@
 #include "../video/video.h"
 #include "../../utils/utils.h"
 #include "../graphics/graphics.h"
-#include "../player/player.h"
+#include "../game/player/player.h"
 
 #include "collision/collision.h"
 

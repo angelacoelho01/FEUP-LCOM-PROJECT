@@ -18,7 +18,7 @@
 #include "../video/video.h"
 #include "../../utils/utils.h"
 #include "../../xpm/labels.h"
-#include "../player/player.h"
+#include "../game/player/player.h"
 
 int (draw_scenario)(uint16_t xi, uint16_t yi);
 

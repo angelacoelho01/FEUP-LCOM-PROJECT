@@ -1,6 +1,6 @@
 PROG=proj
 
-.PATH: ${.CURDIR}/modules/keyboard ${.CURDIR}/modules/mouse ${.CURDIR}/modules/timer ${.CURDIR}/modules/video ${.CURDIR}/utils ${.CURDIR}/modules/game ${.CURDIR}/modules/graphics ${.CURDIR}/modules/player ${.CURDIR}/modules/game/collision
+.PATH: ${.CURDIR}/modules/keyboard ${.CURDIR}/modules/mouse ${.CURDIR}/modules/timer ${.CURDIR}/modules/video ${.CURDIR}/utils ${.CURDIR}/modules/game ${.CURDIR}/modules/graphics ${.CURDIR}/modules/game/player ${.CURDIR}/modules/game/collision
 
 SRCS += proj.c keyboard.c mouse.c timer.c video.c utils.c game.c graphics.c player.c collision.c
 
