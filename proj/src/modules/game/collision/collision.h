@@ -1,5 +1,5 @@
-#ifndef _COLISION_H
-#define _COLISION_H
+#ifndef _COLLISION_H
+#define _COLLISION_H
 
 #include <lcom/lcf.h>
 #include <stdbool.h>
