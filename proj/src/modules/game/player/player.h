@@ -1,7 +1,7 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "../macros/player_macros.h"
+#include "../../macros/player_macros.h"
 
 #include <sys/mman.h>
 #include <lcom/lcf.h>

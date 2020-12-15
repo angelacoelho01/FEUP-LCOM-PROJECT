@@ -3,10 +3,14 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "../game/collision/collision.h"
+
 
 extern vbe_mode_info_t mode_conf;
 extern enum xpm_image_type xpm_type;
 extern xpm_image_t xpm_image;
+
+extern bool game_started;
 
 // Varible that keep the x of the plataform, witch is change 
 // according to the key pressed between the limits of the scenario: 
@@ -88,23 +92,35 @@ int (draw_blocks)(uint16_t xi, uint16_t yi){
   // unsigned int width = 40, height = 20;
   // uint32_t no_blocks_h = (320-10)/width, no_blocks_v = (480-80)/height;
 
-  for(uint16_t i = 0; i  < NUMBER_BLOCKS_Y; i++){
-    for(uint16_t j = 0; j < NUMBER_BLOCKS_X; j++){
-      // Draw a block of a random color
-      xpm_row_t* xpm = blocks[rand() % NUMBER_BLOCKS_COLORS];
-      if (video_load_xpm(xpm) != OK){
+  if(!game_started){
+    for(uint16_t i = 0; i  < NUMBER_BLOCKS_Y; i++){
+      for(uint16_t j = 0; j < NUMBER_BLOCKS_X; j++){
+        // Draw a block of a random color
+        xpm_row_t* xpm = blocks[rand() % NUMBER_BLOCKS_COLORS];
+        if (video_load_xpm(xpm) != OK){
+          printf("Error draw_blocks: vg_load_xpm!\n");
+          return 1;
+        }
+        video_draw_pixmap(x, y);
+        get_all_blocks_positions(x,y, xpm);
+        x += BLOCKS_WIDTH;
+      }
+      // Next Line
+      x = xi;
+      y += BLOCKS_HEIGHT; 
+    }
+  }
+  else{
+    size_t size = get_list_size();
+    for(unsigned int i = 0; i < size; i++){
+      struct block_position* pos = get_list_blocks_positions();
+      if (video_load_xpm(pos[i].xpm) != OK){
         printf("Error draw_blocks: vg_load_xpm!\n");
         return 1;
       }
-      video_draw_pixmap(x, y);
-
-      x += BLOCKS_WIDTH;
+      video_draw_pixmap(pos[i].upper_left_corner.x, pos[i].upper_left_corner.y);
     }
-    // Next Line
-    x = xi;
-    y += BLOCKS_HEIGHT; 
   }
-
   return 0;
 }
 
@@ -282,4 +298,3 @@ bool (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
 
 	return 0;
 }
-
