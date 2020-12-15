@@ -10,6 +10,8 @@ extern vbe_mode_info_t mode_conf;
 extern enum xpm_image_type xpm_type;
 extern xpm_image_t xpm_image;
 
+extern bool game_started;
+
 // Varible that keep the x of the plataform, witch is change 
 // according to the key pressed between the limits of the scenario: 
 uint16_t plataform_x; // inicial value of the x of the plataform
@@ -99,7 +101,7 @@ int (draw_blocks)(uint16_t xi, uint16_t yi){
         return 1;
       }
       video_draw_pixmap(x, y);
-      get_all_blocks_positions(x,y);
+      if(!game_started) get_all_blocks_positions(x,y);
       x += BLOCKS_WIDTH;
     }
     // Next Line
