@@ -1,10 +1,16 @@
 # Ignore all text files
 *.txt
 *.o
+modules/game/*.txt
+modules/game/*.o
+modules/graphics/*.txt
+modules/graphics/*.o
 modules/keyboard/*.txt
 modules/keyboard/*.o
 modules/mouse/*.txt
 modules/mouse/*.o
+modules/player/*.txt
+modules/player/*.o
 modules/timer/*.txt
 modules/timer/*.o
 modules/video/*.txt

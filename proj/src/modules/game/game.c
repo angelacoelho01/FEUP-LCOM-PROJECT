@@ -66,7 +66,7 @@ int(play_solo_game)(uint16_t mode) {
   // initial informations relative to the ball
   uint16_t ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
   uint16_t ball_y = (uint16_t) SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
-  bool up = true, left = true;
+  bool up = true, left = rand() & 1;
 
   while ((kbc_scancode != ESC_BREAKCODE_KEY) && (0 != no_lives)) {
     int r;
@@ -186,11 +186,11 @@ void (next_life)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left, uint1
   
   *ball_x = (uint16_t) xi + BALL_TO_LEFT_X;
   *ball_y = (uint16_t) yi + BALL_TO_TOP_Y;
-  *up = true; *left = true;
+  *up = true; *left = rand() & 1;
   is_move_ball = false; // do not move the ball till the player move the plataform again
   lost = false; // to keep track of the next try
   
-  plataform_x = xi + yi + (6*plataform_to_draw);
+  plataform_x = xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw);
 }
 
 void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenario_xi, uint16_t scenario_yi){
@@ -208,6 +208,8 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenar
     else{
       *y = ball_top_limit;
       *up = false;
+      struct ball_position ball_pos = get_ball_position(*x,(unsigned int)*y);
+      handle_collision(ball_pos);
     }
   }
   else{
