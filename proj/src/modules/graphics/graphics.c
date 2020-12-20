@@ -5,12 +5,10 @@
 
 #include "../game/collision/collision.h"
 
-
 extern vbe_mode_info_t mode_conf;
 extern enum xpm_image_type xpm_type;
 extern xpm_image_t xpm_image;
 
-extern bool game_started;
 
 // Varible that keep the x of the plataform, witch is change 
 // according to the key pressed between the limits of the scenario: 
@@ -72,135 +70,6 @@ int (draw_scenario)(uint16_t xi, uint16_t yi){
   return 0;
 }
 
-
-int (draw_plataform)(xpm_map_t xpm, uint16_t x, uint16_t y, uint16_t scenario_x){
-  // clear the reagion of the plataform first
-  video_draw_rectangle(scenario_x + BORDER_WIDTH, y, SCENARIO_WIDTH - (BORDER_WIDTH*2), PLATAFORM_HEIGHT, SCENARIO_BACKGROUND_COLOR);
-
-  if (video_load_xpm(xpm) != OK){
-    printf("Error draw_plataform: vg_load_xpm!\n");
-    return 1;
-  }
-
-  video_draw_pixmap(x, y);
-
-  return 0;
-}
-
-int (draw_blocks)(uint16_t xi, uint16_t yi){
-  uint16_t x = xi, y = yi;
-  // unsigned int width = 40, height = 20;
-  // uint32_t no_blocks_h = (320-10)/width, no_blocks_v = (480-80)/height;
-
-  if(!game_started){
-    for(uint16_t i = 0; i  < NUMBER_BLOCKS_Y; i++){
-      for(uint16_t j = 0; j < NUMBER_BLOCKS_X; j++){
-        // Draw a block of a random color
-        xpm_row_t* xpm = blocks[rand() % NUMBER_BLOCKS_COLORS];
-        if (video_load_xpm(xpm) != OK){
-          printf("Error draw_blocks: vg_load_xpm!\n");
-          return 1;
-        }
-        video_draw_pixmap(x, y);
-        get_all_blocks_positions(x,y, xpm);
-        x += BLOCKS_WIDTH;
-      }
-      // Next Line
-      x = xi;
-      y += BLOCKS_HEIGHT; 
-    }
-  }
-  else{
-    size_t size = get_list_size();
-    for(unsigned int i = 0; i < size; i++){
-      struct block_position* pos = get_list_blocks_positions();
-      if (video_load_xpm(pos[i].xpm) != OK){
-        printf("Error draw_blocks: vg_load_xpm!\n");
-        return 1;
-      }
-      video_draw_pixmap(pos[i].upper_left_corner.x, pos[i].upper_left_corner.y);
-    }
-  }
-  return 0;
-}
-
-void (clean_ball)(uint16_t x, uint16_t y){
-  video_draw_rectangle(x, y, BALL_WIDTH, BALL_HEIGHT, SCENARIO_BACKGROUND_COLOR);
-}
-
-int (draw_ball)(uint16_t x, uint16_t y){
-  if (video_load_xpm(ball) != OK){
-    printf("Error draw_plataform: vg_load_xpm!\n");
-    return 1;
-  }
-
-  video_draw_pixmap(x, y);
-
-  return 0;
-}
-
-int (draw_clock)(uint8_t minutes, uint8_t seconds, uint16_t xi, uint16_t yi){
-  bool clock = true;
-  // clear the reagion of the clock first
-  video_draw_rectangle(xi, yi, (NUMBERS_WIDTH*4) + (SPACE_BETWEEN_NUMBERS*7), NUMBERS_HEIGHT, TIMER_BACKGROUND_COLOR);
-
-  // minutes first digit
-  if (draw_number(minutes / 10, xi, yi, clock) != OK) return 1;
-  // minutes last digit
-  if (draw_number(minutes % 10, xi + NUMBERS_WIDTH + SPACE_BETWEEN_NUMBERS, yi, clock) != OK) return 1;
-
-  // separador :
-  // Top point
-  video_draw_rectangle(xi + (NUMBERS_WIDTH*2) + (SPACE_BETWEEN_NUMBERS*3), yi + 6, SPACE_BETWEEN_NUMBERS, SPACE_BETWEEN_NUMBERS, NUMBERS_COLOR);
-  // bottom point
-  video_draw_rectangle(xi + (NUMBERS_WIDTH*2) + (SPACE_BETWEEN_NUMBERS*3), yi + 6 + SPACE_BETWEEN_NUMBERS*2, SPACE_BETWEEN_NUMBERS, SPACE_BETWEEN_NUMBERS, NUMBERS_COLOR);
-
-  // seconds first digit
-  if (draw_number(seconds / 10, xi + (NUMBERS_WIDTH*2) + (SPACE_BETWEEN_NUMBERS*6), yi, clock) != OK) return 1;
-  // seconds last digit
-  if (draw_number(seconds % 10, xi + (NUMBERS_WIDTH*3) + (SPACE_BETWEEN_NUMBERS*7), yi, clock) != OK) return 1;
-
-  return 0;
-}
-
-int (draw_number)(size_t n, uint16_t x, uint16_t y, bool clock){
-  if(clock){
-    if (video_load_xpm(numbers[n]) != OK){
-      printf("Error draw_number: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  else{
-    if (video_load_xpm(numbers_blue[n]) != OK){
-      printf("Error draw_number: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-
-  video_draw_pixmap(x, y);
-
-  return 0;
-}
-
-int (draw_hearts)(size_t n, uint8_t number_of_lives, uint16_t xi, uint16_t yi){
-  // clear the reagion of the hearts first
-  video_draw_rectangle(xi - (HEART_WIDTH*3) - (SPACE_BETWEEN_HEARTS*2), yi, (HEART_WIDTH*3) + (SPACE_BETWEEN_HEARTS*2), HEART_HEIGHT, TIMER_BACKGROUND_COLOR);
-
-  // draw the amout of hearts correponding with the amount of hearts of the player in game
-  for (int i = 0; i < number_of_lives; i++){
-    xi -= HEART_WIDTH;
-    if (video_load_xpm(hearts[n]) != OK){ // only big heart
-      printf("Error draw_hearts: vg_load_xpm!\n");
-      return 1;
-    }
-
-    video_draw_pixmap(xi, yi);
-    xi -= SPACE_BETWEEN_HEARTS;
-  }
-
-  return 0;
-}
-
 void (game_over_display)(uint16_t xi, uint16_t yi){
 	// o jogador nao pode interagir mais com o jogo - nao permite mover a paltaforma
 	// timer para de contar - no more interrupçoes
@@ -215,21 +84,6 @@ void (game_over_display)(uint16_t xi, uint16_t yi){
 	// label of game over
 	draw_game_over_label(xi + GAME_OVER_TO_LEFT_X, yi + GAME_OVER_TO_TOP_Y);
 }
-
-bool (draw_game_over_label)(uint16_t x, uint16_t y){
-  // clear the reagion first
-  video_draw_rectangle(x, y, GAME_OVER_WIDTH , GAMR_OVER_HEIGHT, SCENARIO_BACKGROUND_COLOR);
-
-  if (video_load_xpm(game_over_label) != OK){
-    printf("Error draw_game_over: vg_load_xpm!\n");
-    return 1;
-  }
-
-  video_draw_pixmap(x, y);
-
-  return 0;
-}
-
 
 void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player){
 	// o jogador nao pode interagir mais com o jogo - nao permite mover a paltaforma
@@ -251,34 +105,6 @@ void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player){
 	// draw score value
 	unsigned int player_score = player_calculate_score(minutes, seconds, no_lives);
 	draw_score_value(xi + SCORE_VALUE_TO_LEFT_X, yi + SCORE_VALUE_TO_TOP_Y, player_score);
-}
-
-bool (draw_game_win_label)(uint16_t x, uint16_t y) {
-  // clear the reagion first
-  video_draw_rectangle(x, y, YOU_WIN_WIDTH , YOU_WIN_HEIGHT, SCENARIO_BACKGROUND_COLOR);
-
-  if (video_load_xpm(winner_label) != OK){
-    printf("Error draw_game_over: vg_load_xpm!\n");
-    return 1;
-  }
-
-  video_draw_pixmap(x, y);
-
-  return 0;
-}
-
-bool (draw_score_label)(uint16_t x, uint16_t y) {
-  // clear the reagion first
-  video_draw_rectangle(x, y, SCORE_LABEL_WIDTH , SCORE_LABEL_HEIGHT, SCENARIO_BACKGROUND_COLOR);
-
-  if (video_load_xpm(score_label) != OK){
-    printf("Error draw_game_over: vg_load_xpm!\n");
-    return 1;
-  }
-
-  video_draw_pixmap(x, y);
-
-  return 0;
 }
 
 bool (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
