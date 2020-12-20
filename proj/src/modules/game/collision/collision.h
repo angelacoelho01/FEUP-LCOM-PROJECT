@@ -24,6 +24,7 @@ struct block_position{
 struct ball_position{
   struct coordinates center;
   struct coordinates upper_left_corner;
+  struct coordinates upper_right_corner;
 };
 
 static struct block_position blocks_pos[BLOCKS_POSITION_SIZE]; 
@@ -62,5 +63,11 @@ size_t (get_list_size)();
 struct ball_position (get_ball_position)(unsigned int x, unsigned int y);
 
 bool (handle_collision)(struct ball_position ball_pos);
+
+uint16_t (get_ball_top_limit)(uint16_t x, uint16_t y);
+
+uint16_t (get_ball_right_limit)(uint16_t x, uint16_t y);
+
+uint16_t (get_ball_left_limit)(uint16_t x, uint16_t y);
 
 #endif
