@@ -2,7 +2,7 @@
 
 static xpm_row_t const ball[] = {
 "14 14 22 1",
-" 	c None   ",
+" 	c #152775",
 ".	c #00367E",
 "+	c #0088B2",
 "@	c #00BCD4",

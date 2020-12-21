@@ -98,53 +98,88 @@ struct ball_position (get_ball_position)(unsigned int x, unsigned int y){
   struct coordinates coord_center = {x + (BALL_WIDTH/2), y + (BALL_HEIGHT/2)};
   struct coordinates coord_upper_left_corner = {x, y};
   struct coordinates coord_upper_right_corner = {x+BALL_WIDTH, y};
-  struct ball_position ball_pos = {coord_center, coord_upper_left_corner, coord_upper_right_corner};
+  struct coordinates coord_lower_left_corner = {x, y+BALL_HEIGHT};
+  struct coordinates coord_lower_right_corner = {x+BALL_WIDTH, y+BALL_HEIGHT};
+  struct ball_position ball_pos = {coord_center, coord_upper_left_corner, coord_upper_right_corner, coord_lower_left_corner, coord_lower_right_corner};
+
   return ball_pos;
 }
 
-bool (handle_collision)(struct ball_position ball_pos){
-  bool flag = false;
+bool (collision_from_bottom)(struct block_position block_pos, struct ball_position ball_pos){
+  //Bottom collision
+  if((((ball_pos.upper_left_corner.x >= block_pos.lower_left_corner.x) &&
+    (ball_pos.upper_left_corner.x <= block_pos.lower_right_corner.x)) ||
+    ((ball_pos.upper_right_corner.x >= block_pos.lower_left_corner.x) &&
+    (ball_pos.upper_right_corner.x <= block_pos.lower_right_corner.x))) &&
+    (block_pos.lower_right_corner.y == ball_pos.upper_right_corner.y))
+    return true;
+  return false;
+}
+
+bool (collision_from_left)(struct block_position block_pos, struct ball_position ball_pos){
+
+  //Left side collision
+  if((((ball_pos.upper_left_corner.y >= block_pos.upper_right_corner.y) &&
+    (ball_pos.upper_left_corner.y <= block_pos.lower_right_corner.y)) ||
+    ((ball_pos.lower_left_corner.y >= block_pos.upper_right_corner.y) &&
+    (ball_pos.lower_left_corner.y <= block_pos.lower_right_corner.y))) &&
+    (ball_pos.upper_left_corner.x == block_pos.upper_right_corner.x))
+    return true;
+    
+  return false;
+}
+
+bool (collision_from_right)(struct block_position block_pos, struct ball_position ball_pos){
+  //Right side collision
+  if((((ball_pos.upper_right_corner.y >= block_pos.upper_left_corner.y) &&
+    (ball_pos.upper_right_corner.y <= block_pos.lower_left_corner.y)) ||
+    ((ball_pos.lower_right_corner.y >= block_pos.upper_left_corner.y) &&
+    (ball_pos.lower_right_corner.y <= block_pos.lower_left_corner.y ))) &&
+    (ball_pos.upper_right_corner.x == block_pos.upper_left_corner.x)) 
+    return true;
+  return false;
+}
+
+bool (handle_collision)(struct ball_position ball_pos, bool* left){
   for(size_t i = 0; i < blocks_position_size; i++){
-    if((blocks_pos[i].lower_left_corner.x <= ball_pos.upper_left_corner.x) &&
-      (ball_pos.upper_left_corner.x <= blocks_pos[i].lower_right_corner.x) &&
-      (ball_pos.upper_left_corner.y == blocks_pos[i].lower_left_corner.y)){
-        video_draw_rectangle(blocks_pos[i].upper_left_corner.x, blocks_pos[i].upper_left_corner.y,
-                            BLOCKS_WIDTH, BLOCKS_HEIGHT, SCENARIO_BACKGROUND_COLOR);
-        delete_block_pos_by_index(i);
+    bool flag = false;
+    if(collision_from_bottom(blocks_pos[i], ball_pos)){
+      printf("BREAKS BLOCK VERTICAL\n");
+      flag = true; 
+    }
+    if(collision_from_left(blocks_pos[i], ball_pos)){
+        printf("BREAKS BLOCK LEFT\n");
+        *left = false;
         flag = true;
     }
-    
-  }
-  return flag;
+
+    if(collision_from_right(blocks_pos[i], ball_pos)){
+      printf("BREAKS BLOCK RIGHT\n");
+      *left = true;
+      flag = true;
+    }
+    if(flag){
+      video_draw_rectangle(blocks_pos[i].upper_left_corner.x, blocks_pos[i].upper_left_corner.y,
+                            BLOCKS_WIDTH, BLOCKS_HEIGHT, SCENARIO_BACKGROUND_COLOR);
+      delete_block_pos_by_index(i);
+    }
+  }  
+  return true;
 }
 
 size_t (get_list_size)(){
   return blocks_position_size;
 }
 
-uint16_t (get_ball_top_limit)(uint16_t x, uint16_t y){
-  uint16_t top_limit = 0;
-  for(unsigned i = 0; i < BLOCKS_POSITION_SIZE; i++){
-    if((blocks_pos[i].lower_left_corner.x <= x) && (blocks_pos[i].lower_right_corner.x >= x))
+uint16_t (get_ball_top_limit)(uint16_t x, uint16_t y, uint16_t scenario_yi){
+  struct ball_position ball_pos = get_ball_position(x, y); 
+  uint16_t top_limit = scenario_yi + BLOCKS_TO_TOP_Y;
+  for(unsigned i = 0; i < blocks_position_size; i++){
+    if(((ball_pos.upper_left_corner.x >= blocks_pos[i].lower_left_corner.x) &&
+    (ball_pos.upper_left_corner.x <= blocks_pos[i].lower_right_corner.x)) ||
+    ((ball_pos.upper_right_corner.x >= blocks_pos[i].lower_left_corner.x) &&
+    (ball_pos.upper_right_corner.x <= blocks_pos[i].lower_right_corner.x)))
       top_limit = blocks_pos[i].lower_left_corner.y;
   }
   return top_limit;
-}
-
-uint16_t (get_ball_right_limit)(uint16_t x, uint16_t y){
-  uint16_t right_limit = 0;
-  for(unsigned i = 0; i < BLOCKS_POSITION_SIZE; i++){
-    if((blocks_pos[i].lower_left_corner.y <= y) && (blocks_pos[i].upper_left_corner.y >= y) && (blocks_pos[i].lower_left_corner.x >= x))
-      right_limit = blocks_pos[i].lower_left_corner.x;
-  }
-  return right_limit;
-}
-
-uint16_t (get_ball_left_limit)(uint16_t x, uint16_t y){
-  uint16_t left_limit = 0;
-  for(unsigned i = 0; i < BLOCKS_POSITION_SIZE; i++){
-    if((blocks_pos[i].lower_right_corner.y <= y) && (blocks_pos[i].upper_right_corner.y >= y) && (blocks_pos[i].lower_right_corner.x <= x))
-      left_limit = blocks_pos[i].lower_right_corner.x;
-  }
-  return left_limit;
 }
