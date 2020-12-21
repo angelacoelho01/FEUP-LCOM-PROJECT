@@ -68,12 +68,16 @@ struct ball_position (get_ball_position)(unsigned int x, unsigned int y);
 
 bool (collision_from_bottom)(struct block_position block_pos, struct ball_position ball_pos);
 
-bool (collisiton_from_right)(struct block_position block_pos, struct ball_position ball_pos);
+bool (collisiton_from_right)(struct block_position block_pos, struct ball_position ball_pos, uint16_t ball_speed, uint16_t* x, uint16_t* y);
 
-bool (collision_from_left)(struct block_position block_pos, struct ball_position ball_pos);
+bool (collision_from_left)(struct block_position block_pos, struct ball_position ball_pos, uint16_t ball_speed, uint16_t* x, uint16_t* y);
 
-bool (handle_collision)(struct ball_position ball_pos, bool* left);
+void (handle_collision)(bool* left, uint16_t ball_speed, uint16_t* x, uint16_t* y);
 
 uint16_t (get_ball_top_limit)(uint16_t x, uint16_t y, uint16_t scenario_yi);
+
+uint16_t (get_ball_right_limit)(uint16_t x, uint16_t y, uint16_t scenario_xi);
+
+uint16_t (get_ball_left_limit)(uint16_t x, uint16_t y, uint16_t scenario_xi);
 
 #endif

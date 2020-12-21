@@ -200,11 +200,12 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenar
   //uint16_t ball_top_limit = scenario_yi + BLOCKS_TO_TOP_Y + (BLOCKS_HEIGHT*NUMBER_BLOCKS_Y);
   uint16_t ball_top_limit = get_ball_top_limit(*x, *y, SOLO_SCENARIO_CORNER_Y);
   uint16_t ball_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y - BALL_HEIGHT;
-  uint16_t ball_left_limit = scenario_xi + BORDER_WIDTH;
-  uint16_t ball_right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
+  //uint16_t ball_left_limit = scenario_xi + BORDER_WIDTH;
+  uint16_t ball_left_limit = get_ball_left_limit(*x, *y, SOLO_SCENARIO_CORNER_X);
+  //uint16_t ball_right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
+  uint16_t ball_right_limit = get_ball_right_limit(*x, *y, SOLO_SCENARIO_CORNER_X);
   unsigned int frame_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y + PLATAFORM_HEIGHT + 20;
-  struct ball_position ball_pos = get_ball_position(*x,(unsigned int)*y);
-  handle_collision(ball_pos, left);
+  handle_collision(left, ball_speed, x, y);
   if(*up){
     if((*y - ball_speed) > ball_top_limit) *y -= ball_speed;
     else{
