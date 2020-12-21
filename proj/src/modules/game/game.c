@@ -204,7 +204,7 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenar
   uint16_t ball_right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
   unsigned int frame_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y + PLATAFORM_HEIGHT + 20;
   struct ball_position ball_pos = get_ball_position(*x,(unsigned int)*y);
-  handle_collision(ball_pos, left, up);
+  handle_collision(ball_pos, left);
   if(*up){
     if((*y - ball_speed) > ball_top_limit) *y -= ball_speed;
     else{

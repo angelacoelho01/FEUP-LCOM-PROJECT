@@ -144,17 +144,17 @@ bool (handle_collision)(struct ball_position ball_pos, bool* left){
   for(size_t i = 0; i < blocks_position_size; i++){
     bool flag = false;
     if(collision_from_bottom(blocks_pos[i], ball_pos)){
-      printf("BREAKS BLOCK VERTICAL\n");
+      printf("BREAKS BLOCK FROM BOTTOM\n");
       flag = true; 
     }
     if(collision_from_left(blocks_pos[i], ball_pos)){
-        printf("BREAKS BLOCK LEFT\n");
+        printf("BREAKS BLOCK FROM LEFT\n");
         *left = false;
         flag = true;
     }
 
     if(collision_from_right(blocks_pos[i], ball_pos)){
-      printf("BREAKS BLOCK RIGHT\n");
+      printf("BREAKS BLOCK FROM RIGHT\n");
       *left = true;
       flag = true;
     }
