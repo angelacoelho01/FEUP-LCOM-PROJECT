@@ -2,8 +2,8 @@
 
 vbe_mode_info_t mode_conf;
 static void *video_mem;
-static unsigned h_res;
-static unsigned v_res;
+unsigned h_res;
+unsigned v_res;
 unsigned bits_per_pixel;
 
 enum xpm_image_type xpm_type;

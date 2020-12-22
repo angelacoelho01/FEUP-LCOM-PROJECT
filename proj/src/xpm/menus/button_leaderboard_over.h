@@ -1,6 +1,6 @@
 #pragma once
 
-static xpm_row_t const button_leaderboard_button[] = {
+static xpm_row_t const button_leaderboard_over[] = {
 "234 61 18 1",
 " 	c None",
 ".	c #FFFFFF",

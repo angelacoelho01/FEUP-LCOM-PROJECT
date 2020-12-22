@@ -14,6 +14,21 @@
 #include "../../xpm/number_blue.h"
 #include "../../xpm/heart.h"
 
+#include "../../xpm/menus/button_1v1.h"
+#include "../../xpm/menus/button_1v1_over.h"
+#include "../../xpm/menus/button_exit.h"
+#include "../../xpm/menus/button_exit_over.h"
+#include "../../xpm/menus/button_solo.h"
+#include "../../xpm/menus/button_solo_over.h"
+#include "../../xpm/menus/button_continue.h"
+#include "../../xpm/menus/button_continue_over.h"
+#include "../../xpm/menus/button_leaderboard.h"
+#include "../../xpm/menus/button_leaderboard_over.h"
+#include "../../xpm/menus/game_title.h"
+#include "../../xpm/menus/button_reset.h"
+#include "../../xpm/menus/button_reset_over.h"
+
+
 static xpm_map_t blocks[] = {
   blue_block_xpm,
   green_block_xpm,
@@ -61,6 +76,28 @@ static xpm_map_t numbers_blue[] = {
 static xpm_map_t hearts[] = {
   heart_big,
   heart_mini
+};
+
+static xpm_map_t titles[] = {
+  game_title
+};
+
+static xpm_map_t menu_buttons[] = {
+  button_1v1,
+  button_leaderboard,
+  button_solo,
+  button_exit,
+  button_continue,
+  button_reset
+};
+
+static xpm_map_t menu_buttons_over[] = {
+  button_1v1_over,
+  button_leaderboard_over,
+  button_solo_over,
+  button_exit_over,
+  button_continue_over,
+  button_reset_over
 };
 
 #endif

@@ -22,6 +22,8 @@
 
 #include "collision/collision.h"
 
+#include "../graphics/menus/graphics_menus.h"
+
 static uint16_t plataform_width[] = {
   86, 74, 62, 50, 38
 };
