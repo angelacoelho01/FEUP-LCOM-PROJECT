@@ -190,25 +190,33 @@ int (mouse_poll_handler)() {
 }
 
 // ------ funcao da que deteta o evento originado por aquele packet do mouse ----- //
+struct mouse_ev evt = {BUTTON_EV, 0, 0};
+
 struct mouse_ev* (mouse_event_detect)(struct packet *p) {
-	struct mouse_ev * evt = NULL;
+  enum  mouse_ev_t event;
 	
+  // printf("AQUI_EVENT_DETECT\n");
 	// deltas so definidos quando o evento é de movimento
-	if (p->lb && !p->rb && !p->mb) { // apenas esquerdo
-		evt->type = LB_PRESSED;
+	if (p->lb == 1 && p->rb == 0 && p->mb == 0) { // apenas esquerdo
+		event = LB_PRESSED;
 		// verifica se houve deslocamento neste cenario
 		if (p->delta_x != 0 || p->delta_y != 0) {
-			evt->type = MOUSE_MOV;
-			evt->delta_x = p->delta_x;
-			evt->delta_y = p->delta_y;
+			event = MOUSE_MOV;
+			evt.delta_x = p->delta_x;
+			evt.delta_y = p->delta_y;
 		}
-	} else if (!p->lb && !p->rb && !p->mb) { // todos levantados -> ou ja estava ou porque acabou de lenvantar o esquerdo
-		evt->type = LB_RELEASED;
+	} else if (p->lb == 0 && p->rb == 0 && p->mb == 0) { // todos levantados -> ou ja estava ou porque acabou de lenvantar o esquerdo
+    // printf("AQUI_EVENT_DETECT_RELEASE\n");
+		event = LB_RELEASED;
+    // printf("AQUI_EVENT_DETECT_RELEASE_end\n");
 	} else {
-		evt->type = BUTTON_EV; // qualquer outro botao
+		event = BUTTON_EV; // qualquer outro botao
 	}
+
+  evt.type = event;
 	
-	return (evt);
+  // printf("AQUI_EVENT_DETECT_end\n");
+	return (&evt);
 }
 
 // ------ funcao da maquina de estados da linha horizontal ----- //

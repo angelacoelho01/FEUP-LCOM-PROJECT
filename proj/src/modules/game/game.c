@@ -59,10 +59,10 @@ int(play_solo_game)(uint16_t mode) {
   uint8_t kbc_bit_no;
   if (keyboard_subscribe_int(&kbc_bit_no) != OK) return 1;
 
-  // Mouse: Enable data reporting 
-	if(mouse_enable_data_reporting() != OK) return 1;
-
   printf("AQUI_kbc\n");
+
+  // Mouse: Enable data reporting 
+	if (mouse_enable_data_reporting() != OK) return 1;
 
 	//Subscribes mouse's interrupts
 	uint8_t mouse_bit_no;
@@ -131,16 +131,17 @@ int(play_solo_game)(uint16_t mode) {
           mouse_ih();
           if(mouse_ih_error == 0){ //If there was no error
             if(get_packet(mouse_byte, &mouse_num_bytes, &mouse_pp) == 0){ // indicates that a packet is complete
-              mouse_print_packet(&mouse_pp);
+              // mouse_print_packet(&mouse_pp);
               mouse_flag = true;
+              // printf("AQUI_PP_COMPLETE\n");
             }
           } else continue;
         }
 
-        // packet complete
+        // packet complete - move plataform with the mouse
         if (mouse_flag){ // verifica o estado de todos os botoes
           mouse_evt = mouse_event_detect(&mouse_pp); 
-          // printf("\npacket event:: %s", mouse_evt->type);
+          // printf("\npacket event:: %s", mouse_pp.delta_x);
           if (check_horizontal_line(mouse_evt, H_LINE_TOLERANCE)) {
             if (move_plataform_mouse(scenario_limit_right, scenario_limit_left, mouse_pp.delta_x)) {
               draw_plataform(plataforms[plataform_to_draw], plataform_x,
@@ -154,6 +155,8 @@ int(play_solo_game)(uint16_t mode) {
 
           mouse_flag = false;
         }  
+
+        tickdelay(micros_to_ticks(WAIT_KBC));
 
         break;
       default:
@@ -175,10 +178,10 @@ int(play_solo_game)(uint16_t mode) {
   if (keyboard_unsubscribe_int() != OK) return 1;
 
   // To unsubscribe the Mouse interrupts
-  if(mouse_unsubscribe_int() != OK) return 1;
+  if (mouse_unsubscribe_int() != OK) return 1;
 
   // Mouse: Disable data reporting 
-	if(mouse_disable_data_reporting() != OK) return 1;
+	// if (mouse_disable_data_reporting() != OK) return 1;
 
   if (return_to_text_mode() != OK) return 1;
 
@@ -251,8 +254,8 @@ bool (move_plataform_mouse)(uint16_t right_limit, uint16_t left_limit, int16_t d
   }
   else if (displacement < 0){ // deslocamento menor que 0 - para a esquerda
     if (plataform_x > left_limit){
-      if((plataform_x - displacement) > left_limit)
-        plataform_x -= displacement;
+      if((plataform_x + displacement) > left_limit)
+        plataform_x += displacement;
       else
         plataform_x = left_limit;
       
