@@ -27,6 +27,7 @@
 #include "../../xpm/menus/game_title.h"
 #include "../../xpm/menus/button_reset.h"
 #include "../../xpm/menus/button_reset_over.h"
+#include "../../xpm/menus/pause_title.h"
 
 
 static xpm_map_t blocks[] = {
@@ -78,8 +79,9 @@ static xpm_map_t hearts[] = {
   heart_mini
 };
 
-static xpm_map_t titles[] = {
-  game_title
+static xpm_map_t menu_titles[] = {
+  game_title,
+  pause_title
 };
 
 static xpm_map_t menu_buttons[] = {

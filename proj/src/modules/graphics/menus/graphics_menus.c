@@ -13,7 +13,16 @@ void (draw_menu_background)(){
 }
 
 int (draw_game_title)(uint16_t x, uint16_t y){
-  if(video_load_xpm(titles[0]) != OK){
+  if(video_load_xpm(menu_titles[GAME_TITLE]) != OK){
+    printf("Error draw_plataform: vg_load_xpm!\n");
+    return 1;
+  }
+  video_draw_pixmap(x, y);
+  return 0;
+}
+
+int (draw_pause_title)(uint16_t x, uint16_t y){
+  if(video_load_xpm(menu_titles[PAUSE_TITLE]) != OK){
     printf("Error draw_plataform: vg_load_xpm!\n");
     return 1;
   }
@@ -151,6 +160,36 @@ int (draw_start_menu)(){
 
   //Draw exit button
   if(draw_exit_button(MAIN_EXIT_BUTTON_TO_X, MAIN_EXIT_BUTTON_TO_Y, false) != OK) return 1;
+
+  return 0;
+}
+
+int (draw_pause_menu)(){
+  //Draw borders
+  draw_menu_borders();
+
+  //Draw background
+  draw_menu_background();
+
+  //Draw pause title
+  if(draw_pause_title(MENU_PAUSE_CORNER_X + PAUSE_TITLE_TO_X, 
+                      MENU_PAUSE_CORNER_Y ) != OK) 
+    return 1;
+
+  //Draw continue button
+  if(draw_continue_button(MENU_PAUSE_CORNER_X + PAUSE_BUTTONS_TO_X, 
+                          MENU_PAUSE_CORNER_Y + PAUSE_CONTINUE_BUTTON_TO_Y, false) != OK) 
+    return 1;
+
+  //Draw reset button
+  if(draw_reset_button(MENU_PAUSE_CORNER_X + PAUSE_BUTTONS_TO_X,
+                      MENU_PAUSE_CORNER_Y + PAUSE_RESET_BUTTON_TO_Y, false) != OK)
+    return 1;
+
+  //Draw exit button
+  if(draw_exit_button(MENU_PAUSE_CORNER_X + PAUSE_BUTTONS_TO_X,
+                      MENU_PAUSE_CORNER_Y + PAUSE_EXIT_BUTTON_TO_Y, false) != OK)
+    return 1;
 
   return 0;
 }

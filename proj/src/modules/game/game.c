@@ -46,9 +46,10 @@ int(play_solo_game)(uint16_t mode) {
     return_to_text_mode();
     return 1;
   }
-
   draw_start_menu();
-  sleep(10);
+  sleep(5);
+  draw_pause_menu();
+  sleep(5);
   vg_exit();
   return 0;
 
