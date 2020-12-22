@@ -22,6 +22,8 @@ int (mouse_set_stream)();
 
 int (mouse_poll_handler)();
 
-bool (check_draw)(struct mouse_ev *evt, uint8_t x_len, uint8_t tolerance);
+struct mouse_ev* (mouse_event_detect)(struct packet *p);
+
+bool (check_horizontal_line)(struct mouse_ev *evt, uint8_t tolerance);
 
 #endif /* __MOUSE_H */

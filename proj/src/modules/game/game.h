@@ -41,6 +41,8 @@ void (next_life)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left, uint1
 
 bool (move_plataform)(uint16_t right_limit, uint16_t left_limit);
 
+bool (move_plataform_mouse)(uint16_t right_limit, uint16_t left_limit, int16_t displacement);
+
 void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenario_xi, uint16_t scenario_yi);
 
 void (block_break)();

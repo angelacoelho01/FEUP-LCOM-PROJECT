@@ -9,7 +9,6 @@
 int mouse_hook_id = 2; 
 char mouse_ih_error = 0;
 uint8_t mouse_byte = 0;
-typedef enum {INIT, DRAWL1, VERTIX, DRAWL2, COMP} state_t; // states of the automata that represents the desired draw
 
 int (mouse_subscribe_int)(uint8_t *bit_no) {
 
@@ -190,82 +189,70 @@ int (mouse_poll_handler)() {
   }
 }
 
-bool (check_draw)(struct mouse_ev *evt, uint8_t x_len, uint8_t tolerance) { 
+// ------ funcao da que deteta o evento originado por aquele packet do mouse ----- //
+struct mouse_ev* (mouse_event_detect)(struct packet *p) {
+	struct mouse_ev * evt = NULL;
+	
+	// deltas so definidos quando o evento é de movimento
+	if (p->lb && !p->rb && !p->mb) { // apenas esquerdo
+		evt->type = LB_PRESSED;
+		// verifica se houve deslocamento neste cenario
+		if (p->delta_x != 0 || p->delta_y != 0) {
+			evt->type = MOUSE_MOV;
+			evt->delta_x = p->delta_x;
+			evt->delta_y = p->delta_y;
+		}
+	} else if (!p->lb && !p->rb && !p->mb) { // todos levantados -> ou ja estava ou porque acabou de lenvantar o esquerdo
+		evt->type = LB_RELEASED;
+	} else {
+		evt->type = BUTTON_EV; // qualquer outro botao
+	}
+	
+	return (evt);
+}
+
+// ------ funcao da maquina de estados da linha horizontal ----- //
+
+typedef enum {INIT, DRAW, COMP} state_t;
+
+// retorna true apenas no caso de existir deslocamento do rato
+// interrupção do rato - o deslocamento do rato (e indicação para esquerda ou direita no caso de ser negativo [esquerda] ou positivo [direita])
+bool (check_horizontal_line)(struct mouse_ev *evt, uint8_t tolerance) { 
   
-  bool res = false;
+  bool update = false;
   static state_t st = INIT; // initial state; keep state
+  
   switch (st) {
     case INIT:
-      if(evt->type == LB_PRESSED)
-        st = DRAWL1;
+      if(evt->type == LB_PRESSED) // apenas botao esquerdo premido - mantem onde está
+        st = DRAW;
       break;
-    case DRAWL1:
+    case DRAW: // existe deslocamento do rato
       if (evt->type == LB_RELEASED) { // realease left button
-        // acabou de desenhar a 1 parte - verificar slope e x_len
-        int16_t slope = evt->delta_y / evt->delta_x;
-        if ((evt->delta_x < x_len) || (abs(slope) < 1))
-          st = INIT;
-        else {
-          st = VERTIX;
-        }
+        // acaba este movimento da plataforma - complete
+        st = COMP;
       }
-      if (evt->type == BUTTON_EV){ 
+      if (evt->type == BUTTON_EV){ // outro qualquer buttao primido
         st = INIT;
       }
-      if( evt->type == MOUSE_MOV ) {
-        // linha para cima - should have displacement in x and y positive
-        if (evt->delta_x < 0) { // check tolerance
-          if (abs(evt->delta_x) > tolerance)
-            st = INIT;
-        }
-        if (evt->delta_y < 0) { // check tolerance
-          if (abs(evt->delta_y) > tolerance)
-            st = INIT;
-        }
+      if( evt->type == MOUSE_MOV ) { // deslocamento do mouse sem alteração do botao
+        // linha na horizontal - para direita ou esquerda, nao tem direção obrigatoria, apenas tem de estar dentro da tolerancia pretendida
+		if (abs(evt->delta_y) > tolerance)
+			st = INIT;
+		else 
+			// keep in this state
+			update = true; // valid tolerance - update plataform position
       }
       break;
-    case VERTIX:
-      if (evt->type == RB_PRESSED){ // right primido
-        st = DRAWL2;
+	case COMP: // there was a all move completed, but more can be done
+      if (evt->type == LB_PRESSED) { 
+		st = DRAW;
       }
-      if (evt->type == BUTTON_EV){ 
-        st = INIT;
-      }
-      if (evt->type == MOUSE_MOV){
-        // tolerancia entre a troca de botoes
-        if ((abs(evt->delta_x) > tolerance) || (abs(evt->delta_y) > tolerance))
-            st = INIT;
-      }
-      break;
-    case DRAWL2:
-      if (evt->type == RB_RELEASED) { // realease right button
-        // acabou de desenhar a 2 parte - verificar slope e x_len
-        int16_t slope = evt->delta_y / evt->delta_x;
-        if ((evt->delta_x < x_len) || (abs(slope) < 1))
-          st = INIT;
-        else {
-          st = COMP;
-          res = true;
-        }
-      }
-      if (evt->type == BUTTON_EV){
-        st = INIT;
-      }
-      if(evt->type == MOUSE_MOV ) {
-         // linha para baixo - should have displacement in x positive and y negative
-        if (evt->delta_x < 0) { // check tolerance
-          if (abs(evt->delta_x) > tolerance)
-            st = INIT;
-        }
-        if (evt->delta_y > 0) { // check tolerance
-          if (abs(evt->delta_y) > tolerance)
-            st = INIT;
-        }
-      }
+	  // qualquer outro evento é ignorado, desde movimento e pressionar outro qualquer butao
       break;
     default:
       break;
   }
 
-  return (res);
+  return (update);
 }

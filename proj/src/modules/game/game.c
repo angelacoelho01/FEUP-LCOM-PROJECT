@@ -11,6 +11,10 @@ extern unsigned long timer_counter;
 extern char kbc_ih_error;
 extern uint8_t kbc_scancode;
 
+// MOUSE VARIABLES
+extern char mouse_ih_error;
+extern uint8_t mouse_byte;
+
 // VIDEO VARIABLES
 extern vbe_mode_info_t mode_conf;
 extern enum xpm_image_type xpm_type;
@@ -49,19 +53,35 @@ int(play_solo_game)(uint16_t mode) {
 
   // to subscribe the Timer interrupts
   uint8_t timer_bit_no;
-  if (timer_subscribe_int(&timer_bit_no) != OK)
-    return 1;
+  if (timer_subscribe_int(&timer_bit_no) != OK) return 1;
 
   // to subscribe the KBC interrupts
   uint8_t kbc_bit_no;
-  if (keyboard_subscribe_int(&kbc_bit_no) != OK)
-    return 1;
+  if (keyboard_subscribe_int(&kbc_bit_no) != OK) return 1;
+
+  // Mouse: Enable data reporting 
+	if(mouse_enable_data_reporting() != OK) return 1;
+
+  printf("AQUI_kbc\n");
+
+	//Subscribes mouse's interrupts
+	uint8_t mouse_bit_no;
+	if(mouse_subscribe_int(&mouse_bit_no) != OK) return 1;
+
+  printf("AQUI_mouse\n");
 
   int ipc_status;
   message msg;
 
   uint32_t timer_irq_set = BIT(timer_bit_no);
   uint32_t kbc_irq_set = BIT(kbc_bit_no);
+  uint32_t mouse_irq_set = BIT(mouse_bit_no);
+
+  // necessary varibles for mouse
+  uint8_t mouse_num_bytes = 0;
+  struct packet mouse_pp;
+  struct mouse_ev* mouse_evt;
+  bool mouse_flag = false;
 
   // initial informations relative to the ball
   uint16_t ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
@@ -106,6 +126,35 @@ int(play_solo_game)(uint16_t mode) {
           }
           // tickdelay(micros_to_ticks(WAIT_KBC));
         }
+
+        if (msg.m_notify.interrupts & mouse_irq_set) {
+          mouse_ih();
+          if(mouse_ih_error == 0){ //If there was no error
+            if(get_packet(mouse_byte, &mouse_num_bytes, &mouse_pp) == 0){ // indicates that a packet is complete
+              mouse_print_packet(&mouse_pp);
+              mouse_flag = true;
+            }
+          } else continue;
+        }
+
+        // packet complete
+        if (mouse_flag){ // verifica o estado de todos os botoes
+          mouse_evt = mouse_event_detect(&mouse_pp); 
+          // printf("\npacket event:: %s", mouse_evt->type);
+          if (check_horizontal_line(mouse_evt, H_LINE_TOLERANCE)) {
+            if (move_plataform_mouse(scenario_limit_right, scenario_limit_left, mouse_pp.delta_x)) {
+              draw_plataform(plataforms[plataform_to_draw], plataform_x,
+                                      SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y,
+                                      SOLO_SCENARIO_CORNER_X);
+              // just  only if there was a movement from the player
+              game_started = true; // timer starts to count  - if the first move is with the timer
+              is_move_ball = true; // the ball start moving 
+            } // se x da plataforma + esse deslocamento nao passa os limites
+          }
+
+          mouse_flag = false;
+        }  
+
         break;
       default:
         break;
@@ -124,6 +173,12 @@ int(play_solo_game)(uint16_t mode) {
 
   // To unsubscribe the KBC interrupts
   if (keyboard_unsubscribe_int() != OK) return 1;
+
+  // To unsubscribe the Mouse interrupts
+  if(mouse_unsubscribe_int() != OK) return 1;
+
+  // Mouse: Disable data reporting 
+	if(mouse_disable_data_reporting() != OK) return 1;
 
   if (return_to_text_mode() != OK) return 1;
 
@@ -169,6 +224,35 @@ bool (move_plataform)(uint16_t right_limit, uint16_t left_limit){
     if (plataform_x > left_limit){ // left Arrow or A=> shift to the left
       if((plataform_x - plataform_speed) > left_limit)
         plataform_x -= plataform_speed;
+      else
+        plataform_x = left_limit;
+      
+      return true;
+    }
+  }
+
+  return false; 
+}
+
+bool (move_plataform_mouse)(uint16_t right_limit, uint16_t left_limit, int16_t displacement){
+  uint16_t width = plataform_width[plataform_to_draw];
+
+  if (displacement > 0){ // to the right
+    uint16_t plataform_end = plataform_x + width;
+    
+    if (plataform_end < right_limit){ 
+      if((plataform_end + displacement) < right_limit)
+        plataform_x += displacement;
+      else
+        plataform_x = right_limit - width;
+      
+      return true;
+    }
+  }
+  else if (displacement < 0){ // deslocamento menor que 0 - para a esquerda
+    if (plataform_x > left_limit){
+      if((plataform_x - displacement) > left_limit)
+        plataform_x -= displacement;
       else
         plataform_x = left_limit;
       
