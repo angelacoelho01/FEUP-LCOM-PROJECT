@@ -6,9 +6,13 @@ unsigned h_res;
 unsigned v_res;
 unsigned bits_per_pixel;
 
+static void* double_buffer;
+
 enum xpm_image_type xpm_type;
 xpm_image_t xpm_image;
 uint8_t bytes_per_pixel;
+
+extern bool game_started;
 
 void (video_get_mode_info)(uint16_t mode, vbe_mode_info_t *vmi_p) {
   uint32_t size = sizeof(vbe_mode_info_t);
@@ -59,6 +63,13 @@ int(map_memory)() {
   return 0;
 }
 
+void (map_double_buffer)(){
+  size_t vram_size = (h_res * v_res * bits_per_pixel) / 8;
+  uint8_t buffer[vram_size];
+  double_buffer = buffer;
+  memset(double_buffer, 0, vram_size);
+}
+
 int(video_set_graphic_mode)(uint16_t mode) {
   reg86_t r;
   memset(&r, 0, sizeof(r));
@@ -78,6 +89,12 @@ int(video_set_graphic_mode)(uint16_t mode) {
   set_mode_settings(mode);
 
   return 0;
+}
+
+void (copy_from_double_buffer)(){
+  size_t vram_size = (h_res * v_res * bits_per_pixel) / 8;
+  memcpy(video_mem, (const void*)double_buffer, vram_size);
+  memset(double_buffer, 0, vram_size);
 }
 
 void (set_mode_settings)(uint16_t mode){
@@ -132,7 +149,10 @@ int (get_xpm_image_type)(uint16_t mode){
 }
 
 void (video_draw_pixel)(uint16_t x, uint16_t y, uint32_t color) {
-  char *ptr = video_mem;
+  uint8_t *ptr = video_mem;
+  //if(game_started)
+  //  ptr = double_buffer;
+  //else ptr = video_mem;
   uint32_t y_coord = y * h_res * bytes_per_pixel;
   uint32_t x_coord = x * bytes_per_pixel;
   memcpy(ptr + y_coord + x_coord, &color, bytes_per_pixel);
