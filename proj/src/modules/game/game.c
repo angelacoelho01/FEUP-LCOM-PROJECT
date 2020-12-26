@@ -32,6 +32,11 @@ extern uint8_t minutes, seconds;
 uint16_t ball_speed = BALL_SPEED;
 uint16_t plataform_speed = PLATAFORM_SPEED;
 
+#include "../../modules/video/video.h"
+
+extern unsigned h_res, v_res;
+
+
 int(play_solo_game)(uint16_t mode) {
   struct Player p1 = {"Joao", 0};
 
@@ -45,11 +50,19 @@ int(play_solo_game)(uint16_t mode) {
     return_to_text_mode();
     return 1;
   }
+  
+  draw_start_menu();
+  sleep(5);
 
   if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) {
     return_to_text_mode();
     return 1;
   }
+
+  draw_pause_menu();
+  sleep(10);
+  vg_exit();
+  return 0;
 
   // to subscribe the Timer interrupts
   uint8_t timer_bit_no;
@@ -284,19 +297,20 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenar
  
   uint16_t xi = *x, yi = *y;
   // arranjar forma de nao calcular isto tantas vezes - mas ainda depender do canto do nivel - talvez por parametro ou ser global mas apenas inicializada dentro do play_solo
-  uint16_t ball_top_limit = scenario_yi + BLOCKS_TO_TOP_Y + (BLOCKS_HEIGHT*NUMBER_BLOCKS_Y);
+  //uint16_t ball_top_limit = scenario_yi + BLOCKS_TO_TOP_Y + (BLOCKS_HEIGHT*NUMBER_BLOCKS_Y);
+  uint16_t ball_top_limit = get_ball_top_limit(*x, *y, SOLO_SCENARIO_CORNER_Y);
   uint16_t ball_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y - BALL_HEIGHT;
-  uint16_t ball_left_limit = scenario_xi + BORDER_WIDTH;
-  uint16_t ball_right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
+  //uint16_t ball_left_limit = scenario_xi + BORDER_WIDTH;
+  uint16_t ball_left_limit = get_ball_left_limit(*x, *y, SOLO_SCENARIO_CORNER_X);
+  //uint16_t ball_right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
+  uint16_t ball_right_limit = get_ball_right_limit(*x, *y, SOLO_SCENARIO_CORNER_X);
   unsigned int frame_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y + PLATAFORM_HEIGHT + 20;
-
+  handle_collision(left, ball_speed, x, y);
   if(*up){
     if((*y - ball_speed) > ball_top_limit) *y -= ball_speed;
     else{
       *y = ball_top_limit;
       *up = false;
-      struct ball_position ball_pos = get_ball_position(*x,(unsigned int)*y);
-      handle_collision(ball_pos);
     }
   }
   else{
@@ -329,6 +343,7 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenar
       *left = true;
     }
   }
+  
   if(lost && (*y + ball_speed + BALL_HEIGHT) >= frame_down_limit)
     next_life(x, y, up, left, scenario_xi, scenario_yi);
   else{
