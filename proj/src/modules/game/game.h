@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <machine/int86.h>
 
+#include "../macros/menus_macros.h"
 #include "../macros/block_breaker.h"
 #include "../macros/i8042.h"
 
@@ -19,10 +20,9 @@
 #include "../../utils/utils.h"
 #include "../graphics/graphics.h"
 #include "../game/player/player.h"
+// #include "../cursor/graphics_cursor.h"
 
 #include "collision/collision.h"
-
-#include "../graphics/menus/graphics_menus.h"
 
 static uint16_t plataform_width[] = {
   86, 74, 62, 50, 38

@@ -1,4 +1,4 @@
-#include "graphics_plataform.h"
+#include "garphics_plataform.h"
 
 #include "../../macros/block_breaker.h"
 #include "../../video/video.h"

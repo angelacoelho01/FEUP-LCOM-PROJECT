@@ -92,7 +92,7 @@ void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player){
 
 	// plataforma volta à sua posicao inicial
 	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi);
-	
+
 	// a bola volta à sua posicao inicial
 	draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);
 	
@@ -123,4 +123,8 @@ bool (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
 	}
 
 	return 0;
+}
+
+void (clean_screen)(uint16_t w, uint16_t h, uint32_t color) {
+  video_draw_rectangle(0, 0, w, h, color);
 }

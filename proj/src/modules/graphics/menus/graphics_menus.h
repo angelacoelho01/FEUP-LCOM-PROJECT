@@ -8,7 +8,7 @@
 #include "../../video/xpm.h"
 #include "../../macros/menus_macros.h"
 
-enum buttons{
+enum buttons {
   BUTTON_1V1,
   BUTTON_LEADERBOARD,
   BUTTON_SOLO,
@@ -17,7 +17,7 @@ enum buttons{
   BUTTON_RESET
 };
 
-enum buttons_over{
+enum buttons_over {
   BUTTON_1V1_OVER,
   BUTTON_LEADERBOARD_OVER,
   BUTTON_SOLO_OVER,
@@ -30,6 +30,21 @@ enum titles{
   GAME_TITLE,
   PAUSE_TITLE
 };
+
+/*
+typedef struct Button_details {
+  enum buttons;
+  enum buttons_over;
+  uint16_t x;
+  uint16_t y;
+} button_details;
+
+button_details solo_button 
+
+static button_details main_menu[] = {
+
+}
+*/
 
 void (draw_menu_borders)(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 

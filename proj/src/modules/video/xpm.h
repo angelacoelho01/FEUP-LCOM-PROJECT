@@ -15,19 +15,14 @@
 #include "../../xpm/heart.h"
 
 #include "../../xpm/menus/button_1v1.h"
-#include "../../xpm/menus/button_1v1_over.h"
 #include "../../xpm/menus/button_exit.h"
-#include "../../xpm/menus/button_exit_over.h"
 #include "../../xpm/menus/button_solo.h"
-#include "../../xpm/menus/button_solo_over.h"
 #include "../../xpm/menus/button_continue.h"
-#include "../../xpm/menus/button_continue_over.h"
 #include "../../xpm/menus/button_leaderboard.h"
-#include "../../xpm/menus/button_leaderboard_over.h"
 #include "../../xpm/menus/game_title.h"
 #include "../../xpm/menus/button_reset.h"
-#include "../../xpm/menus/button_reset_over.h"
 #include "../../xpm/menus/pause_title.h"
+#include "../../xpm/menus/mouse_cursor.h"
 
 
 static xpm_map_t blocks[] = {

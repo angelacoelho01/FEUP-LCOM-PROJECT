@@ -36,6 +36,7 @@ uint16_t plataform_speed = PLATAFORM_SPEED;
 
 extern unsigned h_res, v_res;
 
+extern struct Mouse_cursor cursor;
 
 int(play_solo_game)(uint16_t mode) {
   struct Player p1 = {"Joao", 0};
@@ -44,25 +45,29 @@ int(play_solo_game)(uint16_t mode) {
   uint16_t scenario_limit_left = SOLO_SCENARIO_CORNER_X + BORDER_WIDTH;
   uint16_t scenario_limit_right = SOLO_SCENARIO_CORNER_X + SCENARIO_WIDTH - BORDER_WIDTH;
 
-   plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X_INIT;
+  plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X_INIT;
  
   if (start_video_mode(mode) != OK){
     return_to_text_mode();
     return 1;
   }
   
-  draw_start_menu();
-  sleep(5);
+  // draw_start_menu();
+  // sleep(5);
+  // clean_screen(h_res, v_res, MENUS_BACKGROUND_COLOR);
+
+  // draw_pause_menu();
+  // sleep(10);
+  clean_screen(h_res, v_res, 0x000000);
+  //vg_exit();
+  //return 0;
 
   if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) {
     return_to_text_mode();
     return 1;
   }
 
-  draw_pause_menu();
-  sleep(10);
-  vg_exit();
-  return 0;
+  draw_cursor(cursor.normal_xpm);
 
   // to subscribe the Timer interrupts
   uint8_t timer_bit_no;
@@ -101,7 +106,7 @@ int(play_solo_game)(uint16_t mode) {
   uint16_t ball_y = (uint16_t) SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
   bool up = true, left = rand() & 1;
 
-  while ((kbc_scancode != ESC_BREAKCODE_KEY) && (0 != no_lives)) {
+  while ((kbc_scancode != ESC_BREAKCODE_KEY) && (0 != no_lives) && (0 != get_list_size())) {
     int r;
     // get a request message
     if ((r = driver_receive(ANY, &msg, &ipc_status)) != 0) {
@@ -146,6 +151,9 @@ int(play_solo_game)(uint16_t mode) {
             if(get_packet(mouse_byte, &mouse_num_bytes, &mouse_pp) == 0){ // indicates that a packet is complete
               // mouse_print_packet(&mouse_pp);
               mouse_flag = true;
+              if (change_cursor_position(&mouse_pp)) {
+                check_options_on_over();
+              }
               // printf("AQUI_PP_COMPLETE\n");
             }
           } else continue;
@@ -178,9 +186,12 @@ int(play_solo_game)(uint16_t mode) {
     } 
   }
 
+  printf("%u", get_list_size());
+
+  clean_ball(ball_x, ball_y);
   // check the reason why we break for the cicle
   if (0 == no_lives) game_over_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
-  else game_win_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y, p1);
+  else if (0 == get_list_size()) game_win_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y, p1);
   
   sleep(5);
 
@@ -300,12 +311,11 @@ void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenar
   //uint16_t ball_top_limit = scenario_yi + BLOCKS_TO_TOP_Y + (BLOCKS_HEIGHT*NUMBER_BLOCKS_Y);
   uint16_t ball_top_limit = get_ball_top_limit(*x, *y, SOLO_SCENARIO_CORNER_Y);
   uint16_t ball_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y - BALL_HEIGHT;
-  //uint16_t ball_left_limit = scenario_xi + BORDER_WIDTH;
-  uint16_t ball_left_limit = get_ball_left_limit(*x, *y, SOLO_SCENARIO_CORNER_X);
-  //uint16_t ball_right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
-  uint16_t ball_right_limit = get_ball_right_limit(*x, *y, SOLO_SCENARIO_CORNER_X);
+  uint16_t ball_left_limit = scenario_xi + BORDER_WIDTH;
+  uint16_t ball_right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
   unsigned int frame_down_limit = scenario_yi + PLATAFORM_TO_TOP_Y + PLATAFORM_HEIGHT + 20;
-  handle_collision(left, ball_speed, x, y);
+  struct ball_position ball_pos = get_ball_position(*x,(unsigned int)*y);
+  handle_collision(ball_pos, left);
   if(*up){
     if((*y - ball_speed) > ball_top_limit) *y -= ball_speed;
     else{
