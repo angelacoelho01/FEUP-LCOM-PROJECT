@@ -15,7 +15,6 @@ void (draw_menu_background)(uint16_t x, uint16_t y, uint16_t width, uint16_t hei
 }
 
 int (draw_game_title)(uint16_t x, uint16_t y){
-  uint16_t xi = x;
   for(unsigned i = 0; i < 4; i++){
     if(video_load_xpm(start_menu_titles[i]) != OK){
       printf("Error draw_plataform: vg_load_xpm!\n");
@@ -23,12 +22,7 @@ int (draw_game_title)(uint16_t x, uint16_t y){
     }
     
     video_draw_pixmap(x, y);
-    if(i%2 == 0)
-      x += TITLE_WIDTH/2;
-    if(i == 1){
-      y += TITLE_HEIGHT/2;
-      x = xi;
-    }
+    x += TITLE_WIDTH/4;
   }
   return 0;
 }
