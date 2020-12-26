@@ -79,9 +79,16 @@ static xpm_map_t hearts[] = {
   heart_mini
 };
 
-static xpm_map_t menu_titles[] = {
-  game_title,
-  pause_title
+static xpm_map_t start_menu_titles[] = {
+  game_title_up_left,
+  game_title_up_right,
+  game_title_down_left,
+  game_title_down_right
+};
+
+static xpm_map_t pause_menu_titles[] = {
+  pause_title_left,
+  pause_title_right
 };
 
 static xpm_map_t menu_buttons[] = {

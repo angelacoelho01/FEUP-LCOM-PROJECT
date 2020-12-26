@@ -46,17 +46,19 @@ int(play_solo_game)(uint16_t mode) {
     return_to_text_mode();
     return 1;
   }
+  
   draw_start_menu();
   sleep(5);
-  draw_pause_menu();
-  sleep(5);
-  vg_exit();
-  return 0;
 
   if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) {
     return_to_text_mode();
     return 1;
   }
+
+  draw_pause_menu();
+  sleep(10);
+  vg_exit();
+  return 0;
 
   // to subscribe the Timer interrupts
   uint8_t timer_bit_no;

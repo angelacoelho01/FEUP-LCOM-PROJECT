@@ -31,9 +31,9 @@ enum titles{
   PAUSE_TITLE
 };
 
-void (draw_menu_borders)();
+void (draw_menu_borders)(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
-void (draw_menu_background)();
+void (draw_menu_background)(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
 int (draw_game_title)(uint16_t x, uint16_t y);
 
