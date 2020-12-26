@@ -2,8 +2,8 @@
 
 vbe_mode_info_t mode_conf;
 static void *video_mem;
-static unsigned h_res;
-static unsigned v_res;
+unsigned h_res;
+unsigned v_res;
 unsigned bits_per_pixel;
 
 enum xpm_image_type xpm_type;
@@ -121,7 +121,6 @@ uint32_t (get_pixel_color)(uint16_t x, uint16_t y){
   return (red << mode_conf.RedFieldPosition) | (green << mode_conf.GreenFieldPosition) | (blue);
 }
 
-
 int (get_xpm_image_type)(uint16_t mode){
   if (mode == MODE_0) return XPM_INDEXED;
   else if (mode == MODE_1) return XPM_1_5_5_5;
@@ -161,18 +160,17 @@ int (video_load_xpm)(xpm_map_t xpm) {
 void (video_draw_pixmap)(uint16_t xi, uint16_t yi) {
   uint32_t color;
   uint8_t red, green, blue;
-
   uint16_t y = yi, x = xi, counter = 0;
-  for (size_t i = 0; i < xpm_image.size / bytes_per_pixel; i++) {
+  for (unsigned int i = 0; i < xpm_image.size / bytes_per_pixel; i++) {
     // draw next line
     if ((x - xi) == xpm_image.width) {
       x = xi;
-      y++;
+      y++;  
     }
 
-    if (xpm_type == XPM_INDEXED){
+    if (xpm_type == XPM_INDEXED)
       color = xpm_image.bytes[counter];
-    } else {
+    else {
       // build the color of the pixel if is a direct mode
       blue = xpm_image.bytes[counter];
       green = xpm_image.bytes[++counter];

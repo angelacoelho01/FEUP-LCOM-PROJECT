@@ -28,6 +28,11 @@ extern uint8_t minutes, seconds;
 uint16_t ball_speed = BALL_SPEED;
 uint16_t plataform_speed = PLATAFORM_SPEED;
 
+#include "../../modules/video/video.h"
+
+extern unsigned h_res, v_res;
+
+
 int(play_solo_game)(uint16_t mode) {
   struct Player p1 = {"Joao", 0};
 
@@ -41,11 +46,19 @@ int(play_solo_game)(uint16_t mode) {
     return_to_text_mode();
     return 1;
   }
+  
+  draw_start_menu();
+  sleep(5);
 
   if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) {
     return_to_text_mode();
     return 1;
   }
+
+  draw_pause_menu();
+  sleep(10);
+  vg_exit();
+  return 0;
 
   // to subscribe the Timer interrupts
   uint8_t timer_bit_no;
