@@ -27,7 +27,7 @@ static xpm_row_t const heart_big[] = {
 "          .+.          ",
 "           .           "};
 
-static xpm_row_t const heart_mini[] = {
+static xpm_row_t const heart_small[] = {
 "15 13 4 1",
 " 	c #343131",
 ".	c #000000",

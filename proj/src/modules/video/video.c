@@ -6,10 +6,10 @@ unsigned h_res;
 unsigned v_res;
 unsigned bits_per_pixel;
 
-static void* double_buffer;
+static uint8_t* double_buffer;
 
 enum xpm_image_type xpm_type;
-xpm_image_t xpm_image;
+//xpm_image_t xpm_image;
 uint8_t bytes_per_pixel;
 
 extern bool game_started;
@@ -53,6 +53,7 @@ int(map_memory)() {
   }
 
   video_mem = vm_map_phys(SELF, (void *) mr.mr_base, vram_size);
+  double_buffer = malloc(vram_size);
 
   if (video_mem == MAP_FAILED) {
     printf("Error mapping video memory.\n");
@@ -63,12 +64,6 @@ int(map_memory)() {
   return 0;
 }
 
-void (map_double_buffer)(){
-  size_t vram_size = (h_res * v_res * bits_per_pixel) / 8;
-  uint8_t buffer[vram_size];
-  double_buffer = buffer;
-  memset(double_buffer, 0, vram_size);
-}
 
 int(video_set_graphic_mode)(uint16_t mode) {
   reg86_t r;
@@ -91,10 +86,15 @@ int(video_set_graphic_mode)(uint16_t mode) {
   return 0;
 }
 
+void (copy_to_double_buffer)(){
+  size_t vram_size = (h_res * v_res * bits_per_pixel) / 8;
+  memcpy(double_buffer, video_mem, vram_size);
+}
+
 void (copy_from_double_buffer)(){
   size_t vram_size = (h_res * v_res * bits_per_pixel) / 8;
-  memcpy(video_mem, (const void*)double_buffer, vram_size);
-  memset(double_buffer, 0, vram_size);
+  memcpy(video_mem, double_buffer, vram_size);
+  //memset(double_buffer, 0, vram_size);
 }
 
 void (set_mode_settings)(uint16_t mode){
@@ -150,9 +150,7 @@ int (get_xpm_image_type)(uint16_t mode){
 
 void (video_draw_pixel)(uint16_t x, uint16_t y, uint32_t color) {
   uint8_t *ptr = video_mem;
-  //if(game_started)
-  //  ptr = double_buffer;
-  //else ptr = video_mem;
+  //if(!game_started) ptr = video_mem;
   uint32_t y_coord = y * h_res * bytes_per_pixel;
   uint32_t x_coord = x * bytes_per_pixel;
   memcpy(ptr + y_coord + x_coord, &color, bytes_per_pixel);
@@ -168,16 +166,16 @@ void (video_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t hei
     video_draw_hline(x, y + line, width, color);
 }
 
-int (video_load_xpm)(xpm_map_t xpm) {
+/*int (video_load_xpm)(xpm_map_t xpm) {
   uint8_t *address;
   if ((address = xpm_load(xpm, xpm_type, &xpm_image)) == NULL) {
     printf("Error video_load_xpm: loading xpm.\n");
     return 1;
   }
   return 0;
-}
+}*/
 
-void (video_draw_pixmap)(uint16_t xi, uint16_t yi) {
+void (video_draw_pixmap)(uint16_t xi, uint16_t yi, xpm_image_t xpm_image) {
   uint32_t color;
   uint8_t red, green, blue;
   uint16_t y = yi, x = xi, counter = 0;
@@ -204,18 +202,18 @@ void (video_draw_pixmap)(uint16_t xi, uint16_t yi) {
   }
 }
 
-int (sprite)(uint16_t *x, uint16_t *y, uint16_t xf, uint16_t yf, int16_t speed, int32_t *length) {
+int (sprite)(uint16_t *x, uint16_t *y, uint16_t xf, uint16_t yf, int16_t speed, int32_t *length, xpm_image_t xpm_image) {
   if (*y == yf) // horizontal movement - along x
-    movement_sprite(x, xf, speed, length);
+    movement_sprite(x, xf, speed, length, xpm_image);
   else if (*x == xf) //Vertical movement - along y
-    movement_sprite(y, yf, speed, length);
+    movement_sprite(y, yf, speed, length, xpm_image);
 
   video_draw_rectangle(0, 0, h_res, v_res, 0);
-  video_draw_pixmap(*x, *y);
+  video_draw_pixmap(*x, *y, xpm_image);
   return 0;
 }
 
-void (movement_sprite)(uint16_t *pos, uint16_t posf, int16_t speed, int32_t *length) {
+void (movement_sprite)(uint16_t *pos, uint16_t posf, int16_t speed, int32_t *length, xpm_image_t xpm_image) {
   //While pos doesn't reach the final position
   if (posf > *pos)
     *pos += speed;

@@ -18,7 +18,7 @@ struct block_position{
   struct coordinates upper_right_corner;
   struct coordinates lower_left_corner;
   struct coordinates lower_right_corner;
-  xpm_row_t* xpm;
+  xpm_image_t xpm_image;
 };
 
 struct ball_position{
@@ -33,7 +33,7 @@ struct ball_position{
 static struct block_position blocks_pos[BLOCKS_POSITION_SIZE]; 
 static unsigned int no_blocks_positions = 0;
 
-void (get_all_blocks_positions)(unsigned int x, unsigned int y, xpm_row_t* xpm);
+void (get_all_blocks_positions)(unsigned int x, unsigned int y, xpm_image_t xpm_image);
 
 void (get_upper_right_corner)(struct block_position* pos);
 

@@ -15,13 +15,9 @@ int (draw_blocks)(uint16_t xi, uint16_t yi){
     for(uint16_t i = 0; i  < NUMBER_BLOCKS_Y; i++){
       for(uint16_t j = 0; j < NUMBER_BLOCKS_X; j++){
         // Draw a block of a random color
-        xpm_row_t* xpm = blocks[rand() % NUMBER_BLOCKS_COLORS];
-        if (video_load_xpm(xpm) != OK){
-          printf("Error draw_blocks: vg_load_xpm!\n");
-          return 1;
-        }
-        video_draw_pixmap(x, y);
-        get_all_blocks_positions(x,y, xpm);
+        xpm_image_t block_xpm = blocks_xpms[rand() % NO_BLOCKS];
+        video_draw_pixmap(x, y, block_xpm);
+        get_all_blocks_positions(x,y, block_xpm);
         x += BLOCKS_WIDTH;
       }
       // Next Line
@@ -33,11 +29,7 @@ int (draw_blocks)(uint16_t xi, uint16_t yi){
     size_t size = get_list_size();
     for(unsigned int i = 0; i < size; i++){
       struct block_position* pos = get_list_blocks_positions();
-      if (video_load_xpm(pos[i].xpm) != OK){
-        printf("Error draw_blocks: vg_load_xpm!\n");
-        return 1;
-      }
-      video_draw_pixmap(pos[i].upper_left_corner.x, pos[i].upper_left_corner.y);
+      video_draw_pixmap(pos[i].upper_left_corner.x, pos[i].upper_left_corner.y, pos[i].xpm_image);
     }
   }
   return 0;

@@ -3,14 +3,14 @@
 #include "../../macros/block_breaker.h"
 #include "../../video/video.h"
 
-void (get_all_blocks_positions)(unsigned int x, unsigned int y, xpm_row_t* xpm){
+void (get_all_blocks_positions)(unsigned int x, unsigned int y, xpm_image_t xpm_image){
   struct block_position pos;
   struct coordinates coord = {x,y};
   pos.upper_left_corner = coord;
   get_upper_right_corner(&pos);
   get_lower_left_corner(&pos);
   get_lower_right_corner(&pos);
-  pos.xpm = xpm;
+  pos.xpm_image = xpm_image;
   blocks_pos[no_blocks_positions++] = pos;
 }
 

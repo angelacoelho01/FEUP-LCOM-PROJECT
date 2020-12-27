@@ -30,7 +30,7 @@ uint16_t plataform_speed = PLATAFORM_SPEED;
 
 int(play_solo_game)(uint16_t mode) {
   struct Player p1 = {"Joao", 0};
-
+  load_all_xpms();
   // limits of solo game
   uint16_t scenario_limit_left = SOLO_SCENARIO_CORNER_X + BORDER_WIDTH;
   uint16_t scenario_limit_right = SOLO_SCENARIO_CORNER_X + SCENARIO_WIDTH - BORDER_WIDTH;
@@ -41,15 +41,14 @@ int(play_solo_game)(uint16_t mode) {
     return_to_text_mode();
     return 1;
   }
-
+  
   draw_start_menu();
   sleep(5);
+  reset_screen();
 
-  if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) {
-    return_to_text_mode();
-    return 1;
-  }
+  draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
 
+  //copy_to_double_buffer();
   //draw_pause_menu();
   //sleep(10);
   //vg_exit();
@@ -90,31 +89,30 @@ int(play_solo_game)(uint16_t mode) {
       switch (_ENDPOINT_P(msg.m_source)) {
       // hardware interrupt notification
       case HARDWARE:
-
-        if (msg.m_notify.interrupts & timer_irq_set) { // timer interruption
-          timer_int_handler();
-          if (timer_counter % 60 == 0) { // true every 1 second (freq = 60Hz)
-            start_clock(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y); // the player moved the plataform for the first time (3 lives) - start the clock
-          }
-          if (is_move_ball) move_ball(&ball_x, &ball_y, &up, &left, SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
-        }
-
         if (msg.m_notify.interrupts & kbc_irq_set) { // KBC interruption
           kbc_ih(); // reads ONE BYTE from the KBC’s OUT_BUF PER INTERRUPT
           if (kbc_ih_error == 0) { // if there was no error
             if (!(kbc_scancode & BYTE_MSB)) { // if MSB = 0 -> make code
               if (move_plataform(scenario_limit_right, scenario_limit_left)) {
-                draw_plataform(plataforms[plataform_to_draw], plataform_x,
-                               SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y,
-                               SOLO_SCENARIO_CORNER_X);
+                draw_plataform(plataform_x, SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y, SOLO_SCENARIO_CORNER_X, plataforms_xpms[plataform_to_draw]);
                 // just  only if there was a movement from the player
                 game_started = true; // timer starts to count  
                 is_move_ball = true; // the ball start moving 
               }
             }
           }
-          // tickdelay(micros_to_ticks(WAIT_KBC));
         }
+
+        if (msg.m_notify.interrupts & timer_irq_set) { // timer interruption
+          timer_int_handler();
+          //copy_from_double_buffer();
+          //if(game_started) copy_from_double_buffer();
+          if (timer_counter % 60 == 0) { // true every 1 second (freq = 60Hz)
+            start_clock(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y); // the player moved the plataform for the first time (3 lives) - start the clock
+          }
+          if (is_move_ball) move_ball(&ball_x, &ball_y, &up, &left, SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
+        }
+          // tickdelay(micros_to_ticks(WAIT_KBC));
         break;
       default:
         break;
@@ -152,7 +150,7 @@ void (start_clock)(uint16_t xi, uint16_t yi){
         ++plataform_to_draw; // decreases plataform width
         ++ball_speed; // increases ball speed
         plataform_speed += 10;
-        draw_plataform(plataforms[plataform_to_draw], plataform_x, yi + PLATAFORM_TO_TOP_Y, xi);
+        draw_plataform(plataform_x, yi + PLATAFORM_TO_TOP_Y, xi, plataforms_xpms[plataform_to_draw]);
       }
     }
   } 
@@ -191,7 +189,7 @@ bool (move_plataform)(uint16_t right_limit, uint16_t left_limit){
 void (next_life)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left, uint16_t xi, uint16_t yi){
   no_lives--;
   // we most keep the info of the blocks in the scenario - this are the ones that will be draw
-  if (draw_scenario (xi, yi) != OK) return_to_text_mode();
+  draw_scenario (xi, yi);
   
   *ball_x = (uint16_t) xi + BALL_TO_LEFT_X;
   *ball_y = (uint16_t) yi + BALL_TO_TOP_Y;
