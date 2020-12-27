@@ -86,15 +86,9 @@ int(video_set_graphic_mode)(uint16_t mode) {
   return 0;
 }
 
-void (copy_to_double_buffer)(){
-  size_t vram_size = (h_res * v_res * bits_per_pixel) / 8;
-  memcpy(double_buffer, video_mem, vram_size);
-}
-
 void (copy_from_double_buffer)(){
   size_t vram_size = (h_res * v_res * bits_per_pixel) / 8;
   memcpy(video_mem, double_buffer, vram_size);
-  //memset(double_buffer, 0, vram_size);
 }
 
 void (set_mode_settings)(uint16_t mode){
@@ -166,14 +160,6 @@ void (video_draw_rectangle)(uint16_t x, uint16_t y, uint16_t width, uint16_t hei
     video_draw_hline(x, y + line, width, color);
 }
 
-/*int (video_load_xpm)(xpm_map_t xpm) {
-  uint8_t *address;
-  if ((address = xpm_load(xpm, xpm_type, &xpm_image)) == NULL) {
-    printf("Error video_load_xpm: loading xpm.\n");
-    return 1;
-  }
-  return 0;
-}*/
 
 void (video_draw_pixmap)(uint16_t xi, uint16_t yi, xpm_image_t xpm_image) {
   uint32_t color;
