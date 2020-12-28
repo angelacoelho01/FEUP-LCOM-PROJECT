@@ -84,7 +84,13 @@ int(play_solo_game)(uint16_t mode) {
 
 	//Subscribes mouse's interrupts
 	uint8_t mouse_bit_no;
-	if(mouse_subscribe_int(&mouse_bit_no) != OK) return 1;
+	if (mouse_subscribe_int(&mouse_bit_no) != OK) return 1;
+
+  /*
+  Diminuir frame rate to do the driver received more times 
+  uint32_t frame_rate = 30;
+  if (timer_set_frequency(0, frame_rate) != OK) return 1;
+  */
 
   printf("AQUI_mouse\n");
 
