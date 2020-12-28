@@ -100,7 +100,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
     printf("%s: invalid mode (%s)\n", __func__, argv[0]);
     return print_usage();
   }
-  struct Player p1 = {"Joao", 0};
 
   load_all_xpms();
   // limits of solo game
@@ -108,6 +107,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
   uint16_t scenario_limit_right = SOLO_SCENARIO_CORNER_X + SCENARIO_WIDTH - BORDER_WIDTH;
 
   plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X_INIT;
+
+  struct Player p1 = add_player("Joao", 0);
+  write_players("/home/lcom/labs/g08/proj/src/data/players_scores.txt");
 
   if (start_video_mode(mode) != OK){
     return_to_text_mode();

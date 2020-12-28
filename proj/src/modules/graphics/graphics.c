@@ -12,14 +12,10 @@ extern enum xpm_image_type xpm_type;
 extern xpm_image_t xpm_image;
 
 
-// Varible that keep the x of the plataform, witch is change 
-// according to the key pressed between the limits of the scenario: 
-uint16_t plataform_x; // inicial value of the x of the plataform
+uint16_t plataform_x; 
 
-// Represents the plataform to be draw (after x time the plataform in game is one with a smaller width)
 size_t plataform_to_draw = 0;
-uint8_t no_lives = 3; // the amount of lives left for the player
-
+uint8_t no_lives = 3; 
 uint8_t minutes = 0, seconds = 0;
 
 void (draw_scenario)(uint16_t xi, uint16_t yi){
@@ -89,7 +85,7 @@ void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player){
 	draw_score_label(xi + SCORE_LABEL_TO_LEFT_X, yi + SCORE_LABEL_TO_TOP_Y);
 	
 	// draw score value
-	unsigned int player_score = player_calculate_score(minutes, seconds, no_lives);
+	unsigned int player_score = calculate_player_score(minutes, seconds, no_lives);
 	draw_score_value(xi + SCORE_VALUE_TO_LEFT_X, yi + SCORE_VALUE_TO_TOP_Y, player_score);
 }
 
