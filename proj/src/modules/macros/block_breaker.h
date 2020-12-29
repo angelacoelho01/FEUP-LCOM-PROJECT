@@ -41,13 +41,6 @@
 #define BALL_TO_TOP_Y 410
 #define BALL_WIDTH 14
 #define BALL_HEIGHT 14
-// nao se encontra relativo ao canto do nivel em questao
-/*
-#define BALL_TOP_LIMIT 230
-#define BALL_DOWN_LIMIT 473
-#define BALL_LEFT_LIMIT 245
-#define BALL_RIGHT_LIMIT 541
-*/
 #define BALL_SPEED 1
 
 #define SCENARIO_BACKGROUND_COLOR 0x212b72

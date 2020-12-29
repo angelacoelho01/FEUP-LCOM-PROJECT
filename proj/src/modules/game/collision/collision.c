@@ -183,3 +183,39 @@ uint16_t (get_ball_top_limit)(uint16_t x, uint16_t y, uint16_t scenario_yi){
   }
   return top_limit;
 }
+
+uint16_t (get_ball_right_limit)(uint16_t x, uint16_t y, uint16_t scenario_xi){
+  struct ball_position ball_pos = get_ball_position(x, y);
+  uint16_t right_limit = scenario_xi + SCENARIO_WIDTH - BORDER_WIDTH - BALL_WIDTH;
+  for(unsigned i = 1; i < blocks_position_size; i++){
+    if((((ball_pos.upper_right_corner.y >= blocks_pos[i].upper_left_corner.y) &&
+      (ball_pos.upper_right_corner.y <= blocks_pos[i].lower_left_corner.y)) ||
+      ((ball_pos.lower_right_corner.y >= blocks_pos[i].upper_left_corner.y) &&
+      (ball_pos.lower_right_corner.y <= blocks_pos[i].lower_left_corner.y)))){
+        if((i % NUMBER_BLOCKS_X != 0) &&
+          (ball_pos.upper_right_corner.x < blocks_pos[i].upper_left_corner.x) &&
+          (ball_pos.upper_right_corner.x > blocks_pos[i-1].upper_left_corner.x))
+            return blocks_pos[i].upper_left_corner.x;
+      }
+  }
+  return right_limit;
+}
+
+uint16_t (get_ball_left_limit)(uint16_t x, uint16_t y, uint16_t scenario_xi){
+  struct ball_position ball_pos = get_ball_position(x, y);
+  uint16_t left_limit = scenario_xi + BORDER_WIDTH;
+  for(unsigned i = 0; i < blocks_position_size; i++){
+    if(((ball_pos.upper_left_corner.y >= blocks_pos[i].upper_right_corner.y) &&
+      (ball_pos.upper_left_corner.y <= blocks_pos[i].lower_right_corner.y)) ||
+      ((ball_pos.lower_left_corner.y >= blocks_pos[i].upper_right_corner.y) &&
+      (ball_pos.lower_left_corner.y <= blocks_pos[i].lower_right_corner.y))){
+        if((i % NUMBER_BLOCKS_X != 0) && 
+        (ball_pos.upper_left_corner.x >= blocks_pos[i].upper_right_corner.x) &&
+        (ball_pos.upper_left_corner.x < blocks_pos[i+1].upper_left_corner.x))
+          return blocks_pos[i].upper_right_corner.x;
+      }
+  }
+  return left_limit;
+}
+
+

@@ -27,6 +27,8 @@ xpm_image_t start_menu_titles_xpms[NO_START_MENU_TITLES];
 xpm_image_t pause_menu_titles_xpms[NO_PAUSE_MENU_TITLES];
 xpm_image_t menu_buttons_xpms[NO_MENU_BUTTONS];
 xpm_image_t menu_buttons_over_xpms[NO_MENU_BUTTONS];
+xpm_image_t mouse_cursor_normal_xpm;
+xpm_image_t mouse_cursor_pointer_xpm;
 
 void (load_all_xpms)();
 

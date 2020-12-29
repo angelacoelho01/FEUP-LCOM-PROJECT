@@ -8,13 +8,24 @@
 #include "../../../xpm/load_xpms.h"
 #include "../../macros/menus_macros.h"
 
-enum buttons{
+// all the xmps that correspond to the buttons in the "normal" state
+enum buttons {
   BUTTON_1V1,
   BUTTON_LEADERBOARD,
   BUTTON_SOLO,
   BUTTON_EXIT,
   BUTTON_CONTINUE,
   BUTTON_RESET
+};
+
+// all the xmps that correspond to the buttons in the "on over" state
+enum buttons_over {
+  BUTTON_1V1_OVER,
+  BUTTON_LEADERBOARD_OVER,
+  BUTTON_SOLO_OVER,
+  BUTTON_EXIT_OVER,
+  BUTTON_CONTINUE_OVER,
+  BUTTON_RESET_OVER
 };
 
 enum titles{

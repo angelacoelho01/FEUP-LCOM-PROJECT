@@ -20,23 +20,22 @@
  * @brief Menus buttons xpms.
  **/ 
 #include "menus/button_1v1.h"
-#include "menus/button_1v1_over.h"
 #include "menus/button_exit.h"
-#include "menus/button_exit_over.h"
 #include "menus/button_solo.h"
-#include "menus/button_solo_over.h"
 #include "menus/button_continue.h"
-#include "menus/button_continue_over.h"
 #include "menus/button_leaderboard.h"
-#include "menus/button_leaderboard_over.h"
 #include "menus/button_reset.h"
-#include "menus/button_reset_over.h"
 
 /**
  * @brief Menus titles xpms.
  **/ 
 #include "menus/game_title.h"
 #include "menus/pause_title.h"
+
+/**
+ * @brief Mouse cursors.
+ **/
+#include "menus/mouse_cursor.h"
 
 
 static xpm_map_t blocks[] = {

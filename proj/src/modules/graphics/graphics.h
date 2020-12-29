@@ -13,6 +13,7 @@
 
 #include "../macros/block_breaker.h"
 #include "../macros/i8042.h"
+#include "../macros/menus_macros.h"
 
 #include "../keyboard/keyboard.h"
 #include "../video/video.h"
@@ -29,6 +30,7 @@
 #include "menus/graphics_menus.h"
 #include "numbers/graphics_numbers.h"
 #include "plataform/graphics_plataform.h"
+#include "cursor/graphics_cursor.h"
 
 void (draw_scenario)(uint16_t xi, uint16_t yi);
 
@@ -37,5 +39,7 @@ void (game_over_display)(uint16_t xi, uint16_t yi);
 void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player);
 
 void (draw_score_value)(uint16_t x, uint16_t y, unsigned int score);
+
+void (clean_screen)(uint16_t w, uint16_t h, uint32_t color);
 
 #endif /* __GAME_H */
