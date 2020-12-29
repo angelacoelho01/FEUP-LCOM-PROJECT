@@ -2,32 +2,41 @@
 #define _XPM_H
 
 #include <lcom/lcf.h>
-
 #include <stdbool.h>
-
 #include <stdint.h>
 
-#include "../../xpm/block.h"
-#include "../../xpm/plataform.h"
-#include "../../xpm/ball.h"
-#include "../../xpm/number_gray.h"
-#include "../../xpm/number_blue.h"
-#include "../../xpm/heart.h"
+/**
+ * @brief Game scenario xpms.
+ **/ 
+#include "ball.h"
+#include "block.h"
+#include "xpm/heart.h"
+#include "xpm/labels.h"
+#include "number_blue.h"
+#include "number_gray.h"
+#include "plataform.h"
 
-#include "../../xpm/menus/button_1v1.h"
-#include "../../xpm/menus/button_1v1_over.h"
-#include "../../xpm/menus/button_exit.h"
-#include "../../xpm/menus/button_exit_over.h"
-#include "../../xpm/menus/button_solo.h"
-#include "../../xpm/menus/button_solo_over.h"
-#include "../../xpm/menus/button_continue.h"
-#include "../../xpm/menus/button_continue_over.h"
-#include "../../xpm/menus/button_leaderboard.h"
-#include "../../xpm/menus/button_leaderboard_over.h"
-#include "../../xpm/menus/game_title.h"
-#include "../../xpm/menus/button_reset.h"
-#include "../../xpm/menus/button_reset_over.h"
-#include "../../xpm/menus/pause_title.h"
+/**
+ * @brief Menus buttons xpms.
+ **/ 
+#include "menus/button_1v1.h"
+#include "menus/button_1v1_over.h"
+#include "menus/button_exit.h"
+#include "menus/button_exit_over.h"
+#include "menus/button_solo.h"
+#include "menus/button_solo_over.h"
+#include "menus/button_continue.h"
+#include "menus/button_continue_over.h"
+#include "menus/button_leaderboard.h"
+#include "menus/button_leaderboard_over.h"
+#include "menus/button_reset.h"
+#include "menus/button_reset_over.h"
+
+/**
+ * @brief Menus titles xpms.
+ **/ 
+#include "menus/game_title.h"
+#include "menus/pause_title.h"
 
 
 static xpm_map_t blocks[] = {
@@ -76,7 +85,13 @@ static xpm_map_t numbers_blue[] = {
 
 static xpm_map_t hearts[] = {
   heart_big,
-  heart_mini
+  heart_small
+};
+
+static xpm_map_t labels[] = {
+  game_over_label,
+  winner_label,
+  score_label
 };
 
 static xpm_map_t start_menu_titles[] = {

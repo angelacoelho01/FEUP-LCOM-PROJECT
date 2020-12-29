@@ -22,7 +22,16 @@
 
 #include "collision/collision.h"
 
+#include "../graphics/ball/graphics_ball.h"
+#include "../graphics/blocks/graphics_blocks.h"
+#include "../graphics/clock/graphics_clock.h"
+#include "../graphics/hearts/graphics_hearts.h"
+#include "../graphics/labels/graphics_labels.h"
 #include "../graphics/menus/graphics_menus.h"
+#include "../graphics/numbers/graphics_numbers.h"
+#include "../graphics/plataform/graphics_plataform.h"
+
+#include "../../xpm/load_xpms.h"
 
 static uint16_t plataform_width[] = {
   86, 74, 62, 50, 38
