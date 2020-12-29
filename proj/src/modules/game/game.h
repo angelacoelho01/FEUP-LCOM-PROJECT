@@ -44,6 +44,8 @@ struct Block{
 
 static struct Block blocks_coord[100];
 
+int (game_start)(uint16_t mode);
+
 int (play_solo_game)(uint16_t mode);
 
 void (start_clock)(uint16_t xi, uint16_t yi);
