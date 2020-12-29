@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-int (draw_number)(size_t n, uint16_t x, uint16_t y, bool clock);
+#include "../../../xpm/load_xpms.h"
+
+void (draw_number)(size_t n, uint16_t x, uint16_t y, bool clock);
 
 #endif

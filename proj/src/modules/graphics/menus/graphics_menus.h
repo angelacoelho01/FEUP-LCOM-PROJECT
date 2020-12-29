@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../../video/xpm.h"
+#include "../../../xpm/load_xpms.h"
 #include "../../macros/menus_macros.h"
 
 // all the xmps that correspond to the buttons in the "normal" state
@@ -37,24 +37,26 @@ void (draw_menu_borders)(uint16_t x, uint16_t y, uint16_t width, uint16_t height
 
 void (draw_menu_background)(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
-int (draw_game_title)(uint16_t x, uint16_t y);
+void (draw_game_title)(uint16_t x, uint16_t y);
 
-int (draw_pause_title)(uint16_t x, uint16_t y);
+void (draw_pause_title)(uint16_t x, uint16_t y);
 
-int (draw_solo_button)(uint16_t x, uint16_t y, bool over);
+void (draw_solo_button)(uint16_t x, uint16_t y, bool over);
 
-int (draw_1v1_button)(uint16_t x, uint16_t y, bool over);
+void (draw_1v1_button)(uint16_t x, uint16_t y, bool over);
 
-int (draw_leaderboard_button)(uint16_t x, uint16_t y, bool over);
+void (draw_leaderboard_button)(uint16_t x, uint16_t y, bool over);
 
-int (draw_exit_button)(uint16_t x, uint16_t y, bool over);
+void (draw_exit_button)(uint16_t x, uint16_t y, bool over);
 
-int (draw_continue_button)(uint16_t x, uint16_t y, bool over);
+void (draw_continue_button)(uint16_t x, uint16_t y, bool over);
 
-int (draw_reset_button)(uint16_t x, uint16_t y, bool over);
+void (draw_reset_button)(uint16_t x, uint16_t y, bool over);
 
-int (draw_start_menu)();
+void (draw_start_menu)();
 
-int (draw_pause_menu)();
+void (draw_pause_menu)();
+
+void (reset_screen)();
 
 #endif

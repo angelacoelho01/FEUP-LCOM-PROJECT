@@ -4,15 +4,30 @@
 
 extern unsigned h_res, v_res;
 
-int (draw_cursor)(xpm_map_t xpm){
-  if (video_load_xpm(xpm) != OK){
-    printf("Error draw_cursor: vg_load_xpm!\n");
-    return 1;
-  }
 
-  video_draw_pixmap(cursor.x, cursor.y);
+void (cursor_initializer)(){
+  // solo button in the main menu
+  button_details temp0 = {menu_buttons_xpms[BUTTON_SOLO], menu_buttons_over_xpms[BUTTON_SOLO], MAIN_SOLO_BUTTON_TO_X, MAIN_SOLO_BUTTON_TO_Y}; 
+  main_menu[0] = temp0;
 
-  return 0;
+  // 1v1 button in the main menu
+  button_details temp1 = {menu_buttons_xpms[BUTTON_1V1], menu_buttons_over_xpms[BUTTON_1V1], MAIN_1V1_BUTTON_TO_X, MAIN_1V1_BUTTON_TO_Y};
+  main_menu[1] = temp1;
+
+  // leaderboard button in the main menu
+  button_details temp2 = {menu_buttons_xpms[BUTTON_LEADERBOARD], menu_buttons_over_xpms[BUTTON_LEADERBOARD], MAIN_LEADERBOARD_BUTTON_TO_X, MAIN_LEADERBOARD_BUTTON_TO_Y}; 
+  main_menu[2] = temp2;
+
+  // exit button in the main menu
+  button_details temp3 = {menu_buttons_xpms[BUTTON_EXIT], menu_buttons_over_xpms[BUTTON_EXIT], MAIN_EXIT_BUTTON_TO_X, MAIN_EXIT_BUTTON_TO_Y};
+  main_menu[3] = temp3;
+
+  struct Mouse_cursor temp = { CURSOR_INICIAL_X, CURSOR_INICIAL_Y, mouse_cursor_normal_xpm, mouse_cursor_pointer_xpm };
+  cursor = temp;
+}
+
+void (draw_cursor)(xpm_image_t xpm_image){
+  video_draw_pixmap(cursor.x, cursor.y, xpm_image);
 }
 
 bool (change_cursor_position)(struct packet *p) {
