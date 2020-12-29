@@ -4,23 +4,21 @@
 #include <stdlib.h>
 
 #include "../game/collision/collision.h"
+#include "../../xpm/xpm.h"
+#include "../../xpm/load_xpms.h"
 
 extern vbe_mode_info_t mode_conf;
 extern enum xpm_image_type xpm_type;
 extern xpm_image_t xpm_image;
 
 
-// Varible that keep the x of the plataform, witch is change 
-// according to the key pressed between the limits of the scenario: 
-uint16_t plataform_x; // inicial value of the x of the plataform
+uint16_t plataform_x; 
 
-// Represents the plataform to be draw (after x time the plataform in game is one with a smaller width)
 size_t plataform_to_draw = 0;
-uint8_t no_lives = 3; // the amount of lives left for the player
-
+uint8_t no_lives = 3; 
 uint8_t minutes = 0, seconds = 0;
 
-int (draw_scenario)(uint16_t xi, uint16_t yi){
+void (draw_scenario)(uint16_t xi, uint16_t yi){
   // Draw the scenario background
   video_draw_rectangle(xi, yi, SCENARIO_WIDTH, SCENARIO_HEIGHT, SCENARIO_BACKGROUND_COLOR);
 
@@ -38,36 +36,20 @@ int (draw_scenario)(uint16_t xi, uint16_t yi){
   video_draw_rectangle(xi + SCENARIO_WIDTH - BORDER_WIDTH, yi, BORDER_WIDTH, SCENARIO_HEIGHT, SCENARIO_BORDER_COLOR);
 
   // Draw the matrix of blocks in is inicial position
-  if (draw_blocks(xi + BLOCKS_TO_LEFT_X, yi + BLOCKS_TO_TOP_Y) != OK){
-    printf("Error draw_scenario: draw_blocks!\n");
-    return 1;
-  }
+  draw_blocks(xi + BLOCKS_TO_LEFT_X, yi + BLOCKS_TO_TOP_Y);
 
   // Draw the plataform in is inicial coordenates and format
-  if (draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi) != OK){
-    printf("Error draw_scenario: draw_plataform!\n");
-    return 1;
-  }
+  draw_plataform(xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi, plataforms_xpms[plataform_to_draw]);
+ 
 
   // Draw the ball in is inicial coordenates 
-  if (draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y) != OK){
-    printf("Error draw_scenario: draw_ball!\n");
-    return 1;
-  }
+  draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);
 
   // Draw the 3 inicial lives of the player
-  if (draw_hearts(0, no_lives, xi + SCENARIO_WIDTH - FIRST_HEART_TO_RIGHT_X, yi + FIRST_HEART_TO_TOP_Y) != OK){
-    printf("Error draw_scenario: draw_hearts!\n");
-    return 1;
-  }
+  draw_hearts(0, no_lives, xi + SCENARIO_WIDTH - FIRST_HEART_TO_RIGHT_X, yi + FIRST_HEART_TO_TOP_Y);
 
   // Draw the inicial clock 00:00
-  if (draw_clock(minutes, seconds, xi + FIRST_NUMBER_TO_LEFT_X, yi + FIRST_NUMBER_TO_TOP_Y) != OK){
-    printf("Error draw_scenario: draw_clock!\n");
-    return 1;
-  }
-  
-  return 0;
+  draw_clock(minutes, seconds, xi + FIRST_NUMBER_TO_LEFT_X, yi + FIRST_NUMBER_TO_TOP_Y);
 }
 
 void (game_over_display)(uint16_t xi, uint16_t yi){
@@ -76,7 +58,7 @@ void (game_over_display)(uint16_t xi, uint16_t yi){
 	// blocos ficam onde estao como estao
 	
 	// plataforma volta à sua posicao inicial
-	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi);
+	draw_plataform(xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi, plataforms_xpms[plataform_to_draw]);
 	
 	// a bola volta à sua posicao inicial
 	draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);
@@ -91,7 +73,7 @@ void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player){
 	// nao existem blocos
 
 	// plataforma volta à sua posicao inicial
-	draw_plataform(plataforms[plataform_to_draw], xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi);
+	draw_plataform(xi + PLATAFORM_TO_LEFT_X_INIT + (6*plataform_to_draw), yi + PLATAFORM_TO_TOP_Y, xi, plataforms_xpms[plataform_to_draw]);
 	
 	// a bola volta à sua posicao inicial
 	draw_ball(xi + BALL_TO_LEFT_X, yi + BALL_TO_TOP_Y);
@@ -103,11 +85,11 @@ void (game_win_display)(uint16_t xi, uint16_t yi, struct Player player){
 	draw_score_label(xi + SCORE_LABEL_TO_LEFT_X, yi + SCORE_LABEL_TO_TOP_Y);
 	
 	// draw score value
-	unsigned int player_score = player_calculate_score(minutes, seconds, no_lives);
+	unsigned int player_score = calculate_player_score(minutes, seconds, no_lives);
 	draw_score_value(xi + SCORE_VALUE_TO_LEFT_X, yi + SCORE_VALUE_TO_TOP_Y, player_score);
 }
 
-bool (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
+void (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
   bool clock = false;
 	uint8_t no_digits = util_get_no_digits(score);
 
@@ -121,6 +103,8 @@ bool (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
 		x += NUMBERS_WIDTH + SPACE_BETWEEN_NUMBERS; 
 		--no_digits;
 	}
+}
 
-	return 0;
+void (clean_screen)(uint16_t w, uint16_t h, uint32_t color) {
+  video_draw_rectangle(0, 0, w, h, color);
 }

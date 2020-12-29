@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <machine/int86.h>
 
+#include "../macros/menus_macros.h"
 #include "../macros/block_breaker.h"
 #include "../macros/i8042.h"
 
@@ -19,10 +20,20 @@
 #include "../../utils/utils.h"
 #include "../graphics/graphics.h"
 #include "../game/player/player.h"
+// #include "../cursor/graphics_cursor.h"
 
 #include "collision/collision.h"
 
+#include "../graphics/ball/graphics_ball.h"
+#include "../graphics/blocks/graphics_blocks.h"
+#include "../graphics/clock/graphics_clock.h"
+#include "../graphics/hearts/graphics_hearts.h"
+#include "../graphics/labels/graphics_labels.h"
 #include "../graphics/menus/graphics_menus.h"
+#include "../graphics/numbers/graphics_numbers.h"
+#include "../graphics/plataform/graphics_plataform.h"
+
+#include "../../xpm/load_xpms.h"
 
 static uint16_t plataform_width[] = {
   86, 74, 62, 50, 38
@@ -35,6 +46,8 @@ struct Block{
 
 static struct Block blocks_coord[100];
 
+int (game_start)(uint16_t mode);
+
 int (play_solo_game)(uint16_t mode);
 
 void (start_clock)(uint16_t xi, uint16_t yi);
@@ -42,6 +55,8 @@ void (start_clock)(uint16_t xi, uint16_t yi);
 void (next_life)(uint16_t* ball_x, uint16_t* ball_y, bool* up, bool* left, uint16_t xi, uint16_t yi);
 
 bool (move_plataform)(uint16_t right_limit, uint16_t left_limit);
+
+bool (move_plataform_mouse)(uint16_t right_limit, uint16_t left_limit, int16_t displacement);
 
 void (move_ball)(uint16_t* x, uint16_t* y, bool* up, bool* left, uint16_t scenario_xi, uint16_t scenario_yi);
 

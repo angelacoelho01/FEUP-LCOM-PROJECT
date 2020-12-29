@@ -7,7 +7,33 @@
 #include <stdint.h>
 
 // Any header files included below this line should have been created by you
+#include "modules/macros/block_breaker.h"
+#include "modules/macros/i8042.h"
+
+#include "modules/keyboard/keyboard.h"
+#include "modules/mouse/mouse.h"
+#include "modules/timer/timer.h"
+#include "modules/video/video.h"
+#include "utils/utils.h"
+#include "modules/graphics/graphics.h"
+#include "modules/game/player/player.h"
+
+#include "modules/game/collision/collision.h"
+
+#include "modules/graphics/ball/graphics_ball.h"
+#include "modules/graphics/blocks/graphics_blocks.h"
+#include "modules/graphics/clock/graphics_clock.h"
+#include "modules/graphics/hearts/graphics_hearts.h"
+#include "modules/graphics/labels/graphics_labels.h"
+#include "modules/graphics/menus/graphics_menus.h"
+#include "modules/graphics/numbers/graphics_numbers.h"
+#include "modules/graphics/plataform/graphics_plataform.h"
+
+#include "xpm/load_xpms.h"
 #include "modules/game/game.h"
+
+
+
 // #include "modules/game/player/player.h"
 
 int main(int argc, char *argv[]) {
@@ -53,6 +79,6 @@ int(proj_main_loop)(int argc, char *argv[]) {
     return print_usage();
   }
 
-  // when implemented the menu, maybe that is the one that is called where, and play_solo_game from the meu corresponding option
-  return play_solo_game(mode);
+  return game_start(mode);
+
 }
