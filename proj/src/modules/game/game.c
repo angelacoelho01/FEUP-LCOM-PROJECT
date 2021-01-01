@@ -158,7 +158,7 @@ int(play_solo_game)(uint16_t mode) {
               // mouse_print_packet(&mouse_pp);
               mouse_flag = true;
               if (change_cursor_position(&mouse_pp)) {
-                check_options_on_over();
+                // check_options_on_over(); - need to implement the state machine for the menus to know what to pass here
               }
               // printf("AQUI_PP_COMPLETE\n");
             }

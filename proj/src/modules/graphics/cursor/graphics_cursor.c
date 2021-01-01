@@ -15,6 +15,24 @@ int (draw_cursor)(xpm_map_t xpm){
   return 0;
 }
 
+int (draw_menu_button)(button_details b, bool over) {
+  if (over){
+    if (video_load_xpm(b.button_over) != OK){
+      printf("Error draw_menu_button (over): vg_load_xpm!\n");
+      return 1;
+    }
+  }
+  else{
+    if (video_load_xpm(b.button) != OK){
+      printf("Error draw_menu_button: vg_load_xpm!\n");
+      return 1;
+    }
+  }
+
+  video_draw_pixmap(b.x, b.y);
+  return 0;
+}
+
 bool (change_cursor_position)(struct packet *p) {
   bool to_change = false;
 
@@ -42,10 +60,30 @@ bool (change_cursor_position)(struct packet *p) {
 }
 
 // chamada quando o mouse varia de posição para verificar se ficará sobre uma opção do menu em questão
-void (check_options_on_over)(/*vai receber um array com as opçoes desse menu, array de structs de buttons_details com coordenadas e xpms respetivas*/) {
-
+void (check_options_on_over)(button_details *options_menu, int n, bool *on_over) {
   // clear previous region
   // --?
   // nao vai apagar nada do que desenhou antes
-  draw_cursor(cursor.normal_xpm);
+
+  int now_over = -1;
+  for (int i = 0; i < n; i++) {
+    // cursor over an button
+    if ((cursor.x >= options_menu[i].x) && (cursor.x <= options_menu[i].x + BUTTONS_BUTTON_WIDTH) && (cursor.y >= options_menu[i].y) && (cursor.y <= options_menu[i].y + BUTTONS_BUTTON_HEIGHT)) {
+      now_over = i;
+      break;
+    }
+  }
+
+  if (now_over == -1 && *on_over == true) {
+    // nothing more on over now - return to normal xpms
+    draw_cursor(cursor.normal_xpm);
+    for (int i = 0; i < n; i++) {
+      draw_menu_button(options_menu[i], false);
+    }
+  }
+
+  if (now_over != -1) {
+    draw_cursor(cursor.on_over_xpm);
+    draw_menu_button(options_menu[now_over], true);
+  }
 }
