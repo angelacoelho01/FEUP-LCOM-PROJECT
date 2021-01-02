@@ -40,6 +40,7 @@ extern unsigned h_res, v_res;
 int (game_start)(uint16_t mode){
   load_all_xpms();
   cursor_initializer();
+  menu_initializer();
   // limits of solo game
   uint16_t scenario_limit_left = SOLO_SCENARIO_CORNER_X + BORDER_WIDTH;
   uint16_t scenario_limit_right = SOLO_SCENARIO_CORNER_X + SCENARIO_WIDTH - BORDER_WIDTH;
@@ -48,6 +49,21 @@ int (game_start)(uint16_t mode){
 
   struct Player p1 = add_player("Joao", 0);
   write_players("/home/lcom/labs/g08/proj/src/data/players_scores.txt");
+ 
+  if (start_video_mode(mode) != OK){
+    return_to_text_mode();
+    return 1;
+  }
+  
+  draw_start_menu();
+  sleep(5);
+  clean_screen(h_res, v_res, MENUS_BACKGROUND_COLOR);
+
+  draw_pause_menu();
+  sleep(10);
+  clean_screen(h_res, v_res, 0x000000);
+  vg_exit();
+  return 0;
 
   if (start_video_mode(mode) != OK){
     return_to_text_mode();
@@ -57,7 +73,7 @@ int (game_start)(uint16_t mode){
   draw_start_menu();
   draw_cursor(mouse_cursor_normal_xpm);
   sleep(5);
-  reset_screen();
+  //reset_screen();
   draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
   
   // to subscribe the Timer interrupts
@@ -137,7 +153,7 @@ int (game_start)(uint16_t mode){
               // mouse_print_packet(&mouse_pp);
               mouse_flag = true;
               if (change_cursor_position(&mouse_pp)) {
-                check_options_on_over();
+                // check_options_on_over(); - need to implement the state machine for the menus to know what to pass here
               }
               // printf("AQUI_PP_COMPLETE\n");
             }

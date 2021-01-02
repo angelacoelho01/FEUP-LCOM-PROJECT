@@ -14,7 +14,7 @@
 #define NO_LABELS 3
 #define NO_START_MENU_TITLES 4
 #define NO_PAUSE_MENU_TITLES 2
-#define NO_MENU_BUTTONS 6
+#define NO_MENU_BUTTONS 7
 
 xpm_image_t ball_xpm;
 xpm_image_t blocks_xpms[NO_BLOCKS];

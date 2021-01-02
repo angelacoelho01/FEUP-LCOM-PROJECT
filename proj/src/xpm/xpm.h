@@ -10,8 +10,8 @@
  **/ 
 #include "ball.h"
 #include "block.h"
-#include "xpm/heart.h"
-#include "xpm/labels.h"
+#include "heart.h"
+#include "labels.h"
 #include "number_blue.h"
 #include "number_gray.h"
 #include "plataform.h"
@@ -25,6 +25,7 @@
 #include "menus/button_continue.h"
 #include "menus/button_leaderboard.h"
 #include "menus/button_reset.h"
+#include "menus/button_back.h"
 
 /**
  * @brief Menus titles xpms.
@@ -111,7 +112,8 @@ static xpm_map_t menu_buttons[] = {
   button_solo,
   button_exit,
   button_continue,
-  button_reset
+  button_reset,
+  button_back
 };
 
 static xpm_map_t menu_buttons_over[] = {
@@ -120,7 +122,8 @@ static xpm_map_t menu_buttons_over[] = {
   button_solo_over,
   button_exit_over,
   button_continue_over,
-  button_reset_over
+  button_reset_over,
+  button_back_over
 };
 
 #endif
