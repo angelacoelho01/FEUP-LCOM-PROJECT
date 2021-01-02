@@ -40,112 +40,21 @@ int (draw_pause_title)(uint16_t x, uint16_t y){
   return 0;
 }
 
-int (draw_solo_button)(uint16_t x, uint16_t y, bool over){
-  //Solo button
-  if(over){
-    if(video_load_xpm(menu_buttons_over[BUTTON_SOLO_OVER]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
+int (draw_menu_button)(button_details b, bool over) {
+  if (over){
+    if (video_load_xpm(b.button_over) != OK){
+      printf("Error draw_menu_button (over): vg_load_xpm!\n");
       return 1;
     }
   }
   else{
-    if(video_load_xpm(menu_buttons[BUTTON_SOLO]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
+    if (video_load_xpm(b.button) != OK){
+      printf("Error draw_menu_button: vg_load_xpm!\n");
       return 1;
     }
   }
-  video_draw_pixmap(x, y);
-  return 0;
-}
 
-int (draw_1v1_button)(uint16_t x, uint16_t y, bool over){
-  //1v1 button
-  if(over){
-    if(video_load_xpm(menu_buttons_over[BUTTON_1V1_OVER]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  else{
-    if(video_load_xpm(menu_buttons[BUTTON_1V1]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  video_draw_pixmap(x, y);
-  return 0;
-
-}
-
-int (draw_leaderboard_button)(uint16_t x, uint16_t y, bool over){
-  //Leaderboard button
-  if(over){
-    if(video_load_xpm(menu_buttons_over[BUTTON_LEADERBOARD_OVER]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  else{
-    if(video_load_xpm(menu_buttons[BUTTON_LEADERBOARD]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  video_draw_pixmap(x, y);
-  return 0;
-}
-
-int (draw_exit_button)(uint16_t x, uint16_t y, bool over){
-  //Exit button
-  if(over){
-    if(video_load_xpm(menu_buttons_over[BUTTON_EXIT_OVER]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  else{
-    if(video_load_xpm(menu_buttons[BUTTON_EXIT]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  video_draw_pixmap(x, y);
-  return 0;
-}
-
-int (draw_continue_button)(uint16_t x, uint16_t y, bool over){
-  //Continue button
-  if(over){
-    if(video_load_xpm(menu_buttons_over[BUTTON_CONTINUE_OVER]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  else{
-    if(video_load_xpm(menu_buttons[BUTTON_CONTINUE]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  video_draw_pixmap(x, y);
-  return 0;
-}
-
-int (draw_reset_button)(uint16_t x, uint16_t y, bool over){
-  //Reset button
-  if(over){
-    if(video_load_xpm(menu_buttons_over[BUTTON_RESET_OVER]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  else{
-    if(video_load_xpm(menu_buttons[BUTTON_RESET]) != OK){
-      printf("Error draw_plataform: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  video_draw_pixmap(x, y);
+  video_draw_pixmap(b.x, b.y);
   return 0;
 }
 
@@ -159,17 +68,10 @@ int (draw_start_menu)(){
   //Draw game title
   if(draw_game_title(TITLE_TO_X, TITLE_TO_Y) != OK) return 1;
 
-  //Draw solo button
-  if(draw_solo_button(MAIN_SOLO_BUTTON_TO_X, MAIN_SOLO_BUTTON_TO_Y, false) != OK) return 1;
-
-  //Draw 1v1 button
-  if(draw_1v1_button(MAIN_1V1_BUTTON_TO_X, MAIN_1V1_BUTTON_TO_Y, false) != OK) return 1;
-
-  //Draw leaderboard button
-  if(draw_leaderboard_button(MAIN_LEADERBOARD_BUTTON_TO_X, MAIN_LEADERBOARD_BUTTON_TO_Y, false) != OK) return 1;
-
-  //Draw exit button
-  if(draw_exit_button(MAIN_EXIT_BUTTON_TO_X, MAIN_EXIT_BUTTON_TO_Y, false) != OK) return 1;
+  //Draw main menu buttons - solo, 1v1, leaderboard, exit
+  for (int i = 0; i < 4; i++) {
+    if (draw_menu_button(main_menu[i], false) != OK) return 1;
+  }
 
   return 0;
 }
@@ -186,19 +88,10 @@ int (draw_pause_menu)(){
                       MENU_PAUSE_CORNER_Y + PAUSE_TITLE_TO_Y ) != OK) 
     return 1;
 
-  //Draw continue button
-  if(draw_continue_button(MENU_PAUSE_CORNER_X + PAUSE_BUTTONS_TO_X, MENU_PAUSE_CORNER_Y + PAUSE_CONTINUE_BUTTON_TO_Y, false) != OK) 
-    return 1;
-
-  //Draw reset button
-  if(draw_reset_button(MENU_PAUSE_CORNER_X + PAUSE_BUTTONS_TO_X,
-                      MENU_PAUSE_CORNER_Y + PAUSE_RESET_BUTTON_TO_Y, false) != OK)
-    return 1;
-
-  //Draw exit button
-  if(draw_exit_button(MENU_PAUSE_CORNER_X + PAUSE_BUTTONS_TO_X,
-                      MENU_PAUSE_CORNER_Y + PAUSE_EXIT_BUTTON_TO_Y, false) != OK)
-    return 1;
+  //Draw pause menu buttons - continue, reset, exit
+  for (int i = 0; i < 3; i++) {
+    if (draw_menu_button(pause_menu[i], false) != OK) return 1;
+  }
 
   return 0;
 }

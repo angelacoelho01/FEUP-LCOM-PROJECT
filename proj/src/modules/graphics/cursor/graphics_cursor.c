@@ -15,24 +15,6 @@ int (draw_cursor)(xpm_map_t xpm){
   return 0;
 }
 
-int (draw_menu_button)(button_details b, bool over) {
-  if (over){
-    if (video_load_xpm(b.button_over) != OK){
-      printf("Error draw_menu_button (over): vg_load_xpm!\n");
-      return 1;
-    }
-  }
-  else{
-    if (video_load_xpm(b.button) != OK){
-      printf("Error draw_menu_button: vg_load_xpm!\n");
-      return 1;
-    }
-  }
-
-  video_draw_pixmap(b.x, b.y);
-  return 0;
-}
-
 bool (change_cursor_position)(struct packet *p) {
   bool to_change = false;
 

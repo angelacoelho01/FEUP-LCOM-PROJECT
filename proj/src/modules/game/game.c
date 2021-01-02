@@ -52,15 +52,15 @@ int(play_solo_game)(uint16_t mode) {
     return 1;
   }
   
-  // draw_start_menu();
-  // sleep(5);
-  // clean_screen(h_res, v_res, MENUS_BACKGROUND_COLOR);
+  draw_start_menu();
+  sleep(5);
+  clean_screen(h_res, v_res, MENUS_BACKGROUND_COLOR);
 
-  // draw_pause_menu();
-  // sleep(10);
+  draw_pause_menu();
+  sleep(10);
   clean_screen(h_res, v_res, 0x000000);
-  //vg_exit();
-  //return 0;
+  vg_exit();
+  return 0;
 
   if (draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y) != OK) {
     return_to_text_mode();
