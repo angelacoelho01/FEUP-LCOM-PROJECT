@@ -45,6 +45,8 @@ static button_details pause_menu[] = {
 
 // all the descriptions of the buttons that constitute the leaderboard menu 
 static button_details leaderboard_menu[] = {
+  // back button in the leaderboard menu 
+  {button_back, button_back_over, LEADER_BACK_BUTTON_TO_X, LEADER_BACK_BUTTON_TO_Y},
   // exit button in the leaderboard menu 
   {button_exit, button_exit_over, LEADER_EXIT_BUTTON_TO_X, LEADER_EXIT_BUTTON_TO_Y}
 };

@@ -19,6 +19,7 @@
 #include "../../xpm/menus/button_solo.h"
 #include "../../xpm/menus/button_continue.h"
 #include "../../xpm/menus/button_leaderboard.h"
+#include "../../xpm/menus/button_back.h"
 #include "../../xpm/menus/game_title.h"
 #include "../../xpm/menus/button_reset.h"
 #include "../../xpm/menus/pause_title.h"
@@ -92,7 +93,8 @@ static xpm_map_t menu_buttons[] = {
   button_solo,
   button_exit,
   button_continue,
-  button_reset
+  button_reset,
+  button_back
 };
 
 static xpm_map_t menu_buttons_over[] = {
@@ -101,7 +103,8 @@ static xpm_map_t menu_buttons_over[] = {
   button_solo_over,
   button_exit_over,
   button_continue_over,
-  button_reset_over
+  button_reset_over,
+  button_back_over
 };
 
 #endif
