@@ -4,15 +4,14 @@
 
 extern unsigned h_res, v_res;
 
-int (draw_cursor)(xpm_map_t xpm){
-  if (video_load_xpm(xpm) != OK){
-    printf("Error draw_cursor: vg_load_xpm!\n");
-    return 1;
-  }
 
-  video_draw_pixmap(cursor.x, cursor.y);
+void (cursor_initializer)(){
+  struct Mouse_cursor temp = { CURSOR_INICIAL_X, CURSOR_INICIAL_Y, mouse_cursor_normal_xpm, mouse_cursor_pointer_xpm };
+  cursor = temp;
+}
 
-  return 0;
+void (draw_cursor)(xpm_image_t xpm_image){
+  video_draw_pixmap(cursor.x, cursor.y, xpm_image);
 }
 
 bool (change_cursor_position)(struct packet *p) {

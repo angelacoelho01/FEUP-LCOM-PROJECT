@@ -5,20 +5,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../../video/xpm.h"
+#include "../../../xpm/xpm.h"
 #include "../../macros/menus_macros.h"
 #include "../menus/graphics_menus.h"
 
 struct Mouse_cursor {
   unsigned int x;
   unsigned int y;
-  xpm_map_t normal_xpm;
-  xpm_map_t on_over_xpm;
+  xpm_image_t normal_xpm;
+  xpm_image_t on_over_xpm;
 };
 
-static struct Mouse_cursor cursor = { CURSOR_INICIAL_X, CURSOR_INICIAL_Y, cursor_normal, cursor_pointer };
+struct Mouse_cursor cursor;
 
-int (draw_cursor)(xpm_map_t xpm);
+void (cursor_initializer)();
+
+void (draw_cursor)(xpm_image_t xpm);
 
 bool (change_cursor_position)(struct packet *p);
 

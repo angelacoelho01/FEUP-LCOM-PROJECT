@@ -1,6 +1,6 @@
 #pragma once
 
-static xpm_row_t const cursor_normal[] = {
+static xpm_row_t const mouse_cursor_normal[] = {
 "34 42 3 1",
 " 	c None",
 ".	c #000000",
@@ -48,7 +48,7 @@ static xpm_row_t const cursor_normal[] = {
 "                     ....         ",
 "                                  "};
 
-static xpm_row_t const cursor_pointer[] = {
+static xpm_row_t const mouse_cursor_pointer[] = {
 "34 42 3 1",
 " 	c None",
 ".	c #000000",
