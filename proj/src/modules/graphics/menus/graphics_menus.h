@@ -8,30 +8,54 @@
 #include "../../../xpm/load_xpms.h"
 #include "../../macros/menus_macros.h"
 
-// all the xmps that correspond to the buttons in the "normal" state
-enum buttons {
-  BUTTON_1V1,
-  BUTTON_LEADERBOARD,
-  BUTTON_SOLO,
-  BUTTON_EXIT,
-  BUTTON_CONTINUE,
-  BUTTON_RESET
+// ---
+
+// the possible events
+enum menu_ev_t {
+  OPT_SOLO, OPT_1V1, OPT_LEADERBOARD, OPT_EXIT, OPT_CONTINUE, OPT_RESET, OPT_BACK, OPT_PAUSE, NO_OPT
 };
 
-// all the xmps that correspond to the buttons in the "on over" state
-enum buttons_over {
-  BUTTON_1V1_OVER,
-  BUTTON_LEADERBOARD_OVER,
-  BUTTON_SOLO_OVER,
-  BUTTON_EXIT_OVER,
-  BUTTON_CONTINUE_OVER,
-  BUTTON_RESET_OVER
+struct menu_ev {
+  enum menu_ev_t type;
 };
+
+// ---
 
 enum titles{
   GAME_TITLE,
   PAUSE_TITLE
 };
+
+enum Button{
+  BUTTON_1V1,
+  BUTTON_LEADERBOARD,
+  BUTTON_SOLO,
+  BUTTON_EXIT,
+  BUTTON_CONTINUE,
+  BUTTON_RESET,
+  BUTTON_BACK
+};
+
+
+// struct that caracterize a button in a menu
+typedef struct Button_details {
+  xpm_image_t button;
+  xpm_image_t button_over;
+  uint16_t x;
+  uint16_t y;
+  enum menu_ev_t option;
+} button_details; 
+
+// all the descriptions of the buttons that constitute the main menu 
+button_details main_menu[4];
+
+// all the descriptions of the buttons that constitute the pause menu 
+button_details pause_menu[3];
+
+// all the descriptions of the buttons that constitute the leaderboard menu 
+button_details leaderboard_menu[2];
+
+void (menu_initializer)();
 
 void (draw_menu_borders)(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
@@ -41,22 +65,17 @@ void (draw_game_title)(uint16_t x, uint16_t y);
 
 void (draw_pause_title)(uint16_t x, uint16_t y);
 
-void (draw_solo_button)(uint16_t x, uint16_t y, bool over);
-
-void (draw_1v1_button)(uint16_t x, uint16_t y, bool over);
-
-void (draw_leaderboard_button)(uint16_t x, uint16_t y, bool over);
-
-void (draw_exit_button)(uint16_t x, uint16_t y, bool over);
-
-void (draw_continue_button)(uint16_t x, uint16_t y, bool over);
-
-void (draw_reset_button)(uint16_t x, uint16_t y, bool over);
+void (draw_menu_button)(button_details b, bool over);
 
 void (draw_start_menu)();
 
 void (draw_pause_menu)();
 
-void (reset_screen)();
+// implement navigate between menus
+
+struct menu_ev* (menu_select_option_detect)(struct mouse_ev *mouse_evt, enum menu_ev_t event);
+
+bool (navigate_between_menus)(struct menu_ev *evt);
+
 
 #endif

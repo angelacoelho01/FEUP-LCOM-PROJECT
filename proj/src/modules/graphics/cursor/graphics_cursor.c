@@ -6,22 +6,6 @@ extern unsigned h_res, v_res;
 
 
 void (cursor_initializer)(){
-  // solo button in the main menu
-  button_details temp0 = {menu_buttons_xpms[BUTTON_SOLO], menu_buttons_over_xpms[BUTTON_SOLO], MAIN_SOLO_BUTTON_TO_X, MAIN_SOLO_BUTTON_TO_Y}; 
-  main_menu[0] = temp0;
-
-  // 1v1 button in the main menu
-  button_details temp1 = {menu_buttons_xpms[BUTTON_1V1], menu_buttons_over_xpms[BUTTON_1V1], MAIN_1V1_BUTTON_TO_X, MAIN_1V1_BUTTON_TO_Y};
-  main_menu[1] = temp1;
-
-  // leaderboard button in the main menu
-  button_details temp2 = {menu_buttons_xpms[BUTTON_LEADERBOARD], menu_buttons_over_xpms[BUTTON_LEADERBOARD], MAIN_LEADERBOARD_BUTTON_TO_X, MAIN_LEADERBOARD_BUTTON_TO_Y}; 
-  main_menu[2] = temp2;
-
-  // exit button in the main menu
-  button_details temp3 = {menu_buttons_xpms[BUTTON_EXIT], menu_buttons_over_xpms[BUTTON_EXIT], MAIN_EXIT_BUTTON_TO_X, MAIN_EXIT_BUTTON_TO_Y};
-  main_menu[3] = temp3;
-
   struct Mouse_cursor temp = { CURSOR_INICIAL_X, CURSOR_INICIAL_Y, mouse_cursor_normal_xpm, mouse_cursor_pointer_xpm };
   cursor = temp;
 }
@@ -57,10 +41,36 @@ bool (change_cursor_position)(struct packet *p) {
 }
 
 // chamada quando o mouse varia de posição para verificar se ficará sobre uma opção do menu em questão
-void (check_options_on_over)(/*vai receber um array com as opçoes desse menu, array de structs de buttons_details com coordenadas e xpms respetivas*/) {
-
+enum menu_ev_t (check_options_on_over)(button_details *options_menu, int n, bool *on_over) {
   // clear previous region
   // --?
   // nao vai apagar nada do que desenhou antes
-  draw_cursor(cursor.normal_xpm);
+
+  enum menu_ev_t event;  
+
+  int now_over = -1;
+  for (int i = 0; i < n; i++) {
+    // cursor over an button
+    if ((cursor.x >= options_menu[i].x) && (cursor.x <= options_menu[i].x + BUTTONS_BUTTON_WIDTH) && (cursor.y >= options_menu[i].y) && (cursor.y <= options_menu[i].y + BUTTONS_BUTTON_HEIGHT)) {
+      now_over = i;
+      break;
+    }
+  }
+
+  if (now_over == -1 && *on_over == true) {
+    // nothing more on over now - return to normal xpms
+    draw_cursor(cursor.normal_xpm);
+    for (int i = 0; i < n; i++) {
+      draw_menu_button(options_menu[i], false);
+    }
+    event = NO_OPT;
+  }
+
+  if (now_over != -1) {
+    draw_cursor(cursor.on_over_xpm);
+    draw_menu_button(options_menu[now_over], true);
+    event = options_menu[now_over].option;
+  }
+
+  return event;
 }
