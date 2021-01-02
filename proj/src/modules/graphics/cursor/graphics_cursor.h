@@ -28,6 +28,6 @@ bool (change_cursor_position)(struct packet *p);
  * @param n the number of elements of the array
  * @param on_over represent if a option was selected before this check
  */
-void (check_options_on_over)(button_details *options_menu, int n, bool *on_over);
+enum menu_ev_t (check_options_on_over)(button_details *options_menu, int n, bool *on_over);
 
 #endif

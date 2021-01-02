@@ -95,3 +95,77 @@ int (draw_pause_menu)(){
 
   return 0;
 }
+
+// implement navigate between menus
+
+// the initial event 
+struct menu_ev menu_evt = {NO_OPT};
+
+// detect a selection - click over an option
+struct menu_ev* (menu_select_option_detect)(struct mouse_ev *mouse_evt, enum menu_ev_t event) {
+  if (mouse_evt->type == LB_PRESSED) { // to select a option
+    menu_evt.type = event;
+  }
+	
+	return (&menu_evt);
+}
+
+// the state machine
+typedef enum {MAIN_MENU, GAME_SOLO, GAME_SOLO_CONTINUE, GAME_1V1, GAME_1V1_CONTINUE, PAUSE_SOLO_MENU, PAUSE_1V1_MENU, LEADERBOARD, EXIT_GAME} state_menus_t;
+// provavelmente vai ser necessario alguma variavel booleana global que indica se é para fazer reset ao mode em jogo ou não
+
+bool (navigate_between_menus)(struct menu_ev *evt) {
+  bool end = false;
+  static state_menus_t menus_st = MAIN_MENU; // initial state; keep state
+  
+  switch (menus_st) {
+    case MAIN_MENU:
+      if(evt->type == OPT_SOLO) 
+        menus_st = GAME_SOLO;
+      if(evt->type == OPT_1V1) 
+        menus_st = GAME_1V1;
+      if(evt->type == OPT_LEADERBOARD) 
+        menus_st = LEADERBOARD;
+      if(evt->type == OPT_EXIT) {
+        menus_st = EXIT_GAME;
+        end = true;
+      }
+      break;
+    case GAME_SOLO: case GAME_SOLO_CONTINUE:
+      if(evt->type == OPT_PAUSE) 
+        menus_st = PAUSE_SOLO_MENU;
+      break;
+    case GAME_1V1: case GAME_1V1_CONTINUE:
+      if(evt->type == OPT_PAUSE) 
+        menus_st = PAUSE_1V1_MENU;
+      break;
+    case PAUSE_SOLO_MENU:
+      if(evt->type == OPT_EXIT) 
+        menus_st = MAIN_MENU;
+      if(evt->type == OPT_RESET) 
+        menus_st = GAME_SOLO;
+      if(evt->type == OPT_CONTINUE) 
+        menus_st = GAME_SOLO_CONTINUE;
+      break;
+    case PAUSE_1V1_MENU:
+      if(evt->type == OPT_EXIT) 
+        menus_st = MAIN_MENU;
+      if(evt->type == OPT_RESET) 
+        menus_st = GAME_1V1;
+      if(evt->type == OPT_CONTINUE) 
+        menus_st = GAME_1V1_CONTINUE;
+      break;
+    case LEADERBOARD:
+      if(evt->type == OPT_BACK) 
+        menus_st = MAIN_MENU;
+      if(evt->type == OPT_EXIT) {
+        menus_st = EXIT_GAME;
+        end = true;
+      }
+      break;
+    default:
+      break;
+  }
+
+  return (end);
+}

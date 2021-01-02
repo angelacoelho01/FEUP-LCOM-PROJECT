@@ -42,10 +42,12 @@ bool (change_cursor_position)(struct packet *p) {
 }
 
 // chamada quando o mouse varia de posição para verificar se ficará sobre uma opção do menu em questão
-void (check_options_on_over)(button_details *options_menu, int n, bool *on_over) {
+enum menu_ev_t (check_options_on_over)(button_details *options_menu, int n, bool *on_over) {
   // clear previous region
   // --?
   // nao vai apagar nada do que desenhou antes
+
+  enum menu_ev_t event;  
 
   int now_over = -1;
   for (int i = 0; i < n; i++) {
@@ -62,10 +64,14 @@ void (check_options_on_over)(button_details *options_menu, int n, bool *on_over)
     for (int i = 0; i < n; i++) {
       draw_menu_button(options_menu[i], false);
     }
+    event = NO_OPT;
   }
 
   if (now_over != -1) {
     draw_cursor(cursor.on_over_xpm);
     draw_menu_button(options_menu[now_over], true);
+    event = options_menu[now_over].option;
   }
+
+  return event;
 }
