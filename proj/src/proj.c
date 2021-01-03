@@ -79,6 +79,9 @@ int(proj_main_loop)(int argc, char *argv[]) {
     return print_usage();
   }
 
+  // TODO
+  // verificar se o nome do player tambem vem por parametro
+
   return game_start(mode);
 
 }

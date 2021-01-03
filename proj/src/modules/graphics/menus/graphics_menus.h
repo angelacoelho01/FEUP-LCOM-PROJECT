@@ -73,9 +73,14 @@ void (draw_pause_menu)();
 
 // implement navigate between menus
 
+
+// the state machine
+typedef enum {MAIN_MENU, GAME_SOLO, GAME_SOLO_CONTINUE, GAME_1V1, GAME_1V1_CONTINUE, PAUSE_SOLO_MENU, PAUSE_1V1_MENU, LEADERBOARD, EXIT_GAME} state_menus_t;
+
+static state_menus_t menus_st = MAIN_MENU; // initial state; keep state
+
 struct menu_ev* (menu_select_option_detect)(struct mouse_ev *mouse_evt, enum menu_ev_t event);
 
 bool (navigate_between_menus)(struct menu_ev *evt);
-
 
 #endif
