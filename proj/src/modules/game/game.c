@@ -39,6 +39,8 @@ uint16_t plataform_speed = PLATAFORM_SPEED;
 
 #include "../../modules/video/video.h"
 
+extern state_menus_t menus_st;
+
 // resolution of the mode
 extern unsigned h_res, v_res;
 
@@ -89,6 +91,8 @@ int (game_start)(uint16_t mode){
   int ipc_status;
   message msg;
 
+  unsigned long global_counter = 0;
+
   uint32_t timer_irq_set = BIT(timer_bit_no);
   uint32_t kbc_irq_set = BIT(kbc_bit_no);
   uint32_t mouse_irq_set = BIT(mouse_bit_no);
@@ -97,9 +101,10 @@ int (game_start)(uint16_t mode){
   uint8_t mouse_num_bytes = 0;
   struct packet mouse_pp;
   struct mouse_ev* mouse_evt;
-  struct menu_ev* menus_evt;
   bool mouse_flag = false;
   bool mouse_on_over = false;
+  
+  enum menu_ev_t evt_mouse = NO_OPT;
   
   bool flag_first = true;
 
@@ -159,7 +164,6 @@ int (game_start)(uint16_t mode){
           if (mouse_ih_error == 0){ //If there was no error
             if (get_packet(mouse_byte, &mouse_num_bytes, &mouse_pp) == 0){ // indicates that a packet is complete            
               mouse_flag = true;
-              change_cursor_position (&mouse_pp);
             }
           } else continue;
         }
@@ -167,6 +171,28 @@ int (game_start)(uint16_t mode){
         // packet complete - move plataform with the mouse
         if (mouse_flag) { 
           mouse_evt = mouse_event_detect(&mouse_pp); 
+          if (global_counter >= 20) { // de 0.5 em 0.5 segundos desenha o rato
+            if (change_cursor_position(&mouse_pp)) {
+              if (menus_st == MAIN_MENU) {
+                evt_mouse = check_options_on_over(main_menu, 4, &mouse_on_over);
+              }
+            }
+
+            global_counter = 0;
+          }
+
+          if (menus_st == MAIN_MENU) {
+            printf("%u", evt_mouse);
+              if ((evt_mouse != NO_OPT) && (menu_select_option_detect(mouse_evt))) {
+                printf("true\n");
+                menus_st = navigate_between_menus(evt_mouse);
+                printf("true2\n");
+                printf("-%u-", menus_st);
+                flag_first = true;
+                continue;
+              }
+            }
+
           if (menus_st == GAME_SOLO || menus_st == GAME_SOLO_CONTINUE) {
             // verifica o estado de todos os botoes do rato
             if (check_horizontal_line(mouse_evt, H_LINE_TOLERANCE)) {
@@ -179,11 +205,6 @@ int (game_start)(uint16_t mode){
               } // se x da plaetaforma + esse deslocamento nao passa os limites
             }
           }
-          if (menus_st == MAIN_MENU) {
-            enum menu_ev_t evt_mouse = check_options_on_over(main_menu, 4, &mouse_on_over);
-            menus_evt = menu_select_option_detect(mouse_evt, evt_mouse);
-            navigate_between_menus(menus_evt);
-          }
 
           mouse_flag = false;
         }  
@@ -192,6 +213,7 @@ int (game_start)(uint16_t mode){
 
         if (msg.m_notify.interrupts & timer_irq_set) { // timer interruption
           timer_int_handler();
+          global_counter++;
           //copy_from_double_buffer();
           //if(game_started) copy_from_double_buffer();
           if (menus_st == GAME_SOLO || menus_st == GAME_SOLO_CONTINUE) {
