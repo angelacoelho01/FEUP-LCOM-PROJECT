@@ -157,11 +157,9 @@ int (game_start)(uint16_t mode){
         if (msg.m_notify.interrupts & mouse_irq_set) {
           mouse_ih();
           if (mouse_ih_error == 0){ //If there was no error
-            if (get_packet(mouse_byte, &mouse_num_bytes, &mouse_pp) == 0){ // indicates that a packet is complete
-              if (menus_st == MAIN_MENU) {
-                mouse_flag = true;
-                change_cursor_position (&mouse_pp);
-              }
+            if (get_packet(mouse_byte, &mouse_num_bytes, &mouse_pp) == 0){ // indicates that a packet is complete            
+              mouse_flag = true;
+              change_cursor_position (&mouse_pp);
             }
           } else continue;
         }
@@ -178,10 +176,9 @@ int (game_start)(uint16_t mode){
                 // just  only if there was a movement from the player
                 game_started = true; // timer starts to count  - if the first move is with the timer
                 is_move_ball = true; // the ball start moving 
-              } // se x da plataforma + esse deslocamento nao passa os limites
+              } // se x da plaetaforma + esse deslocamento nao passa os limites
             }
           }
-
           if (menus_st == MAIN_MENU) {
             enum menu_ev_t evt_mouse = check_options_on_over(main_menu, 4, &mouse_on_over);
             menus_evt = menu_select_option_detect(mouse_evt, evt_mouse);
