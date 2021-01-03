@@ -53,25 +53,6 @@ button_details leaderboard_menu[2];
 
 void (menu_initializer)();
 
-enum Button{
-  BUTTON_1V1,
-  BUTTON_LEADERBOARD,
-  BUTTON_SOLO,
-  BUTTON_EXIT,
-  BUTTON_CONTINUE,
-  BUTTON_RESET,
-  BUTTON_BACK
-};
-
-
-// struct that caracterize a button in a menu
-typedef struct Button_details {
-  xpm_image_t button;
-  xpm_image_t button_over;
-  uint16_t x;
-  uint16_t y;
-  enum menu_ev_t option;
-} button_details; 
 
 // all the descriptions of the buttons that constitute the main menu 
 button_details main_menu[4];

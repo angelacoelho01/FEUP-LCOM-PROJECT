@@ -54,7 +54,7 @@ void (play_solo_game_kbc)(uint16_t scenario_limit_right, uint16_t scenario_limit
 
 void (play_solo_game_mouse)(struct mouse_ev* mouse_evt, uint16_t scenario_limit_right, uint16_t scenario_limit_left, struct packet mouse_pp);
 
-void (play_solo_game_timer)(uint16_t ball_x, uint16_t ball_y, bool up, bool left, struct Player p1, bool *flag_first);
+void (play_solo_game_timer)(uint16_t *ball_x, uint16_t *ball_y, bool *up, bool *left, struct Player p1, bool *flag_first, enum menu_ev_t *evt_mouse);
 
 void (start_clock)(uint16_t xi, uint16_t yi);
 

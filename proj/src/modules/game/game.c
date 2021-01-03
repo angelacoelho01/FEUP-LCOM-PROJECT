@@ -43,7 +43,6 @@ extern state_menus_t menus_st;
 
 // resolution of the mode
 extern unsigned h_res, v_res;
-//extern struct Mouse_cursor cursor;
 
 int (game_start)(uint16_t mode){
   // load all the xpms to be used 
@@ -61,7 +60,6 @@ int (game_start)(uint16_t mode){
   struct Player p1 = add_player("Joao", 0);
   write_players("/home/lcom/labs/g08/proj/src/data/players_scores.txt");
  
-
   // subscribe all the necessary services
   if (start_video_mode(mode) != OK){
     return_to_text_mode();
@@ -168,7 +166,8 @@ int (game_start)(uint16_t mode){
             }
 
             if ((kbc_scancode == ESC_BREAKCODE_KEY) && (menus_st == GAME_SOLO || menus_st == GAME_SOLO_CONTINUE || menus_st == GAME_1V1 || menus_st == GAME_1V1_CONTINUE)) { // open pause_menu
-              menus_st = navigate_between_menus(OPT_PAUSE);
+              evt_mouse = OPT_PAUSE;
+              menus_st = navigate_between_menus(evt_mouse);
               pause_game = true; 
               continue;
             }
@@ -179,7 +178,7 @@ int (game_start)(uint16_t mode){
           mouse_ih();
           if (mouse_ih_error == 0){ //If there was no error
             if (get_packet(mouse_byte, &mouse_num_bytes, &mouse_pp) == 0){ // indicates that a packet is complete            
-              mouse_flag = true; is_move_ball = false;
+              mouse_flag = true;
             }
           } else continue;
         }
@@ -228,7 +227,7 @@ int (game_start)(uint16_t mode){
           // copy_from_double_buffer();
           // if(game_started) copy_from_double_buffer();
           if (menus_st == GAME_SOLO || menus_st == GAME_SOLO_CONTINUE) {
-            play_solo_game_timer(ball_x, ball_y, up, left, p1, &flag_first);
+            play_solo_game_timer(&ball_x, &ball_y, &up, &left, p1, &flag_first, &evt_mouse);
           }
         }
 
@@ -293,20 +292,23 @@ void (play_solo_game_mouse)(struct mouse_ev* mouse_evt, uint16_t scenario_limit_
   }
 }
 
-void (play_solo_game_timer)(uint16_t ball_x, uint16_t ball_y, bool up, bool left, struct Player p1, bool *flag_first) {
+void (play_solo_game_timer)(uint16_t *ball_x, uint16_t *ball_y, bool *up, bool *left, struct Player p1, bool *flag_first, enum menu_ev_t *evt_mouse) {
   if (timer_counter % 60 == 0) { // true every 1 second (freq = 60Hz)
     start_clock(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y); // the player moved the plataform for the first time (3 lives) - start the clock
   }
+
   if (is_move_ball) {
-    move_ball(&ball_x, &ball_y, &up, &left, SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
+    move_ball(ball_x, ball_y, up, left, SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
     
     // check if game is over
     if ((0 == no_lives) || (0 == get_list_size())) {
-      clean_ball(ball_x, ball_y);
+      clean_ball(*ball_x, *ball_y);
       if (0 == no_lives) game_over_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
       else game_win_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y, p1);
       sleep(5);
-      menus_st = MAIN_MENU; *flag_first = true;
+      *evt_mouse = OPT_EXIT;
+      menus_st = MAIN_MENU;
+      *flag_first = true;
     }
   }
 }

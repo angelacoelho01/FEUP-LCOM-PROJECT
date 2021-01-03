@@ -109,7 +109,6 @@ void (draw_pause_menu)(){
 
 // implement navigate between menus
 
-
 // detect a selection - click over an option
 
 bool (menu_select_option_detect)(struct mouse_ev *mouse_evt) {
@@ -137,10 +136,14 @@ state_menus_t (navigate_between_menus)(enum menu_ev_t type) {
     case GAME_SOLO: case GAME_SOLO_CONTINUE:
       if(type == OPT_PAUSE) 
         menus_st = PAUSE_SOLO_MENU;
+      if(type == OPT_EXIT) 
+        menus_st = MAIN_MENU;
       break;
     case GAME_1V1: case GAME_1V1_CONTINUE:
       if(type == OPT_PAUSE) 
         menus_st = PAUSE_1V1_MENU;
+      if(type == OPT_EXIT) 
+        menus_st = MAIN_MENU;
       break;
     case PAUSE_SOLO_MENU:
       if(type == OPT_EXIT) 
