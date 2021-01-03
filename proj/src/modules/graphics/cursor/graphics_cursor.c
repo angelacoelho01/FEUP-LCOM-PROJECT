@@ -59,6 +59,7 @@ enum menu_ev_t (check_options_on_over)(button_details *options_menu, int n, bool
 
   if (now_over == -1 && *on_over == true) {
     // nothing more on over now - return to normal xpms
+
     for (int i = 0; i < n; i++) {
       draw_menu_button(options_menu[i], false);
     }
