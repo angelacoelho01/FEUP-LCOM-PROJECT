@@ -168,6 +168,5 @@ state_menus_t (navigate_between_menus)(enum menu_ev_t type) {
       break;
   }
 
-printf("--%u--", menus_st);
   return (menus_st);
 }

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-bool lost, game_started = false, is_move_ball = false;
+bool lost, game_started = false, is_move_ball = false, pause_game = false;
 
 // TIMER VARIABLES
 extern int timer_hook_id;
@@ -50,15 +50,8 @@ int (game_start)(uint16_t mode){
   cursor_initializer();
   menu_initializer();
 
-  // define the limits of solo game
-  uint16_t scenario_limit_left = SOLO_SCENARIO_CORNER_X + BORDER_WIDTH;
-  uint16_t scenario_limit_right = SOLO_SCENARIO_CORNER_X + SCENARIO_WIDTH - BORDER_WIDTH;
-  // define the inicital x of the plataform of the player 1
-  plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X_INIT;
-  // initial informations relative to the ball - player 1
-  uint16_t ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
-  uint16_t ball_y = (uint16_t) SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
-  bool up = true, left = rand() & 1;
+  uint16_t scenario_limit_left, scenario_limit_right, ball_x, ball_y; bool up, left;
+  game_solo_inicializer(&scenario_limit_left, &scenario_limit_right, &ball_x, &ball_y, &up, &left);
 
   // define the limits os the 2 screens of the 1v1 mode game
   //...
@@ -109,23 +102,38 @@ int (game_start)(uint16_t mode){
   bool flag_first = true;
 
   // not exit the aplication
-  while ((menus_st != EXIT_GAME) && (kbc_scancode != ESC_BREAKCODE_KEY)) {
+  while (menus_st != EXIT_GAME) {
     if (flag_first) { // the next state is to be draw
       clean_screen(h_res, v_res, MENUS_BACKGROUND_COLOR);
+      mouse_on_over = false;
       switch (menus_st) {
         case MAIN_MENU:
+          game_started = false; is_move_ball = false; pause_game = false;
           draw_start_menu();
           draw_cursor(mouse_cursor_normal_xpm);
           break;
         case GAME_SOLO:
+          game_started = false; is_move_ball = false; pause_game = false;
+          game_solo_inicializer(&scenario_limit_left, &scenario_limit_right, &ball_x, &ball_y, &up, &left);
           draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
+          break;
+        case GAME_SOLO_CONTINUE:
+          game_started = true; is_move_ball = true; pause_game = false;
+          // draw_scenario em modo continuar
           break;
         case GAME_1V1:
           break;
+        case GAME_1V1_CONTINUE:
+          game_started = true; is_move_ball = true; pause_game = false;
+          // draw_scenario em modo continuar
+          break;
         case PAUSE_SOLO_MENU: case PAUSE_1V1_MENU:
+          game_started = true; is_move_ball = false; pause_game = true;
           draw_pause_menu();
+          pause_game = true;
           break;
         case LEADERBOARD:
+          game_started = false; is_move_ball = false; pause_game = false;
           break;
         default:
           break;
@@ -152,9 +160,15 @@ int (game_start)(uint16_t mode){
             if (!(kbc_scancode & BYTE_MSB)) { // if MSB = 0 -> make code
               if (menus_st == GAME_SOLO || menus_st == GAME_SOLO_CONTINUE) { // estado da maquina de estados
                 play_solo_game_kbc(scenario_limit_right, scenario_limit_left);
-              } /* else if (menus_st == GAME_1V1 || menus_st == GAME_1V1_CONTINUE) {
-                play_1v1_game_kbc(); // verifica se é para mover e qual dos players plataforma é para alterar
-              } */
+              } else if (menus_st == GAME_1V1 || menus_st == GAME_1V1_CONTINUE) {
+                // play_1v1_game_kbc(); // verifica se é para mover e qual dos players plataforma é para alterar
+              } 
+            }
+
+            if ((kbc_scancode == ESC_BREAKCODE_KEY) && (menus_st == GAME_SOLO || menus_st == GAME_SOLO_CONTINUE || menus_st == GAME_1V1 || menus_st == GAME_1V1_CONTINUE)) { // open pause_menu
+              menus_st = navigate_between_menus(OPT_PAUSE);
+              pause_game = true; 
+              continue;
             }
           }
         }
@@ -163,7 +177,7 @@ int (game_start)(uint16_t mode){
           mouse_ih();
           if (mouse_ih_error == 0){ //If there was no error
             if (get_packet(mouse_byte, &mouse_num_bytes, &mouse_pp) == 0){ // indicates that a packet is complete            
-              mouse_flag = true;
+              mouse_flag = true; is_move_ball = false;
             }
           } else continue;
         }
@@ -171,39 +185,34 @@ int (game_start)(uint16_t mode){
         // packet complete - move plataform with the mouse
         if (mouse_flag) { 
           mouse_evt = mouse_event_detect(&mouse_pp); 
-          if (global_counter >= 20) { // de 0.5 em 0.5 segundos desenha o rato
+          if (global_counter >= 20) { // draw the mouse cursor
             if (change_cursor_position(&mouse_pp)) {
               if (menus_st == MAIN_MENU) {
                 evt_mouse = check_options_on_over(main_menu, 4, &mouse_on_over);
+              } else if (menus_st == PAUSE_SOLO_MENU || menus_st == PAUSE_1V1_MENU) {
+                evt_mouse = check_options_on_over(pause_menu, 3, &mouse_on_over);
+              } else if (menus_st == LEADERBOARD) {
+                evt_mouse = check_options_on_over(leaderboard_menu, 2, &mouse_on_over);
+              } else {
+                evt_mouse = check_options_on_over(leaderboard_menu, 0, &mouse_on_over); // no option to detect - only draw here
               }
             }
 
             global_counter = 0;
           }
 
-          if (menus_st == MAIN_MENU) {
-            printf("%u", evt_mouse);
+          if (menus_st == MAIN_MENU || menus_st == PAUSE_SOLO_MENU || menus_st == PAUSE_1V1_MENU || menus_st == LEADERBOARD) {
               if ((evt_mouse != NO_OPT) && (menu_select_option_detect(mouse_evt))) {
-                printf("true\n");
                 menus_st = navigate_between_menus(evt_mouse);
-                printf("true2\n");
-                printf("-%u-", menus_st);
                 flag_first = true;
                 continue;
               }
             }
 
           if (menus_st == GAME_SOLO || menus_st == GAME_SOLO_CONTINUE) {
-            // verifica o estado de todos os botoes do rato
-            if (check_horizontal_line(mouse_evt, H_LINE_TOLERANCE)) {
-              if (move_plataform_mouse(scenario_limit_right, scenario_limit_left, mouse_pp.delta_x)) {
-                draw_plataform(plataform_x, SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y, 
-                              SOLO_SCENARIO_CORNER_X,  plataforms_xpms[plataform_to_draw]);
-                // just  only if there was a movement from the player
-                game_started = true; // timer starts to count  - if the first move is with the timer
-                is_move_ball = true; // the ball start moving 
-              } // se x da plaetaforma + esse deslocamento nao passa os limites
-            }
+            play_solo_game_mouse(mouse_evt, scenario_limit_right, scenario_limit_left, mouse_pp);
+          } else if (menus_st == GAME_1V1 || menus_st == GAME_1V1_CONTINUE) {
+            // move plataform in mode 1v1
           }
 
           mouse_flag = false;
@@ -214,13 +223,10 @@ int (game_start)(uint16_t mode){
         if (msg.m_notify.interrupts & timer_irq_set) { // timer interruption
           timer_int_handler();
           global_counter++;
-          //copy_from_double_buffer();
-          //if(game_started) copy_from_double_buffer();
+          // copy_from_double_buffer();
+          // if(game_started) copy_from_double_buffer();
           if (menus_st == GAME_SOLO || menus_st == GAME_SOLO_CONTINUE) {
-            if (timer_counter % 60 == 0) { // true every 1 second (freq = 60Hz)
-              start_clock(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y); // the player moved the plataform for the first time (3 lives) - start the clock
-            }
-            if (is_move_ball) move_ball(&ball_x, &ball_y, &up, &left, SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
+            play_solo_game_timer(ball_x, ball_y, up, left, p1, &flag_first);
           }
         }
 
@@ -230,13 +236,7 @@ int (game_start)(uint16_t mode){
       }
     } 
 
-  }
-
-  clean_ball(ball_x, ball_y);
-  // check the reason why we break for the cicle
-  if (0 == no_lives) game_over_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
-  else if (0 == get_list_size()) game_win_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y, p1);
-  
+  } 
 
   // unsubscribe to the services used
 
@@ -257,12 +257,55 @@ int (game_start)(uint16_t mode){
   return 0;
 }
 
+void (game_solo_inicializer)(uint16_t *scenario_limit_left, uint16_t *scenario_limit_right, uint16_t *ball_x, uint16_t *ball_y, bool *up, bool *left) {
+  // define the limits of solo game
+  *scenario_limit_left = SOLO_SCENARIO_CORNER_X + BORDER_WIDTH;
+  *scenario_limit_right = SOLO_SCENARIO_CORNER_X + SCENARIO_WIDTH - BORDER_WIDTH;
+  // define the inicital x of the plataform of the player 1
+  plataform_x = SOLO_SCENARIO_CORNER_X + PLATAFORM_TO_LEFT_X_INIT;
+  // initial informations relative to the ball - player 1
+  *ball_x = (uint16_t) SOLO_SCENARIO_CORNER_X + BALL_TO_LEFT_X;
+  *ball_y = (uint16_t) SOLO_SCENARIO_CORNER_Y + BALL_TO_TOP_Y;
+  *up = true; *left = rand() & 1;
+}
+
 void (play_solo_game_kbc)(uint16_t scenario_limit_right, uint16_t scenario_limit_left) {
   if (move_plataform(scenario_limit_right, scenario_limit_left)) {
     draw_plataform(plataform_x, SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y, SOLO_SCENARIO_CORNER_X, plataforms_xpms[plataform_to_draw]);
     // just  only if there was a movement from the player
     game_started = true; // timer starts to count  
     is_move_ball = true; // the ball start moving 
+  }
+}
+
+void (play_solo_game_mouse)(struct mouse_ev* mouse_evt, uint16_t scenario_limit_right, uint16_t scenario_limit_left, struct packet mouse_pp){
+  // verifica o estado de todos os botoes do rato
+  if (check_horizontal_line(mouse_evt, H_LINE_TOLERANCE)) {
+    if (move_plataform_mouse(scenario_limit_right, scenario_limit_left, mouse_pp.delta_x)) {
+      draw_plataform(plataform_x, SOLO_SCENARIO_CORNER_Y + PLATAFORM_TO_TOP_Y, 
+                    SOLO_SCENARIO_CORNER_X,  plataforms_xpms[plataform_to_draw]);
+      // just  only if there was a movement from the player
+      game_started = true; // timer starts to count  - if the first move is with the timer
+      is_move_ball = true; // the ball start moving 
+    } // se x da plaetaforma + esse deslocamento nao passa os limites
+  }
+}
+
+void (play_solo_game_timer)(uint16_t ball_x, uint16_t ball_y, bool up, bool left, struct Player p1, bool *flag_first) {
+  if (timer_counter % 60 == 0) { // true every 1 second (freq = 60Hz)
+    start_clock(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y); // the player moved the plataform for the first time (3 lives) - start the clock
+  }
+  if (is_move_ball) {
+    move_ball(&ball_x, &ball_y, &up, &left, SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
+    
+    // check if game is over
+    if ((0 == no_lives) || (0 == get_list_size())) {
+      clean_ball(ball_x, ball_y);
+      if (0 == no_lives) game_over_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
+      else game_win_display(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y, p1);
+      sleep(5);
+      menus_st = MAIN_MENU; *flag_first = true;
+    }
   }
 }
 
