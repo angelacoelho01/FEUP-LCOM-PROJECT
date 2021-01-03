@@ -53,6 +53,17 @@ button_details leaderboard_menu[2];
 
 void (menu_initializer)();
 
+// all the descriptions of the buttons that constitute the main menu 
+button_details main_menu[4];
+
+// all the descriptions of the buttons that constitute the pause menu 
+button_details pause_menu[3];
+
+// all the descriptions of the buttons that constitute the leaderboard menu 
+button_details leaderboard_menu[2];
+
+void (menu_initializer)();
+
 void (draw_menu_borders)(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
 void (draw_menu_background)(uint16_t x, uint16_t y, uint16_t width, uint16_t height);

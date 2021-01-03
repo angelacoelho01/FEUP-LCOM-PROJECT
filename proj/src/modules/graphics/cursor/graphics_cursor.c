@@ -77,3 +77,4 @@ enum menu_ev_t (check_options_on_over)(button_details *options_menu, int n, bool
 
   return event;
 }
+
