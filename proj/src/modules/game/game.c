@@ -61,11 +61,13 @@ int (game_start)(uint16_t mode){
   struct Player p1 = add_player("Joao", 0);
   write_players("/home/lcom/labs/g08/proj/src/data/players_scores.txt");
  
+
   // subscribe all the necessary services
   if (start_video_mode(mode) != OK){
     return_to_text_mode();
     return 1;
   }
+
   // to subscribe the Timer interrupts
   uint8_t timer_bit_no;
   if (timer_subscribe_int(&timer_bit_no) != OK) return 1;

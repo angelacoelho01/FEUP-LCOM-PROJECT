@@ -109,6 +109,7 @@ void (draw_pause_menu)(){
 
 // implement navigate between menus
 
+
 // detect a selection - click over an option
 
 bool (menu_select_option_detect)(struct mouse_ev *mouse_evt) {
