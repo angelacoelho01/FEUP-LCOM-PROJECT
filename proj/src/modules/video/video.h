@@ -11,7 +11,6 @@
 
 #include "../macros/bios_vbe.h"
 
-#include "video_gr.h"
 #include "../../xpm/xpm.h"
 
 void (copy_from_double_buffer)();

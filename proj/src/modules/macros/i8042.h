@@ -82,4 +82,6 @@
 //BYTE 2
 #define MOUSE_Y_DELTA 0xFF
 
+#define H_LINE_TOLERANCE 10
+
 #endif /* _LCOM_I8042_H */

@@ -44,4 +44,10 @@ void (load_all_xpms)(){
   // Load menu buttons over
   for(unsigned i = 0; i < NO_MENU_BUTTONS; i++)
     menu_buttons_over_xpms[i].bytes = xpm_load(menu_buttons_over[i], XPM_8_8_8, &menu_buttons_over_xpms[i]);
+
+  // Load mouse cursor normal
+  mouse_cursor_normal_xpm.bytes = xpm_load(mouse_cursor_normal, XPM_8_8_8, &mouse_cursor_normal_xpm);
+
+  // Load mouse cursor pointer
+  mouse_cursor_pointer_xpm.bytes = xpm_load(mouse_cursor_pointer, XPM_8_8_8, &mouse_cursor_pointer_xpm);
 }

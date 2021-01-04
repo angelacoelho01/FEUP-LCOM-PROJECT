@@ -104,3 +104,7 @@ void (draw_score_value)(uint16_t x, uint16_t y, unsigned int score) {
 		--no_digits;
 	}
 }
+
+void (clean_screen)(uint16_t w, uint16_t h, uint32_t color) {
+  video_draw_rectangle(0, 0, w, h, color);
+}
