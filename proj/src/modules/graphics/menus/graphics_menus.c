@@ -166,10 +166,6 @@ state_menus_t (navigate_between_menus)(enum menu_ev_t type) {
         menus_st = MAIN_MENU;
       if(type == OPT_EXIT) {
         menus_st = EXIT_GAME;
-<<<<<<< HEAD
-=======
-
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
       }
       break;
     default:

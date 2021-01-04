@@ -53,12 +53,6 @@ button_details leaderboard_menu[2];
 
 void (menu_initializer)();
 
-<<<<<<< HEAD
-
-// all the descriptions of the buttons that constitute the main menu 
-button_details main_menu[4];
-
-=======
 // all the descriptions of the buttons that constitute the main menu 
 button_details main_menu[4];
 
@@ -77,7 +71,6 @@ void (draw_menu_background)(uint16_t x, uint16_t y, uint16_t width, uint16_t hei
 void (draw_game_title)(uint16_t x, uint16_t y);
 
 void (draw_pause_title)(uint16_t x, uint16_t y);
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
 
 void (draw_menu_button)(button_details b, bool over);
 
@@ -92,15 +85,8 @@ typedef enum {MAIN_MENU, GAME_SOLO, GAME_SOLO_CONTINUE, GAME_1V1, GAME_1V1_CONTI
 
 static state_menus_t menus_st = MAIN_MENU; // initial state; keep state
 
-<<<<<<< HEAD
-
 bool (menu_select_option_detect)(struct mouse_ev *mouse_evt);
 
-
-=======
-bool (menu_select_option_detect)(struct mouse_ev *mouse_evt);
-
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
 state_menus_t (navigate_between_menus)(enum menu_ev_t type);
 
 #endif

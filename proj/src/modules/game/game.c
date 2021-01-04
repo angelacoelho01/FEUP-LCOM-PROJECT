@@ -3,10 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
 bool lost, game_started = false, is_move_ball = false, pause_game = false;
 
 // TIMER VARIABLES
@@ -30,18 +26,10 @@ extern xpm_image_t xpm_image;
 extern uint16_t plataform_x;
 extern uint8_t no_lives;
 
-<<<<<<< HEAD
-=======
-
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
 // add for player 2
 //...
 
 // cronometro do jogo
-<<<<<<< HEAD
-=======
-
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
 extern uint8_t minutes, seconds;
 
 // to be updated with a interval of 30 seconds
@@ -55,15 +43,10 @@ extern state_menus_t menus_st;
 
 // resolution of the mode
 extern unsigned h_res, v_res;
-<<<<<<< HEAD
-
-int (game_start)(uint16_t mode){
-=======
 //extern struct Mouse_cursor cursor;
 
 int (game_start)(uint16_t mode){
 
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
   // load all the xpms to be used 
   load_all_xpms();
   cursor_initializer();
@@ -76,10 +59,6 @@ int (game_start)(uint16_t mode){
   //...
 
   // the player - passed by argument when running the app
-<<<<<<< HEAD
-=======
-
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
   struct Player p1 = add_player("Joao", 0);
   write_players("/home/lcom/labs/g08/proj/src/data/players_scores.txt");
  
@@ -89,21 +68,6 @@ int (game_start)(uint16_t mode){
     return 1;
   }
 
-<<<<<<< HEAD
-=======
-
-  if (start_video_mode(mode) != OK){
-    return_to_text_mode();
-    return 1;
-  }
-  
-  draw_start_menu();
-  draw_cursor(mouse_cursor_normal_xpm);
-  sleep(5);
-  //reset_screen();
-  draw_scenario(SOLO_SCENARIO_CORNER_X, SOLO_SCENARIO_CORNER_Y);
-  
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
   // to subscribe the Timer interrupts
   uint8_t timer_bit_no;
   if (timer_subscribe_int(&timer_bit_no) != OK) return 1;
@@ -268,10 +232,6 @@ int (game_start)(uint16_t mode){
             play_solo_game_timer(&ball_x, &ball_y, &up, &left, p1, &flag_first, &evt_mouse);
           }
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
         break;
       default:
         break;
@@ -352,10 +312,6 @@ void (play_solo_game_timer)(uint16_t *ball_x, uint16_t *ball_y, bool *up, bool *
       *flag_first = true;
     }
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> a0474e78db49b76f369cbd44920cebdc4420a0ab
 }
 
 void (start_clock)(uint16_t xi, uint16_t yi){
